@@ -5,6 +5,8 @@ node_modules/
 .next/
 out/
 build/
+next-env.d.ts
+*.tsbuildinfo
 
 # Environment — never commit these. The Supabase service-role key lives in
 # .env.local and in Vercel only; a key in git history cannot be cleanly undone.
