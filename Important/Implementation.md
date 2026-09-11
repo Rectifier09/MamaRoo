@@ -5378,7 +5378,7 @@ git commit -m "feat(db): add content, rules, questions, checklist and chat schem
   - `STAGE_BOUNDARIES: readonly number[]`
   - `resolveLocalisedContent<T>({ items, locale }): { item: T; isFallback: boolean } | null`
 
-- [ ] **Step 1: Write the failing dates test**
+- [x] **Step 1: Write the failing dates test**
 
 Create `lib/domain/dates.test.ts`:
 
@@ -5455,12 +5455,12 @@ describe("isValidDateString", () => {
 });
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `npx vitest run lib/domain/dates.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 3: Implement dates.ts**
+- [x] **Step 3: Implement dates.ts**
 
 Create `lib/domain/dates.ts`:
 
@@ -5515,19 +5515,19 @@ export function diffDays(from: string, to: string): number {
 }
 ```
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 Run: `npx vitest run lib/domain/dates.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit dates**
+- [x] **Step 5: Commit dates**
 
 ```bash
 git add lib/domain/dates.ts lib/domain/dates.test.ts
 git commit -m "feat(domain): add timezone-safe date-only arithmetic"
 ```
 
-- [ ] **Step 6: Write the failing pregnancy test, covering every edge case from the spec**
+- [x] **Step 6: Write the failing pregnancy test, covering every edge case from the spec**
 
 Create `lib/domain/pregnancy.test.ts`:
 
@@ -5656,12 +5656,12 @@ function addWeeks(date: string, weeks: number): string {
 }
 ```
 
-- [ ] **Step 7: Run it and watch it fail**
+- [x] **Step 7: Run it and watch it fail**
 
 Run: `npx vitest run lib/domain/pregnancy.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 8: Implement pregnancy.ts**
+- [x] **Step 8: Implement pregnancy.ts**
 
 Create `lib/domain/pregnancy.ts`:
 
@@ -5732,12 +5732,12 @@ export function validateLmp({ lmp, today }: { lmp: string; today: string }): Lmp
 }
 ```
 
-- [ ] **Step 9: Run it and watch it pass**
+- [x] **Step 9: Run it and watch it pass**
 
 Run: `npx vitest run lib/domain/pregnancy.test.ts`
 Expected: PASS.
 
-- [ ] **Step 10: Write the failing stages test**
+- [x] **Step 10: Write the failing stages test**
 
 Create `lib/domain/stages.test.ts`:
 
@@ -5783,7 +5783,7 @@ describe("illustrationStage", () => {
 });
 ```
 
-- [ ] **Step 11: Run it, watch it fail, then implement**
+- [x] **Step 11: Run it, watch it fail, then implement**
 
 Create `lib/domain/stages.ts`:
 
@@ -5815,7 +5815,7 @@ export function stageRangeLabelKeys(): string[] {
 Run: `npx vitest run lib/domain/stages.test.ts`
 Expected: PASS.
 
-- [ ] **Step 12: Write the failing content fallback test**
+- [x] **Step 12: Write the failing content fallback test**
 
 Create `lib/domain/content.test.ts`:
 
@@ -5851,7 +5851,7 @@ describe("resolveLocalisedContent", () => {
 });
 ```
 
-- [ ] **Step 13: Run it, watch it fail, then implement**
+- [x] **Step 13: Run it, watch it fail, then implement**
 
 Create `lib/domain/content.ts`:
 
@@ -5885,7 +5885,7 @@ export function resolveLocalisedContent<T extends { locale: Locale }>({
 Run: `npx vitest run lib/domain/content.test.ts`
 Expected: PASS.
 
-- [ ] **Step 14: Check domain coverage and commit**
+- [x] **Step 14: Check domain coverage and commit**
 
 Run: `npm run test:coverage`
 Expected: `lib/domain/**` at 100% branches, functions, lines and statements. If any branch is uncovered, add the missing test — never lower the threshold.
