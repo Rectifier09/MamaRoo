@@ -21,7 +21,7 @@ jobs:
       - run: npm run lint
       - run: npx supabase start
       - run: npx supabase migration up
-      - run: npx supabase gen types typescript --local > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
+      - run: npx supabase gen types typescript --local | node scripts/gen-db-types.mjs > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
       - name: Export local Supabase credentials for the RLS suite
         run: |
           npx supabase status -o env > /tmp/supabase-status.env

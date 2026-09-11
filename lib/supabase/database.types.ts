@@ -1,5 +1,5 @@
 // GENERATED. Never hand-edited.
-// Regenerate with: npx supabase gen types typescript --linked > lib/supabase/database.types.ts
+// Regenerate with: npm run db:types
 
 export type Json =
   | string
@@ -10,11 +10,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
