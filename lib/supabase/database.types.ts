@@ -37,6 +37,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          clinic_name: string | null
+          created_at: string
+          doctor_name: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clinic_name?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clinic_name?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       checkins: {
         Row: {
           body: string
@@ -170,6 +212,47 @@ export type Database = {
           },
         ]
       }
+      doctor_advice: {
+        Row: {
+          appointment_id: string | null
+          body: string
+          created_at: string
+          id: string
+          input_method: string
+          recorded_on: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          input_method: string
+          recorded_on: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          input_method?: string
+          recorded_on?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advice_appointment_owned_by_same_user"
+            columns: ["appointment_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
       kick_events: {
         Row: {
           id: string
@@ -239,6 +322,92 @@ export type Database = {
             referencedColumns: ["id", "user_id"]
           },
         ]
+      }
+      medicine_logs: {
+        Row: {
+          id: string
+          logged_at: string
+          medicine_id: string
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          logged_at?: string
+          medicine_id: string
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          logged_at?: string
+          medicine_id?: string
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicine_logs_medicine_owned_by_same_user"
+            columns: ["medicine_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      medicines: {
+        Row: {
+          created_at: string
+          days_of_week: number[] | null
+          dosage: string | null
+          end_date: string | null
+          form: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          schedule_times: string[]
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: number[] | null
+          dosage?: string | null
+          end_date?: string | null
+          form?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          schedule_times?: string[]
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[] | null
+          dosage?: string | null
+          end_date?: string | null
+          form?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          schedule_times?: string[]
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       pregnancies: {
         Row: {
@@ -330,6 +499,45 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          mime_type: string
+          page_count: number | null
+          report_date: string
+          report_type: string | null
+          size_bytes: number
+          storage_path: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mime_type: string
+          page_count?: number | null
+          report_date: string
+          report_type?: string | null
+          size_bytes: number
+          storage_path: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mime_type?: string
+          page_count?: number | null
+          report_date?: string
+          report_type?: string | null
+          size_bytes?: number
+          storage_path?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       timeline_events: {
         Row: {
           body: string | null
@@ -379,6 +587,39 @@ export type Database = {
             referencedColumns: ["id", "user_id"]
           },
         ]
+      }
+      vitals: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          measured_on: string
+          notes: string | null
+          user_id: string
+          value_1: number
+          value_2: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          measured_on: string
+          notes?: string | null
+          user_id: string
+          value_1: number
+          value_2?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          measured_on?: string
+          notes?: string | null
+          user_id?: string
+          value_1?: number
+          value_2?: number | null
+        }
+        Relationships: []
       }
       waitlist: {
         Row: {

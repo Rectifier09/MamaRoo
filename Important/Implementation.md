@@ -4546,7 +4546,7 @@ git commit -m "feat(db): add check-in, timeline, kick and contraction tables wit
 - Create: `tests/rls/care.test.ts`, `tests/rls/storage.test.ts`
 - Modify: `lib/supabase/database.types.ts` (regenerated)
 
-- [ ] **Step 1: Write migration 3**
+- [x] **Step 1: Write migration 3**
 
 Create `supabase/migrations/0003_care.sql`:
 
@@ -4733,13 +4733,13 @@ create policy "own report files are deletable" on storage.objects
   using (bucket_id = 'reports' and (storage.foldername(name))[1] = auth.uid()::text);
 ```
 
-- [ ] **Step 2: Apply and regenerate types**
+- [x] **Step 2: Apply and regenerate types**
 
 ```bash
 npm run db:reset && npm run db:up && npm run db:types
 ```
 
-- [ ] **Step 3: Write the failing care RLS test**
+- [x] **Step 3: Write the failing care RLS test**
 
 Create `tests/rls/care.test.ts` with cross-user denial for all six tables in this migration, the two ownership-forgery cases below, plus these behavioural cases:
 
@@ -4856,7 +4856,7 @@ it("refuses a report larger than the 20 MB ceiling", async () => {
 });
 ```
 
-- [ ] **Step 4: Write the failing storage RLS test**
+- [x] **Step 4: Write the failing storage RLS test**
 
 Create `tests/rls/storage.test.ts`:
 
@@ -4912,12 +4912,12 @@ describe("reports bucket", () => {
 });
 ```
 
-- [ ] **Step 5: Run both suites**
+- [x] **Step 5: Run both suites**
 
 Run: `npx vitest run tests/rls`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/0003_care.sql lib/supabase/database.types.ts tests/rls
