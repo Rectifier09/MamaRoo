@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color — design document §2 */
+  --color-bg: #EDE3D3;
+  --color-surface: #F5EEE1;
+  --color-surface-raised: #FFFFFF;
+  --color-text-primary: #2E2822;
+  --color-text-secondary: #5A4F42;
+  --color-accent-primary: #A8482E;
+  --color-accent-secondary: #3D6B58;
+  --color-alert: #8C2F3D;
+  --color-success: #4F6E3D;
+  --color-divider: #D8CBB2;
+
+  /* Data visualisation — charts only, never UI */
+  --chart-series-1: #A8482E;
+  --chart-series-2: #3D6B58;
+  --chart-series-3: #C08A28;
+  --chart-series-4: #6B4A3D;
+  --chart-gridline: #D8CBB2;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-screen: 20px;
+
+  /* Shape */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-full: 999px;
+
+  /* Elevation — warm-toned, built from --color-text-primary */
+  --shadow-1: 0 1px 3px rgba(46, 40, 34, 0.08);
+  --shadow-2: 0 2px 6px rgba(46, 40, 34, 0.12);
+  --shadow-3: 0 8px 24px rgba(46, 40, 34, 0.16);
+
+  /* Motion */
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+  --motion-slow: 400ms;
+  --motion-hero: 900ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Typography scale */
+  --text-display: 28px;
+  --text-display--line-height: 36px;
+  --text-h1: 24px;
+  --text-h1--line-height: 32px;
+  --text-h2: 18px;
+  --text-h2--line-height: 26px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-caption: 13px;
+  --text-caption--line-height: 18px;
+  --text-button: 15px;
+  --text-button--line-height: 20px;
+
+  /* Icon sizes — design document §2, "Icons". Here rather than in the components
+     that use them, so a size is never restated as a raw pixel value in a primitive. */
+  --icon-inline: 18px;
+  --icon-default: 24px;
+  --icon-nav: 26px;
+  --icon-hero: 40px;
+
+  /* Font families are bound in app/layout.tsx via next/font variables */
+  --font-display: var(--font-poppins), system-ui, sans-serif;
+  --font-body: var(--font-hind), system-ui, sans-serif;
+}
+
+:root {
+  /* Decorative layers. aria-hidden wherever they are rendered. */
+  --texture-grain-opacity: 0.025;
+  --texture-motif-opacity: 0.05;
+  --scrim: rgba(46, 40, 34, 0.45);
+}
