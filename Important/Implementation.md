@@ -3088,7 +3088,7 @@ git commit -m "feat(ui): add empty, loading, error, header, disclaimer and list 
   - `SeverityBadge({ severity })` where severity is `"general" | "contact_clinic" | "urgent"`
   - `AudioIndicator({ onPlay, playing, label })`
 
-- [ ] **Step 1: Install lottie-web**
+- [x] **Step 1: Install lottie-web**
 
 ```bash
 npm i lottie-web
@@ -3096,7 +3096,7 @@ npm i lottie-web
 
 `lottie-web` rather than a React wrapper, because the container needs direct control over load failure and the reduced-motion path, and the wrapper adds a layer that hides exactly those cases.
 
-- [ ] **Step 2: Write the failing IllustrationContainer test**
+- [x] **Step 2: Write the failing IllustrationContainer test**
 
 Create `components/patterns/IllustrationContainer.test.tsx`:
 
@@ -3165,12 +3165,12 @@ describe("IllustrationContainer", () => {
 });
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+- [x] **Step 3: Run it and watch it fail**
 
 Run: `npx vitest run components/patterns/IllustrationContainer.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 4: Implement IllustrationContainer**
+- [x] **Step 4: Implement IllustrationContainer**
 
 Create `components/patterns/IllustrationContainer.tsx`:
 
@@ -3240,12 +3240,12 @@ export function IllustrationContainer({
 
 The static image stays in the DOM even when the animation plays, which is what keeps the alt text available to screen readers and preserves the layout height.
 
-- [ ] **Step 5: Run it and watch it pass**
+- [x] **Step 5: Run it and watch it pass**
 
 Run: `npx vitest run components/patterns/IllustrationContainer.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 6: Write the failing StageProgress and SeverityBadge tests**
+- [x] **Step 6: Write the failing StageProgress and SeverityBadge tests**
 
 Create `components/patterns/StageProgress.test.tsx`:
 
@@ -3323,7 +3323,7 @@ describe("SeverityBadge", () => {
 
 Add the three labels to both catalogues under `severity.general`, `severity.contact_clinic`, `severity.urgent`.
 
-- [ ] **Step 7: Run both, watch them fail, then implement**
+- [x] **Step 7: Run both, watch them fail, then implement**
 
 Create `components/patterns/StageProgress.tsx`:
 
@@ -3408,7 +3408,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
 Run: `npx vitest run components/patterns/StageProgress.test.tsx components/patterns/SeverityBadge.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 8: Write the failing AudioIndicator test, then implement**
+- [x] **Step 8: Write the failing AudioIndicator test, then implement**
 
 Create `components/patterns/AudioIndicator.test.tsx`:
 
@@ -3443,7 +3443,7 @@ Implement `components/patterns/AudioIndicator.tsx` as a `tap-target` button in t
 Run: `npx vitest run components/patterns/AudioIndicator.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 9: Build the development-only component gallery**
+- [x] **Step 9: Build the development-only component gallery**
 
 Create `app/dev/components/page.tsx`. It renders every primitive and composite in every state, twice — once with `NextIntlClientProvider locale="en"` and once with `locale="hi"` — inside a container that can be toggled to 200% text scale with a class. It must refuse to render outside development:
 
@@ -3459,7 +3459,7 @@ export default function ComponentGalleryPage() {
 
 This page is the artefact every later session uses for visual review and for the bilingual 200%-scale check. It is not a feature and is never linked from the app.
 
-- [ ] **Step 10: Add an e2e check that the gallery renders and is accessible**
+- [x] **Step 10: Add an e2e check that the gallery renders and is accessible**
 
 Append to `tests/e2e/smoke.spec.ts`:
 
@@ -3476,7 +3476,7 @@ test("the component gallery renders with no accessibility violations", async ({ 
 Run: `npx playwright test`
 Expected: PASS. Fix any violation in the component, never by excluding the rule.
 
-- [ ] **Step 11: Verify and commit**
+- [x] **Step 11: Verify and commit**
 
 Run: `npm run verify`
 
