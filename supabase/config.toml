@@ -67,7 +67,10 @@ schema_paths = []
 enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+# Points at the placeholder seed deliberately -- never content.reviewed.sql. Local
+# dev and CI always want fresh placeholder rows to test against; the reviewed
+# corpus is applied to real environments only via `npm run db:seed`, explicitly.
+sql_paths = ["./seed/content.placeholder.sql"]
 
 [db.network_restrictions]
 # Enable management of network restrictions.

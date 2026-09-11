@@ -22,6 +22,8 @@ jobs:
       - run: npx supabase start
       - run: npx supabase migration up
       - run: npx supabase gen types typescript --local | node scripts/gen-db-types.mjs > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
+      - name: Seed placeholder content (RLS and retrieval tests need rows to read)
+        run: npx supabase db query --local --file supabase/seed/content.placeholder.sql
       - name: Export local Supabase credentials for the RLS suite
         run: |
           npx supabase status -o json > /tmp/supabase-status.json
