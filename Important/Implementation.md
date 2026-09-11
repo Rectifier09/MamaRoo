@@ -4173,7 +4173,7 @@ git commit -m "feat(db): add identity and pregnancy schema with RLS, typed clien
 **Interfaces:**
 - Produces: tables `checkins`, `timeline_events`, `kick_sessions`, `kick_events`, `contraction_sessions`, `contractions` — **six tables** — and the generated row types for each.
 
-- [ ] **Step 1: Write migration 2**
+- [x] **Step 1: Write migration 2**
 
 Create `supabase/migrations/0002_daily.sql`:
 
@@ -4338,13 +4338,13 @@ No RPC is needed. A tap is an `insert` into `kick_events` carrying a `tap_id` th
 
 A tap against a session that has already ended is rejected in the action, not the schema, so the UI can explain it rather than surfacing a constraint error.
 
-- [ ] **Step 2: Apply and regenerate types**
+- [x] **Step 2: Apply and regenerate types**
 
 ```bash
 npm run db:reset && npm run db:up && npm run db:types
 ```
 
-- [ ] **Step 3: Write the failing RLS test for the daily tables**
+- [x] **Step 3: Write the failing RLS test for the daily tables**
 
 Create `tests/rls/daily.test.ts`. Follow the pattern from `tests/rls/identity.test.ts`, asserting for **each of the six tables** (`checkins`, `timeline_events`, `kick_sessions`, `kick_events`, `contraction_sessions`, `contractions`) that Bob reads `[]` and that Bob's insert with Alice's `user_id` returns an error.
 
@@ -4523,12 +4523,12 @@ it("accepts a contraction with no duration, because one may still be running", a
 });
 ```
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 Run: `npx vitest run tests/rls/daily.test.ts`
 Expected: PASS. Also confirm `tables_without_rls()` still returns empty by re-running `tests/rls/identity.test.ts`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0002_daily.sql lib/supabase/database.types.ts tests/rls/daily.test.ts
