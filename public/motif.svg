@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <!-- Placeholder vine-and-leaf motif (design document §2). Swap this file for
+       the designer deliverable when it arrives; no code change is needed. -->
+  <path d="M120 20 C 80 60, 80 120, 120 160 C 160 120, 160 60, 120 20 Z" fill="#A8482E" />
+  <path d="M20 120 C 60 80, 120 80, 160 120 C 120 160, 60 160, 20 120 Z" fill="#3D6B58" />
+</svg>
