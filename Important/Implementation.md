@@ -1136,7 +1136,7 @@ git commit -m "feat(design): add token sheet, bilingual fonts and reduced-motion
   - `CardBody`, `CardTruncatedText({ text, maxChars, showMoreLabel })`
   - `Input({ id, label, type?, error?, hint?, ...InputHTMLAttributes })`
 
-- [ ] **Step 1: Write the failing Button test**
+- [x] **Step 1: Write the failing Button test**
 
 `lib/cn.ts` already exists from Session 0.
 
@@ -1208,12 +1208,12 @@ describe("Button", () => {
 });
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+- [x] **Step 3: Run it and watch it fail**
 
 Run: `npx vitest run components/ui/Button.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 4: Implement Button**
+- [x] **Step 4: Implement Button**
 
 Create `components/ui/Button.tsx`:
 
@@ -1284,19 +1284,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
 The label stays rendered and only its opacity changes, which is how the button keeps its width while loading — design document §5.1 requires that size never changes.
 
-- [ ] **Step 5: Run the Button tests and watch them pass**
+- [x] **Step 5: Run the Button tests and watch them pass**
 
 Run: `npx vitest run components/ui/Button.test.tsx`
 Expected: PASS. The `absolute` class needs a positioned parent — add `relative` to `BASE` and re-run.
 
-- [ ] **Step 6: Commit Button**
+- [x] **Step 6: Commit Button**
 
 ```bash
 git add components/ui/Button.tsx components/ui/Button.test.tsx
 git commit -m "feat(ui): add Button primitive with loading, disabled-reason and bilingual wrapping"
 ```
 
-- [ ] **Step 7: Write the failing Card test**
+- [x] **Step 7: Write the failing Card test**
 
 Create `components/ui/Card.test.tsx`:
 
@@ -1362,12 +1362,12 @@ describe("CardTruncatedText", () => {
 });
 ```
 
-- [ ] **Step 8: Run it and watch it fail**
+- [x] **Step 8: Run it and watch it fail**
 
 Run: `npx vitest run components/ui/Card.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 9: Implement Card**
+- [x] **Step 9: Implement Card**
 
 Create `components/ui/Card.tsx`:
 
@@ -1439,19 +1439,19 @@ export function CardTruncatedText({
 }
 ```
 
-- [ ] **Step 10: Run the Card tests and watch them pass**
+- [x] **Step 10: Run the Card tests and watch them pass**
 
 Run: `npx vitest run components/ui/Card.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 11: Commit Card**
+- [x] **Step 11: Commit Card**
 
 ```bash
 git add components/ui/Card.tsx components/ui/Card.test.tsx
 git commit -m "feat(ui): add Card primitive with selected, disabled and graceful-truncation behaviour"
 ```
 
-- [ ] **Step 12: Write the failing Input test**
+- [x] **Step 12: Write the failing Input test**
 
 Create `components/ui/Input.test.tsx`:
 
@@ -1502,12 +1502,12 @@ describe("Input", () => {
 });
 ```
 
-- [ ] **Step 13: Run it and watch it fail**
+- [x] **Step 13: Run it and watch it fail**
 
 Run: `npx vitest run components/ui/Input.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 14: Implement Input**
+- [x] **Step 14: Implement Input**
 
 Create `components/ui/Input.tsx`:
 
@@ -1575,12 +1575,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
 The label sits above the field rather than animating inside it. The floating-label animation described in design document §5.1 is applied in Session 14 once the designer's markup for a field is available; `data-filled` is the hook it will use, so no rework is needed.
 
-- [ ] **Step 15: Run the Input tests and watch them pass**
+- [x] **Step 15: Run the Input tests and watch them pass**
 
 Run: `npx vitest run components/ui/Input.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 16: Run the full suite and commit**
+- [x] **Step 16: Run the full suite and commit**
 
 Run: `npm run verify`
 
