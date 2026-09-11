@@ -10,6 +10,9 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      # The launch gate (proxy.ts) is a production-only concern; CI always
+      # exercises the full app regardless of what's public right now.
+      APP_LAUNCHED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
