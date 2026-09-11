@@ -15,7 +15,9 @@
     "verify": "npm run typecheck && npm run lint && npm run test && npm run test:e2e",
     "db:up": "supabase migration up",
     "db:reset": "supabase db reset",
-    "db:types": "supabase gen types typescript --local | node scripts/gen-db-types.mjs > lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --local | node scripts/gen-db-types.mjs > lib/supabase/database.types.ts",
+    "db:seed": "supabase db query --local --file supabase/seed/content.reviewed.sql",
+    "db:seed:placeholder": "supabase db query --local --file supabase/seed/content.placeholder.sql"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

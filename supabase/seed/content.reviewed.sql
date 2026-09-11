@@ -1,0 +1,5 @@
+-- Reviewed medical content corpus. Filled in from the product owner's reviewed
+-- articles, passages, symptom rules and suggested questions at the content gate
+-- (Session 19: triage; Session 29: chatbot). This file is intentionally empty
+-- until then, so `npm run db:seed` resolves and applies nothing rather than
+-- failing on a missing file -- and so no medical content is ever invented here.
