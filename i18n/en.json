@@ -1,0 +1,33 @@
+{
+  "common": {
+    "appTagline": "A calm companion through pregnancy.",
+    "continue": "Continue",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "showMore": "Show more",
+    "saved": "Saved",
+    "offline": "You are offline. You can read what is here, and save once you are back.",
+    "englishOnly": "English only for now",
+    "language": "Language",
+    "languageEnglish": "English",
+    "languageHindi": "हिंदी"
+  },
+  "landing": {
+    "continueInEnglish": "Continue in English",
+    "continueInHindi": "हिंदी में जारी रखें",
+    "signUp": "Create an account",
+    "signIn": "Sign in"
+  },
+  "nav": {
+    "today": "Today",
+    "baby": "My Baby",
+    "care": "My Care",
+    "reading": "Reading",
+    "profile": "Profile"
+  },
+  "disclaimer": {
+    "reviewedGuidance": "From reviewed guidance, not a diagnosis.",
+    "userEntered": "Information entered by you, not medically verified."
+  }
+}

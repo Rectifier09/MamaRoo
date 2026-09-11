@@ -1,0 +1,33 @@
+{
+  "common": {
+    "appTagline": "गर्भावस्था में आपके साथ, शांत और भरोसेमंद।",
+    "continue": "आगे बढ़ें",
+    "back": "पीछे",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "showMore": "और देखें",
+    "saved": "सहेज लिया",
+    "offline": "आप ऑफ़लाइन हैं। जो यहाँ है वह पढ़ सकती हैं, और कनेक्शन आने पर सहेज सकती हैं।",
+    "englishOnly": "अभी सिर्फ़ अंग्रेज़ी में",
+    "language": "भाषा",
+    "languageEnglish": "English",
+    "languageHindi": "हिंदी"
+  },
+  "landing": {
+    "continueInEnglish": "Continue in English",
+    "continueInHindi": "हिंदी में जारी रखें",
+    "signUp": "नया खाता बनाएँ",
+    "signIn": "साइन इन करें"
+  },
+  "nav": {
+    "today": "आज",
+    "baby": "मेरा शिशु",
+    "care": "मेरी देखभाल",
+    "reading": "पढ़ें",
+    "profile": "प्रोफ़ाइल"
+  },
+  "disclaimer": {
+    "reviewedGuidance": "जाँची गई जानकारी से, यह निदान नहीं है।",
+    "userEntered": "यह जानकारी आपने भरी है, डॉक्टर से जाँची नहीं गई।"
+  }
+}

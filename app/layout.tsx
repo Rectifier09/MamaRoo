@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins, Hind } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { PRODUCT_NAME } from "@/lib/config";
+import { getLocale } from "@/i18n/locale";
 import "@/styles/tokens.css";
 import "@/styles/globals.css";
 
@@ -30,10 +33,16 @@ export const viewport = {
   viewportFit: "cover" as const,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="en" className={`${poppins.variable} ${hind.variable}`}>
-      <body className="min-h-dvh bg-bg text-text-primary font-body">{children}</body>
+    <html lang={locale} className={`${poppins.variable} ${hind.variable}`}>
+      <body className="min-h-dvh bg-bg text-text-primary font-body">
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          {children}
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }
