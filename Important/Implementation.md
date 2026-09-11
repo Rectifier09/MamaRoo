@@ -1615,13 +1615,13 @@ git commit -m "feat(ui): add Input primitive with specific errors and Devanagari
   - `BottomSheet({ open, onClose, title, children })`
   - `Icon({ name, size?, weight?, label? })` where `size` is `"inline" | "default" | "nav" | "hero"`
 
-- [ ] **Step 1: Install Phosphor Icons**
+- [x] **Step 1: Install Phosphor Icons**
 
 ```bash
 npm i @phosphor-icons/react
 ```
 
-- [ ] **Step 2: Write the failing Checkbox and Toggle tests**
+- [x] **Step 2: Write the failing Checkbox and Toggle tests**
 
 Create `components/ui/Checkbox.test.tsx`:
 
@@ -1660,12 +1660,12 @@ describe("Checkbox", () => {
 
 Create `components/ui/Toggle.test.tsx` with the same four cases, using `getByRole("switch")` and asserting `aria-checked` plus a `data-testid="toggle-knob"` element.
 
-- [ ] **Step 3: Run both and watch them fail**
+- [x] **Step 3: Run both and watch them fail**
 
 Run: `npx vitest run components/ui/Checkbox.test.tsx components/ui/Toggle.test.tsx`
 Expected: FAIL — modules not found.
 
-- [ ] **Step 4: Implement Checkbox and Toggle**
+- [x] **Step 4: Implement Checkbox and Toggle**
 
 Create `components/ui/Checkbox.tsx`:
 
@@ -1717,12 +1717,12 @@ export function Checkbox({
 
 Create `components/ui/Toggle.tsx` using `role="switch"`, `aria-checked`, a knob element with `data-testid="toggle-knob"`, and a `duration-[--motion-fast]` transition with no bounce.
 
-- [ ] **Step 5: Run both and watch them pass**
+- [x] **Step 5: Run both and watch them pass**
 
 Run: `npx vitest run components/ui/Checkbox.test.tsx components/ui/Toggle.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 6: Write the failing Tabs test**
+- [x] **Step 6: Write the failing Tabs test**
 
 Create `components/ui/Tabs.test.tsx`:
 
@@ -1760,12 +1760,12 @@ describe("Tabs", () => {
 });
 ```
 
-- [ ] **Step 7: Run it, watch it fail, implement `Tabs`, run it again**
+- [x] **Step 7: Run it, watch it fail, implement `Tabs`, run it again**
 
 Implement with `role="tablist"` on the container and `role="tab"` plus `aria-selected` on each button. Active styling is `bg-accent-primary text-surface-raised font-medium`; inactive is `text-text-secondary`.
 Expected after implementation: PASS (3 tests).
 
-- [ ] **Step 8: Write the failing Toast test, including the replace-not-queue rule**
+- [x] **Step 8: Write the failing Toast test, including the replace-not-queue rule**
 
 Create `components/ui/Toast.test.tsx`:
 
@@ -1826,12 +1826,12 @@ describe("Toast", () => {
 });
 ```
 
-- [ ] **Step 9: Run it and watch it fail**
+- [x] **Step 9: Run it and watch it fail**
 
 Run: `npx vitest run components/ui/Toast.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 10: Implement the toast provider**
+- [x] **Step 10: Implement the toast provider**
 
 Create `components/ui/ToastProvider.tsx`:
 
@@ -1879,12 +1879,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 ```
 
-- [ ] **Step 11: Run the toast tests and watch them pass**
+- [x] **Step 11: Run the toast tests and watch them pass**
 
 Run: `npx vitest run components/ui/Toast.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 12: Write the failing BottomSheet test, including the back-gesture rule**
+- [x] **Step 12: Write the failing BottomSheet test, including the back-gesture rule**
 
 Create `components/ui/BottomSheet.test.tsx`:
 
@@ -1950,12 +1950,12 @@ describe("BottomSheet", () => {
 });
 ```
 
-- [ ] **Step 13: Run it and watch it fail**
+- [x] **Step 13: Run it and watch it fail**
 
 Run: `npx vitest run components/ui/BottomSheet.test.tsx`
 Expected: FAIL — module not found.
 
-- [ ] **Step 14: Implement BottomSheet**
+- [x] **Step 14: Implement BottomSheet**
 
 Create `components/ui/BottomSheet.tsx`:
 
@@ -2040,12 +2040,12 @@ Add the keyframes to `styles/globals.css`:
 }
 ```
 
-- [ ] **Step 15: Run the sheet tests and watch them pass**
+- [x] **Step 15: Run the sheet tests and watch them pass**
 
 Run: `npx vitest run components/ui/BottomSheet.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 16: Write the failing Icon test**
+- [x] **Step 16: Write the failing Icon test**
 
 Create `components/ui/Icon.test.tsx`:
 
@@ -2077,7 +2077,7 @@ describe("Icon", () => {
 });
 ```
 
-- [ ] **Step 17: Run it and watch it fail, then implement Icon**
+- [x] **Step 17: Run it and watch it fail, then implement Icon**
 
 Create `components/ui/Icon.tsx`:
 
@@ -2121,7 +2121,7 @@ export function Icon({
 Run: `npx vitest run components/ui/Icon.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 18: Verify and commit**
+- [x] **Step 18: Verify and commit**
 
 Run: `npm run verify`
 
