@@ -397,7 +397,7 @@ Deferring all review to the end is the expensive option: the cost of fixing a fo
 **Interfaces:**
 - Produces: `PRODUCT_NAME: string` and `SUPPORTED_LOCALES: readonly ["en", "hi"]` from `lib/config.ts`; `env` object from `lib/env.ts`; npm scripts `dev`, `build`, `test`, `test:e2e`, `lint`, `typecheck`.
 
-- [ ] **Step 1: Scaffold the app**
+- [x] **Step 1: Scaffold the app**
 
 ```bash
 npx create-next-app@latest . --typescript --app --tailwind --eslint --use-npm --no-src-dir --import-alias "@/*"
@@ -409,7 +409,7 @@ Answer "No" to Turbopack prompts if asked; the default is fine either way. Then 
 npm ls next react typescript tailwindcss --depth=0
 ```
 
-- [ ] **Step 2: Turn TypeScript strictness all the way up**
+- [x] **Step 2: Turn TypeScript strictness all the way up**
 
 Edit `tsconfig.json` so `compilerOptions` contains at least:
 
@@ -428,7 +428,7 @@ Edit `tsconfig.json` so `compilerOptions` contains at least:
 
 Run `npx tsc --noEmit`. Expected: PASS (a fresh scaffold has no violations).
 
-- [ ] **Step 3: Install the test and tooling dependencies**
+- [x] **Step 3: Install the test and tooling dependencies**
 
 ```bash
 npm i -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/user-event @testing-library/jest-dom @playwright/test @axe-core/playwright prettier
@@ -436,7 +436,7 @@ npx playwright install chromium
 npm i zod
 ```
 
-- [ ] **Step 4: Configure Vitest**
+- [x] **Step 4: Configure Vitest**
 
 Create `vitest.config.ts`:
 
@@ -479,7 +479,7 @@ import "@testing-library/jest-dom/vitest";
 
 Coverage thresholds apply to the four harm-bearing directories only: the domain calculations, the AI guardrails and selection-validation path, the analytics event schemas, and the chat route. Every other layer is tested for behaviour, not for a percentage. The consent-resolution and deletion paths are covered by the RLS and action tests, which run against a real database and so are not measured by this threshold.
 
-- [ ] **Step 5: Write the first failing test — the product-name guard**
+- [x] **Step 5: Write the first failing test — the product-name guard**
 
 Create `tests/guards/product-name.test.ts`:
 
@@ -510,12 +510,12 @@ describe("product configuration", () => {
 });
 ```
 
-- [ ] **Step 6: Run it and watch it fail**
+- [x] **Step 6: Run it and watch it fail**
 
 Run: `npx vitest run tests/guards/product-name.test.ts`
 Expected: FAIL — cannot resolve `@/lib/config`.
 
-- [ ] **Step 7: Write the minimal config module**
+- [x] **Step 7: Write the minimal config module**
 
 Create `lib/config.ts`:
 
@@ -533,12 +533,12 @@ export const APP_TIMEZONE = "Asia/Kolkata";
 export const GESTATION_DAYS = 280;
 ```
 
-- [ ] **Step 8: Run the test and watch it pass**
+- [x] **Step 8: Run the test and watch it pass**
 
 Run: `npx vitest run tests/guards/product-name.test.ts`
 Expected: PASS. If the grep test fails, the scaffold wrote the product name into `app/layout.tsx` metadata — replace it with `PRODUCT_NAME` now.
 
-- [ ] **Step 9: Write the failing test for environment validation**
+- [x] **Step 9: Write the failing test for environment validation**
 
 Create `lib/env.test.ts`:
 
@@ -569,12 +569,12 @@ describe("parseEnv", () => {
 });
 ```
 
-- [ ] **Step 10: Run it and watch it fail**
+- [x] **Step 10: Run it and watch it fail**
 
 Run: `npx vitest run lib/env.test.ts`
 Expected: FAIL — `parseEnv` is not exported.
 
-- [ ] **Step 11: Implement environment validation**
+- [x] **Step 11: Implement environment validation**
 
 Create `lib/env.ts`:
 
@@ -603,12 +603,12 @@ export const env: Env = parseEnv(process.env);
 
 Create `.env.example` listing the three names with empty values and a comment that the service-role key is set in Vercel only and never in this file.
 
-- [ ] **Step 12: Run the test and watch it pass**
+- [x] **Step 12: Run the test and watch it pass**
 
 Run: `npx vitest run lib/env.test.ts`
 Expected: PASS.
 
-- [ ] **Step 13: Configure Playwright and a smoke spec**
+- [x] **Step 13: Configure Playwright and a smoke spec**
 
 Create `playwright.config.ts`:
 
@@ -640,12 +640,12 @@ test("the app responds on the root route", async ({ page }) => {
 });
 ```
 
-- [ ] **Step 14: Run the e2e smoke test**
+- [x] **Step 14: Run the e2e smoke test**
 
 Run: `npx playwright test`
 Expected: PASS. If the build fails because `env.ts` throws, create a local `.env.local` with placeholder values matching `.env.example`.
 
-- [ ] **Step 15: Add the npm scripts**
+- [x] **Step 15: Add the npm scripts**
 
 In `package.json`:
 
@@ -666,7 +666,7 @@ In `package.json`:
 }
 ```
 
-- [ ] **Step 15b: Add the class-merge helper**
+- [x] **Step 15b: Add the class-merge helper**
 
 Create `lib/cn.ts`:
 
@@ -678,7 +678,7 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
 
 Four lines, and no dependency is added for it. It lives in Session 0 rather than with the first component that needs it so that the UI lane and the i18n lane can both start from the scaffold without waiting on each other (see Parallel execution).
 
-- [ ] **Step 16: Add CI**
+- [x] **Step 16: Add CI**
 
 Create `.github/workflows/ci.yml`:
 
@@ -709,19 +709,19 @@ jobs:
       - run: npm run test:e2e
 ```
 
-- [ ] **Step 16b: Add the dependency guard**
+- [x] **Step 16b: Add the dependency guard**
 
 Create `tests/guards/dependencies.test.ts` exactly as given in **Agent execution protocol → Dependency allowlist**, then run it:
 
 Run: `npx vitest run tests/guards/dependencies.test.ts`
 Expected: PASS. If it fails, the scaffold added something beyond the allowlist — remove it rather than widening the list.
 
-- [ ] **Step 17: Run the whole verification locally**
+- [x] **Step 17: Run the whole verification locally**
 
 Run: `npm run verify`
 Expected: all four stages PASS.
 
-- [ ] **Step 18: Commit**
+- [x] **Step 18: Commit**
 
 ```bash
 git add -A
