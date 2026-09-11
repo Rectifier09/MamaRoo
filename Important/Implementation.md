@@ -4936,7 +4936,7 @@ git commit -m "feat(db): add care schema, vitals and private reports bucket with
 - Create: `tests/rls/content.test.ts`
 - Modify: `lib/supabase/database.types.ts` (regenerated)
 
-- [ ] **Step 1: Write migration 4**
+- [x] **Step 1: Write migration 4**
 
 Create `supabase/migrations/0004_content.sql`:
 
@@ -5126,7 +5126,7 @@ as $$
 $$;
 ```
 
-- [ ] **Step 2: Write the placeholder seed, clearly labelled**
+- [x] **Step 2: Write the placeholder seed, clearly labelled**
 
 Create `supabase/seed/content.placeholder.sql`:
 
@@ -5169,7 +5169,7 @@ values
   ('en', 'documents', 'Placeholder item two', 2);
 ```
 
-- [ ] **Step 3: Apply, seed and regenerate types**
+- [x] **Step 3: Apply, seed and regenerate types**
 
 ```bash
 npm run db:reset && npm run db:up
@@ -5202,7 +5202,7 @@ it("never applies placeholder content from a deploy or release path", () => {
 });
 ```
 
-- [ ] **Step 4: Write the failing content RLS and retrieval test**
+- [x] **Step 4: Write the failing content RLS and retrieval test**
 
 Create `tests/rls/content.test.ts`:
 
@@ -5310,12 +5310,12 @@ describe("content tables", () => {
 });
 ```
 
-- [ ] **Step 5: Run it and watch it pass**
+- [x] **Step 5: Run it and watch it pass**
 
 Run: `npx vitest run tests/rls/content.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Add a guard that placeholder content cannot reach production**
+- [x] **Step 6: Add a guard that placeholder content cannot reach production**
 
 Create `tests/guards/no-placeholder-content.test.ts`:
 
@@ -5339,7 +5339,7 @@ describe("placeholder content", () => {
 });
 ```
 
-- [ ] **Step 7: Verify and commit**
+- [x] **Step 7: Verify and commit**
 
 Run: `npm run verify`
 
