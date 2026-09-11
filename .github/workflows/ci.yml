@@ -20,10 +20,12 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npx supabase start
-      - run: npx supabase migration up
+      # db reset (not migration up) so the placeholder seed configured in
+      # supabase/config.toml's [db.seed] also applies -- `supabase db query --file`
+      # can't run a multi-statement seed file ("cannot insert multiple commands into
+      # a prepared statement"), but db reset's own seed loader can.
+      - run: npx supabase db reset
       - run: npx supabase gen types typescript --local | node scripts/gen-db-types.mjs > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
-      - name: Seed placeholder content (RLS and retrieval tests need rows to read)
-        run: npx supabase db query --local --file supabase/seed/content.placeholder.sql
       - name: Export local Supabase credentials for the RLS suite
         run: |
           npx supabase status -o json > /tmp/supabase-status.json
