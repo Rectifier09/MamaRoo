@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Environment — never commit these. The Supabase service-role key lives in
+# .env.local and in Vercel only; a key in git history cannot be cleanly undone.
+.env
+.env.*
+!.env.example
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+.vitest/
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# Android / TWA build output
+android/app/build/
+android/.gradle/
+*.keystore
+*.jks
+
+# OS and editor
+.DS_Store
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
