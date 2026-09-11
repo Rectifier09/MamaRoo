@@ -37,6 +37,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      checkins: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          input_method: string
+          matched_rule_id: string | null
+          pregnancy_id: string | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          input_method: string
+          matched_rule_id?: string | null
+          pregnancy_id?: string | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          input_method?: string
+          matched_rule_id?: string | null
+          pregnancy_id?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_pregnancy_owned_by_same_user"
+            columns: ["pregnancy_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "pregnancies"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
       consents: {
         Row: {
           consent_key: string
@@ -69,6 +110,135 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      contraction_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contractions: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          session_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          session_id: string
+          started_at: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          session_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contractions_session_owned_by_same_user"
+            columns: ["session_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "contraction_sessions"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      kick_events: {
+        Row: {
+          id: string
+          occurred_at: string
+          session_id: string
+          tap_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          occurred_at?: string
+          session_id: string
+          tap_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          occurred_at?: string
+          session_id?: string
+          tap_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kick_event_session_owned_by_same_user"
+            columns: ["session_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "kick_sessions"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      kick_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          pregnancy_id: string | null
+          started_at: string
+          target_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          pregnancy_id?: string | null
+          started_at?: string
+          target_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          pregnancy_id?: string | null
+          started_at?: string
+          target_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kick_pregnancy_owned_by_same_user"
+            columns: ["pregnancy_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "pregnancies"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       pregnancies: {
         Row: {
@@ -159,6 +329,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      timeline_events: {
+        Row: {
+          body: string | null
+          created_at: string
+          event_type: string
+          id: string
+          occurred_at: string
+          pregnancy_id: string | null
+          ref_id: string | null
+          ref_table: string | null
+          source: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          occurred_at: string
+          pregnancy_id?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          source: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          pregnancy_id?: string | null
+          ref_id?: string | null
+          ref_table?: string | null
+          source?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_pregnancy_owned_by_same_user"
+            columns: ["pregnancy_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "pregnancies"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       waitlist: {
         Row: {
