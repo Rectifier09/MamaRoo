@@ -34,4 +34,14 @@ describe("no raw design values outside styles/tokens.css", () => {
   it("contains no cubic-bezier literals", () => {
     expect(grep("cubic-bezier")).toBe("");
   });
+
+  it("never references a CSS variable with Tailwind v3 bracket syntax", () => {
+    // In Tailwind v3, `duration-[--motion-fast]` was shorthand for
+    // `duration-[var(--motion-fast)]`. v4 removed that implicit wrapping, so the
+    // same class now emits `transition-duration: --motion-fast` — invalid CSS
+    // that the browser drops in silence. Nothing fails, the animation just runs
+    // at the default duration forever. The v4 spelling is `duration-(--motion-fast)`,
+    // or better, a utility generated from the theme, such as `ease-standard`.
+    expect(grep("\\[--")).toBe("");
+  });
 });

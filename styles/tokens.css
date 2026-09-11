@@ -20,13 +20,16 @@
   --chart-series-4: #6B4A3D;
   --chart-gridline: #D8CBB2;
 
-  /* Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-screen: 20px;
+  /* Spacing — Design.md §2. The --spacing-* prefix is load-bearing: it is the
+     Tailwind v4 theme namespace that generates p-*, px-*, gap-*, m-* utilities.
+     Named --space-* instead, these values parse fine and emit no utilities at
+     all, so every p-md in the codebase would silently do nothing. */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-screen: 20px;
 
   /* Shape */
   --radius-sm: 12px;

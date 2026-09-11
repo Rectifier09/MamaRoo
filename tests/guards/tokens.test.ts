@@ -18,12 +18,15 @@ const REQUIRED = [
   "--chart-series-2: #3D6B58",
   "--chart-series-3: #C08A28",
   "--chart-series-4: #6B4A3D",
-  "--space-xs: 4px",
-  "--space-sm: 8px",
-  "--space-md: 16px",
-  "--space-lg: 24px",
-  "--space-xl: 32px",
-  "--space-screen: 20px",
+  // The --spacing-* prefix, not --space-*, is what Tailwind v4 turns into
+  // p-*/px-*/gap-* utilities. Asserting the name here is the point: the values
+  // are identical either way, and the wrong prefix fails silently.
+  "--spacing-xs: 4px",
+  "--spacing-sm: 8px",
+  "--spacing-md: 16px",
+  "--spacing-lg: 24px",
+  "--spacing-xl: 32px",
+  "--spacing-screen: 20px",
   "--radius-sm: 12px",
   "--radius-md: 20px",
   "--radius-lg: 28px",
