@@ -19,6 +19,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - run: npx supabase start
+      - run: npx supabase migration up
+      - run: npx supabase gen types typescript --local | node scripts/gen-db-types.mjs > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
+      - name: Export local Supabase credentials for the RLS suite
+        run: |
+          npx supabase status -o json > /tmp/supabase-status.json
+          node scripts/export-supabase-status.mjs /tmp/supabase-status.json >> "$GITHUB_ENV"
       - run: npm run test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

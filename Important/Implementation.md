@@ -3505,7 +3505,7 @@ git commit -m "feat(ui): add illustration, stage progress, severity badge and au
 **Interfaces:**
 - Produces: `createBrowserSupabase()`, `createServerSupabase()`, the generated `Database` type, and `asUser(email)` / `resetDb()` helpers for RLS tests.
 
-- [ ] **Step 1: Initialise and start local Supabase**
+- [x] **Step 1: Initialise and start local Supabase**
 
 ```bash
 npm i -D supabase
@@ -3516,13 +3516,13 @@ npx supabase status
 
 Record the local API URL, anon key and service-role key from `status` into `.env.test`.
 
-- [ ] **Step 2: Install the Supabase client libraries**
+- [x] **Step 2: Install the Supabase client libraries**
 
 ```bash
 npm i @supabase/supabase-js @supabase/ssr
 ```
 
-- [ ] **Step 3: Write migration 1**
+- [x] **Step 3: Write migration 1**
 
 Create `supabase/migrations/0001_identity.sql`:
 
@@ -3657,7 +3657,7 @@ create trigger pregnancies_touch before update on public.pregnancies
   for each row execute function public.touch_updated_at();
 ```
 
-- [ ] **Step 4: Apply the migration and generate types**
+- [x] **Step 4: Apply the migration and generate types**
 
 ```bash
 npx supabase migration up
@@ -3678,7 +3678,7 @@ Add the npm scripts:
 
 `lib/supabase/database.types.ts` is generated and must never be hand-edited. Add a note at the top of the file after generating, and re-generate after every migration.
 
-- [ ] **Step 5: Write the failing PCPNDT schema guard**
+- [x] **Step 5: Write the failing PCPNDT schema guard**
 
 Create `tests/guards/schema-pcpndt.test.ts`:
 
@@ -3787,7 +3787,7 @@ describe("PCPNDT compliance (spec §1.4)", () => {
 Run: `npx vitest run tests/guards/schema-pcpndt.test.ts`
 Expected: PASS. This test now guards every later migration in the plan.
 
-- [ ] **Step 6: Write the RLS test harness**
+- [x] **Step 6: Write the RLS test harness**
 
 Create `tests/rls/helpers.ts`:
 
@@ -3840,7 +3840,7 @@ export function uniqueEmail(tag: string): string {
 }
 ```
 
-- [ ] **Step 7: Write the failing identity RLS test**
+- [x] **Step 7: Write the failing identity RLS test**
 
 Create `tests/rls/identity.test.ts`:
 
@@ -3968,7 +3968,7 @@ describe("RLS on identity tables", () => {
 });
 ```
 
-- [ ] **Step 8: Add the RLS-coverage diagnostic and its test**
+- [x] **Step 8: Add the RLS-coverage diagnostic and its test**
 
 Add to migration 1:
 
@@ -4016,12 +4016,12 @@ The second assertion is what proves the `revoke ... from public` actually took e
 
 Re-run `npm run db:reset && npm run db:types` after editing the migration.
 
-- [ ] **Step 9: Run the RLS suite**
+- [x] **Step 9: Run the RLS suite**
 
 Run: `npx vitest run tests/rls --env-file=.env.test`
 Expected: PASS. If `vitest` does not support `--env-file` in the installed version, load `.env.test` in `vitest.setup.ts` with `dotenv` instead; do not hardcode keys in the test file.
 
-- [ ] **Step 10: Add the typed Supabase clients**
+- [x] **Step 10: Add the typed Supabase clients**
 
 First create the one shared consent query, so no consumer re-derives it. Create `lib/supabase/queries/consent.ts`:
 
@@ -4138,7 +4138,7 @@ export async function createServerSupabase() {
 
 Only the anon key appears in either client. The service-role key is used by nothing in `lib/` — add a guard test asserting that `SUPABASE_SERVICE_ROLE_KEY` appears nowhere under `app/`, `components/` or `lib/`.
 
-- [ ] **Step 11: Add Supabase to CI**
+- [x] **Step 11: Add Supabase to CI**
 
 In `.github/workflows/ci.yml`, add a step before `npm run test`:
 
@@ -4150,7 +4150,7 @@ In `.github/workflows/ci.yml`, add a step before `npm run test`:
 
 The `diff` fails the build if someone edits a migration without regenerating types, which is the most common source of type drift.
 
-- [ ] **Step 12: Verify and commit**
+- [x] **Step 12: Verify and commit**
 
 ```bash
 git add supabase lib/supabase tests/rls tests/guards package.json .github
