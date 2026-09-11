@@ -10,6 +10,12 @@ export default defineConfig({
     include: ["**/*.test.{ts,tsx}"],
     exclude: ["tests/e2e/**", "node_modules/**"],
     globals: true,
+    // tests/rls/*.test.ts share a `resetUsers()` helper that wipes every @rls.test
+    // user against one live Supabase project. Vitest's default is to run test files
+    // in parallel workers, which lets one file's cleanup delete another file's
+    // still-in-use test users mid-run. Sequential files trade a bit of wall-clock
+    // time for the RLS suites not racing each other.
+    fileParallelism: false,
     // lib/env.ts validates process.env at module load and throws on a bad
     // environment. That is deliberate: a misconfigured deploy should fail loudly
     // rather than half-work. It does mean the test runner needs the same
