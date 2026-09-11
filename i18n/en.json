@@ -29,5 +29,10 @@
   "disclaimer": {
     "reviewedGuidance": "From reviewed guidance, not a diagnosis.",
     "userEntered": "Information entered by you, not medically verified."
+  },
+  "severity": {
+    "general": "General",
+    "contact_clinic": "Contact your clinic",
+    "urgent": "Urgent"
   }
 }
