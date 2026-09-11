@@ -10,9 +10,6 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
-      # The launch gate (proxy.ts) is a production-only concern; CI always
-      # exercises the full app regardless of what's public right now.
-      APP_LAUNCHED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,4 +28,7 @@ jobs:
           node scripts/export-supabase-status.mjs /tmp/supabase-status.json >> "$GITHUB_ENV"
       - run: npm run test
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Run e2e against the full app (the launch gate is a production-only concern)
+        run: npm run test:e2e
+        env:
+          APP_LAUNCHED: "true"
