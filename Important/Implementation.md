@@ -2149,13 +2149,13 @@ git commit -m "feat(ui): add Checkbox, Toggle, Tabs, Toast, BottomSheet and Icon
 - Consumes: `SUPPORTED_LOCALES`, `DEFAULT_LOCALE` from `lib/config.ts`.
 - Produces: `getLocale(): Promise<Locale>` and `setLocale(locale: Locale): Promise<void>` from `i18n/locale.ts`; `useTranslations` / `getTranslations` from `next-intl`; `validateCopy(text): string[]` from `lib/domain/copy.ts`; `LanguageSwitcher({ variant })`.
 
-- [ ] **Step 1: Install next-intl**
+- [x] **Step 1: Install next-intl**
 
 ```bash
 npm i next-intl
 ```
 
-- [ ] **Step 2: Write the failing copy-rule validator test**
+- [x] **Step 2: Write the failing copy-rule validator test**
 
 Create `lib/domain/copy.test.ts`:
 
@@ -2197,12 +2197,12 @@ describe("validateCopy", () => {
 });
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+- [x] **Step 3: Run it and watch it fail**
 
 Run: `npx vitest run lib/domain/copy.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 4: Implement the validator**
+- [x] **Step 4: Implement the validator**
 
 Create `lib/domain/copy.ts`:
 
@@ -2239,12 +2239,12 @@ export function validateCopy(text: string): string[] {
 }
 ```
 
-- [ ] **Step 5: Run it and watch it pass**
+- [x] **Step 5: Run it and watch it pass**
 
 Run: `npx vitest run lib/domain/copy.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Create the initial message catalogues**
+- [x] **Step 6: Create the initial message catalogues**
 
 Create `i18n/en.json`:
 
@@ -2322,7 +2322,7 @@ Create `i18n/hi.json` with the identical key tree and natural spoken Hindi value
 }
 ```
 
-- [ ] **Step 7: Write the failing parity and copy guard tests**
+- [x] **Step 7: Write the failing parity and copy guard tests**
 
 Create `tests/guards/i18n-parity.test.ts`:
 
@@ -2393,12 +2393,12 @@ describe("copy rules (design document §9)", () => {
 });
 ```
 
-- [ ] **Step 8: Run both guards**
+- [x] **Step 8: Run both guards**
 
 Run: `npx vitest run tests/guards/i18n-parity.test.ts tests/guards/copy-rules.test.ts`
 Expected: PASS. If the Hindi catalogue is missing a key, add it now — never delete the English key to make the test pass.
 
-- [ ] **Step 9: Wire next-intl with a cookie-based locale**
+- [x] **Step 9: Wire next-intl with a cookie-based locale**
 
 Create `i18n/locale.ts`:
 
@@ -2480,7 +2480,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 Correct `lang` on the `<html>` element is what makes VoiceOver and TalkBack pronounce Hindi correctly. It is an accessibility requirement, not a nicety.
 
-- [ ] **Step 10: Write the failing LanguageSwitcher test**
+- [x] **Step 10: Write the failing LanguageSwitcher test**
 
 Create `components/patterns/LanguageSwitcher.test.tsx`:
 
@@ -2520,7 +2520,7 @@ describe("LanguageSwitcher", () => {
 });
 ```
 
-- [ ] **Step 11: Run it, watch it fail, then implement**
+- [x] **Step 11: Run it, watch it fail, then implement**
 
 Create `components/patterns/LanguageSwitcher.tsx`:
 
@@ -2578,7 +2578,7 @@ The fade on `pending` is the single calm crossfade design document §5.2 asks fo
 Run: `npx vitest run components/patterns/LanguageSwitcher.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 12: Add the server action the switcher is wired to**
+- [x] **Step 12: Add the server action the switcher is wired to**
 
 Create `app/actions/locale.ts`:
 
@@ -2596,7 +2596,7 @@ export async function changeLocale(locale: Locale): Promise<void> {
 }
 ```
 
-- [ ] **Step 13: Verify and commit**
+- [x] **Step 13: Verify and commit**
 
 Run: `npm run verify`
 
