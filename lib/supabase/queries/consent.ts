@@ -33,9 +33,14 @@ export async function getCurrentConsents(
   };
 
   for (const row of data ?? []) {
-    if (row.consent_key in base) {
+    // The generated type marks every column of this view nullable — Postgres can't
+    // prove a `distinct on` view's output is non-null even though the underlying
+    // consents columns are `not null`. A null consent_key can't be keyed into base;
+    // a null granted is treated as not-granted, consistent with "absence of consent
+    // is never treated as consent" below.
+    if (row.consent_key != null && row.consent_key in base) {
       base[row.consent_key as ConsentKey] = {
-        granted: row.granted,
+        granted: row.granted ?? false,
         version: row.version,
         grantedAt: row.granted_at,
       };
