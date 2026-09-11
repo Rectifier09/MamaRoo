@@ -160,6 +160,36 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          consent: string
+          consent_version: number
+          created_at: string
+          email: string
+          id: string
+          locale: string
+          name: string
+        }
+        Insert: {
+          consent?: string
+          consent_version?: number
+          created_at?: string
+          email: string
+          id?: string
+          locale: string
+          name: string
+        }
+        Update: {
+          consent?: string
+          consent_version?: number
+          created_at?: string
+          email?: string
+          id?: string
+          locale?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       current_consents: {
@@ -175,6 +205,10 @@ export type Database = {
       }
     }
     Functions: {
+      join_waitlist: {
+        Args: { p_email: string; p_locale: string; p_name: string }
+        Returns: undefined
+      }
       tables_without_rls: { Args: never; Returns: string[] }
     }
     Enums: {

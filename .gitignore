@@ -18,6 +18,7 @@ next-env.d.ts
 coverage/
 playwright-report/
 test-results/
+.impeccable/review/
 .vitest/
 
 # Supabase local state
