@@ -24,10 +24,8 @@ jobs:
       - run: npx supabase gen types typescript --local | node scripts/gen-db-types.mjs > /tmp/types.ts && diff /tmp/types.ts lib/supabase/database.types.ts
       - name: Export local Supabase credentials for the RLS suite
         run: |
-          npx supabase status -o env > /tmp/supabase-status.env
-          echo "SUPABASE_URL=$(grep '^API_URL=' /tmp/supabase-status.env | cut -d= -f2-)" >> "$GITHUB_ENV"
-          echo "SUPABASE_ANON_KEY=$(grep '^ANON_KEY=' /tmp/supabase-status.env | cut -d= -f2-)" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' /tmp/supabase-status.env | cut -d= -f2-)" >> "$GITHUB_ENV"
+          npx supabase status -o json > /tmp/supabase-status.json
+          node scripts/export-supabase-status.mjs /tmp/supabase-status.json >> "$GITHUB_ENV"
       - run: npm run test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
