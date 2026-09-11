@@ -15,6 +15,7 @@
     "verify": "npm run typecheck && npm run lint && npm run test && npm run test:e2e"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
