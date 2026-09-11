@@ -746,7 +746,7 @@ git commit -m "chore: scaffold Next.js app with strict TypeScript, Vitest, Playw
 **Interfaces:**
 - Produces: CSS custom properties `--color-*`, `--space-*`, `--radius-*`, `--elevation-*`, `--motion-*`, `--ease-*`, `--type-*`, `--chart-*`; Tailwind utilities derived from them (`bg-bg`, `text-text-primary`, `rounded-md`, `shadow-1`, …); `prefersReducedMotion()` and `motionDuration(token)` from `lib/motion.ts`.
 
-- [ ] **Step 1: Write the failing token test**
+- [x] **Step 1: Write the failing token test**
 
 Create `tests/guards/tokens.test.ts`:
 
@@ -799,12 +799,12 @@ describe("design tokens", () => {
 });
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `npx vitest run tests/guards/tokens.test.ts`
 Expected: FAIL — `styles/tokens.css` does not exist.
 
-- [ ] **Step 3: Write the token sheet**
+- [x] **Step 3: Write the token sheet**
 
 Create `styles/tokens.css`. This is the only file in the repository permitted to contain a hex colour, a spacing pixel value, a radius, a shadow or a duration.
 
@@ -886,12 +886,12 @@ Create `styles/tokens.css`. This is the only file in the repository permitted to
 }
 ```
 
-- [ ] **Step 4: Run the token test and watch it pass**
+- [x] **Step 4: Run the token test and watch it pass**
 
 Run: `npx vitest run tests/guards/tokens.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Write the failing raw-value guard**
+- [x] **Step 5: Write the failing raw-value guard**
 
 Create `tests/guards/no-raw-values.test.ts`:
 
@@ -923,12 +923,12 @@ describe("no raw design values outside styles/tokens.css", () => {
 
 Note: `styles/` is deliberately not in the grep path list.
 
-- [ ] **Step 6: Run it and watch it pass or fail honestly**
+- [x] **Step 6: Run it and watch it pass or fail honestly**
 
 Run: `npx vitest run tests/guards/no-raw-values.test.ts`
 Expected: FAIL if the scaffold left hexes in `app/globals.css` or a component. Remove every one by replacing it with a token utility. Re-run until PASS. Do not weaken the grep to make it pass.
 
-- [ ] **Step 7: Wire fonts and the token sheet into the root layout**
+- [x] **Step 7: Wire fonts and the token sheet into the root layout**
 
 Replace `app/layout.tsx` with:
 
@@ -976,7 +976,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 `viewport.themeColor` is the one sanctioned exception to the hex rule, because Next.js requires a literal there. Add it to the guard's allowlist by changing the hex grep in `tests/guards/no-raw-values.test.ts` to append `| grep -v 'app/layout.tsx' ` before the `|| true`, and add a comment in the test explaining why that single exception exists.
 
-- [ ] **Step 8: Replace globals.css with base rules only**
+- [x] **Step 8: Replace globals.css with base rules only**
 
 `styles/globals.css`:
 
@@ -1008,7 +1008,7 @@ body {
 }
 ```
 
-- [ ] **Step 9: Write the failing motion-utility test**
+- [x] **Step 9: Write the failing motion-utility test**
 
 Create `lib/motion.test.ts`:
 
@@ -1056,12 +1056,12 @@ describe("motion", () => {
 });
 ```
 
-- [ ] **Step 10: Run it and watch it fail**
+- [x] **Step 10: Run it and watch it fail**
 
 Run: `npx vitest run lib/motion.test.ts`
 Expected: FAIL — module not found.
 
-- [ ] **Step 11: Implement the motion utility**
+- [x] **Step 11: Implement the motion utility**
 
 Create `lib/motion.ts`:
 
@@ -1100,12 +1100,12 @@ it("stays consistent with the CSS motion tokens", async () => {
 });
 ```
 
-- [ ] **Step 12: Run the motion tests and watch them pass**
+- [x] **Step 12: Run the motion tests and watch them pass**
 
 Run: `npx vitest run lib/motion.test.ts`
 Expected: PASS.
 
-- [ ] **Step 13: Verify the whole suite and commit**
+- [x] **Step 13: Verify the whole suite and commit**
 
 Run: `npm run verify`
 
