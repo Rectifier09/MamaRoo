@@ -28,4 +28,7 @@ jobs:
           node scripts/export-supabase-status.mjs /tmp/supabase-status.json >> "$GITHUB_ENV"
       - run: npm run test
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Run e2e against the full app (the launch gate is a production-only concern)
+        run: npm run test:e2e
+        env:
+          APP_LAUNCHED: "true"
