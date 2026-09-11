@@ -2633,7 +2633,7 @@ git commit -m "feat(i18n): add cookie-based bilingual infrastructure with parity
   - `ListRow({ iconName?, title, subtitle?, trailing?, onClick?, href? })`, `ListRowGroup({ items, showMoreLabel, initialCount })`
   - `TextureMotif()`
 
-- [ ] **Step 1: Write the failing EmptyState test**
+- [x] **Step 1: Write the failing EmptyState test**
 
 Create `components/patterns/EmptyState.test.tsx`:
 
@@ -2675,12 +2675,12 @@ describe("EmptyState", () => {
 });
 ```
 
-- [ ] **Step 2: Run it and watch it fail**
+- [x] **Step 2: Run it and watch it fail**
 
 Run: `npx vitest run components/patterns/EmptyState.test.tsx`
 Expected: FAIL — modules not found.
 
-- [ ] **Step 3: Implement TextureMotif and EmptyState**
+- [x] **Step 3: Implement TextureMotif and EmptyState**
 
 Create `components/patterns/TextureMotif.tsx`:
 
@@ -2731,12 +2731,12 @@ export function EmptyState({
 }
 ```
 
-- [ ] **Step 4: Run it and watch it pass**
+- [x] **Step 4: Run it and watch it pass**
 
 Run: `npx vitest run components/patterns/EmptyState.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 5: Write the failing Skeleton, ErrorBanner, SectionHeader and DisclaimerBanner tests**
+- [x] **Step 5: Write the failing Skeleton, ErrorBanner, SectionHeader and DisclaimerBanner tests**
 
 Create `components/patterns/Skeleton.test.tsx`:
 
@@ -2823,12 +2823,12 @@ describe("DisclaimerBanner", () => {
 
 Create `components/patterns/SectionHeader.test.tsx` asserting it renders an `h2` at `text-h2` with `font-display`, and renders an optional trailing action.
 
-- [ ] **Step 6: Run all four and watch them fail**
+- [x] **Step 6: Run all four and watch them fail**
 
 Run: `npx vitest run components/patterns`
 Expected: FAIL — four modules not found.
 
-- [ ] **Step 7: Implement the four**
+- [x] **Step 7: Implement the four**
 
 Create `components/patterns/Skeleton.tsx`:
 
@@ -2925,12 +2925,12 @@ export function SectionHeader({ children, action }: { children: ReactNode; actio
 }
 ```
 
-- [ ] **Step 8: Run them and watch them pass**
+- [x] **Step 8: Run them and watch them pass**
 
 Run: `npx vitest run components/patterns`
 Expected: PASS.
 
-- [ ] **Step 9: Write the failing ListRow test, including the long-list rule**
+- [x] **Step 9: Write the failing ListRow test, including the long-list rule**
 
 Create `components/patterns/ListRow.test.tsx`:
 
@@ -2979,7 +2979,7 @@ describe("ListRowGroup", () => {
 });
 ```
 
-- [ ] **Step 10: Run it, watch it fail, then implement**
+- [x] **Step 10: Run it, watch it fail, then implement**
 
 Create `components/patterns/ListRow.tsx`:
 
@@ -3053,7 +3053,7 @@ export function ListRowGroup({
 Run: `npx vitest run components/patterns/ListRow.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 11: Verify and commit**
+- [x] **Step 11: Verify and commit**
 
 Run: `npm run verify`
 
