@@ -4,7 +4,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Chroma-filtered brand artwork needs high-fidelity color edges.
+  images: { qualities: [75, 100] },
 };
 
 export default withNextIntl(nextConfig);

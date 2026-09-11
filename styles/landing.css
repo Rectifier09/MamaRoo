@@ -1,0 +1,508 @@
+/* Direction: the supplied sand, rust and sage identity as a compact welcome.
+   One phone-width column on every device, centered on wider screens. The cradle
+   sits above the story and signup. Short screens reduce illustration space
+   before content; text enlargement remains free to scroll for accessibility. */
+.coming-soon {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: max(var(--spacing-lg), env(safe-area-inset-top)) max(5vw, env(safe-area-inset-right))
+    max(var(--spacing-md), env(safe-area-inset-bottom)) max(5vw, env(safe-area-inset-left));
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+}
+.coming-soon ::selection {
+  background: var(--color-accent-secondary);
+  color: var(--color-surface-raised);
+}
+.coming-soon input {
+  caret-color: var(--color-accent-primary);
+}
+.landing-header,
+.header-actions,
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.landing-header {
+  min-height: 48px;
+  gap: var(--spacing-md);
+}
+.header-actions {
+  gap: var(--spacing-lg);
+}
+.brand-filters {
+  position: absolute;
+  pointer-events: none;
+}
+.brand-rust {
+  flood-color: var(--color-accent-primary);
+}
+.brand-sage {
+  flood-color: var(--color-accent-secondary);
+}
+.brand-image {
+  filter: url(#brand-ink);
+}
+.brand-wordmark {
+  width: 146px;
+  aspect-ratio: 755 / 135;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.brand-wordmark img {
+  position: absolute;
+  width: 271.26%;
+  max-width: none;
+  height: auto;
+  left: -84.77%;
+  top: -587.4%;
+}
+.language-switch {
+  min-height: 48px;
+  min-width: 48px;
+  padding-inline: var(--spacing-sm);
+  border: 0;
+  border-bottom: 1px solid var(--color-divider);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.language-switch:hover {
+  color: var(--color-accent-primary);
+  border-color: currentColor;
+}
+.language-switch:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+.landing-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-content: center;
+  align-items: center;
+  column-gap: 5%;
+  padding-block: var(--spacing-xl);
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+}
+.landing-story {
+  position: relative;
+  z-index: 1;
+}
+.landing-story h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.landing-story h1 span {
+  color: var(--color-accent-primary);
+}
+.landing-description {
+  max-width: 43ch;
+  margin: var(--spacing-lg) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+.waitlist-area {
+  display: grid;
+  margin-top: calc(var(--spacing-lg) * 2);
+  min-height: 196px;
+}
+.waitlist-invitation {
+  margin: 0 0 var(--spacing-md);
+  font-size: var(--text-body);
+}
+.signup-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-sm);
+  align-items: start;
+}
+.signup-fields input {
+  min-height: 52px;
+  border-color: var(--color-text-secondary);
+}
+.signup-fields input::placeholder {
+  color: var(--color-text-secondary);
+}
+.join-button {
+  margin-top: var(--spacing-lg);
+  min-height: 52px;
+  padding-inline: var(--spacing-md);
+}
+.join-button > span > span {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+.join-button svg {
+  width: var(--icon-inline);
+  height: var(--icon-inline);
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+.join-button {
+  transition:
+    scale var(--motion-fast) var(--ease-standard),
+    filter var(--motion-fast) var(--ease-standard);
+}
+.join-button:active:not(:disabled) {
+  scale: 0.98;
+}
+@media (hover: hover) and (pointer: fine) {
+  .join-button:hover:not(:disabled) {
+    filter: brightness(0.96);
+  }
+  .join-button:hover:not(:disabled) svg {
+    transform: translateX(var(--spacing-xs));
+  }
+}
+.signup-feedback {
+  min-height: 20px;
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  color: var(--color-text-secondary);
+}
+.signup-feedback svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.signup-feedback[role="alert"] {
+  color: var(--color-alert);
+}
+.signup-consent {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+}
+.signup-trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.waitlist-success {
+  grid-area: 1 / 1;
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+  padding-block: var(--spacing-lg);
+  animation: landing-reveal var(--motion-slow) var(--ease-standard) var(--motion-fast) both;
+  outline: none;
+}
+.waitlist-form {
+  grid-area: 1 / 1;
+  transition:
+    opacity var(--motion-fast) var(--ease-standard),
+    visibility 0s var(--motion-fast);
+}
+.waitlist-area[data-success="true"] .waitlist-form {
+  opacity: 0;
+  visibility: hidden;
+}
+.success-check-ring {
+  opacity: 0.25;
+}
+.success-check-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: check-draw var(--motion-slow) var(--ease-standard) var(--motion-base) both;
+}
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.waitlist-success > svg {
+  width: var(--icon-hero);
+  height: var(--icon-hero);
+  color: var(--color-accent-secondary);
+  flex-shrink: 0;
+}
+.waitlist-success h2 {
+  margin: 0;
+  font: 500 var(--text-h2)/var(--text-h2--line-height) var(--font-display);
+}
+.waitlist-success p {
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-secondary);
+}
+.landing-art {
+  position: relative;
+  height: 450px;
+  width: 100%;
+  isolation: isolate;
+}
+.art-cradle {
+  position: absolute;
+  width: 70%;
+  height: 84%;
+  inset: 6% 15% 10%;
+  display: grid;
+  place-items: center;
+}
+.art-orbit {
+  position: absolute;
+  inset: 0 9%;
+  border: 1px solid var(--color-divider);
+  border-radius: 50%;
+  transform: rotate(-18deg);
+}
+.orbit-inner {
+  inset: 4% 14%;
+  transform: rotate(19deg);
+}
+.brand-icon {
+  position: absolute;
+  inset: 6% 11%;
+  width: 78%;
+  height: 88%;
+  min-height: 0;
+  min-width: 0;
+  object-fit: contain;
+  animation: cradle-breathe 6s ease-in-out var(--motion-hero) infinite;
+}
+.landing-features {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing-xl) * 2);
+  margin-top: calc(var(--spacing-xl) * 1.5);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-divider);
+}
+.landing-features > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--text-body-sm);
+  color: var(--color-text-secondary);
+}
+.landing-features svg {
+  width: var(--icon-inline);
+  height: var(--icon-inline);
+  color: var(--color-accent-secondary);
+}
+.landing-footer {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+  gap: var(--spacing-md);
+}
+/* One arrival sequence: logo 0–400, heading 150–550, description 250–650,
+   and signup 400–800. Defaults stay visible when animation is unavailable. */
+.landing-art,
+.landing-story h1,
+.landing-description,
+.waitlist-area {
+  animation: landing-reveal var(--motion-slow) var(--ease-standard) both;
+}
+.landing-story h1 {
+  animation-delay: var(--motion-fast);
+}
+.landing-description {
+  animation-delay: var(--motion-base);
+}
+.waitlist-area {
+  animation-delay: var(--motion-slow);
+}
+.waitlist-area:focus-within {
+  animation: none;
+}
+@keyframes landing-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes cradle-breathe {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+/* The phone composition is shared by phones, tablets and desktops. */
+.coming-soon {
+  padding: max(var(--spacing-sm), env(safe-area-inset-top)) var(--spacing-screen)
+    max(var(--spacing-sm), env(safe-area-inset-bottom));
+}
+.brand-wordmark {
+  width: 112px;
+}
+.header-actions {
+  gap: var(--spacing-sm);
+}
+.landing-main {
+  grid-template-columns: 1fr;
+  padding-block: var(--spacing-sm);
+}
+.landing-art {
+  grid-row: 1;
+  height: clamp(88px, 18svh, 150px);
+  width: 240px;
+  margin: 0 auto var(--spacing-md);
+}
+.art-cradle {
+  width: 55%;
+  inset: 4% 22.5% 12%;
+}
+.landing-story {
+  text-align: center;
+}
+.landing-story h1 {
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+}
+.landing-description {
+  margin: var(--spacing-md) auto 0;
+  max-width: 39ch;
+  line-height: var(--text-body--line-height);
+}
+.waitlist-area {
+  margin-top: var(--spacing-lg);
+  min-height: 0;
+}
+.waitlist-invitation {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--text-body-sm);
+}
+.signup-fields {
+  text-align: left;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-sm);
+}
+.join-button {
+  margin-top: 0;
+}
+.signup-feedback {
+  justify-content: center;
+}
+.signup-consent {
+  font-size: var(--text-caption);
+}
+.landing-features {
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+}
+.landing-features > span {
+  font-size: var(--text-caption);
+  gap: var(--spacing-xs);
+}
+.landing-features > span:last-child {
+  display: none;
+}
+.landing-footer {
+  justify-content: center;
+  padding-top: var(--spacing-sm);
+  text-align: center;
+}
+.landing-footer > span:last-child {
+  display: none;
+}
+.waitlist-success {
+  text-align: left;
+  min-height: 180px;
+  align-items: center;
+}
+@media (max-height: 740px) {
+  .landing-art {
+    height: 88px;
+    margin-bottom: var(--spacing-sm);
+  }
+  .landing-description {
+    margin-top: var(--spacing-sm);
+  }
+  .waitlist-area {
+    margin-top: var(--spacing-md);
+  }
+  .landing-features,
+  .waitlist-invitation {
+    display: none;
+  }
+}
+@media (max-width: 370px) {
+  .landing-story h1 {
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+  }
+  .landing-art {
+    height: 72px;
+  }
+  .waitlist-area {
+    margin-top: var(--spacing-sm);
+  }
+  .landing-description {
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+  }
+}
+@media (max-height: 620px) and (min-width: 371px) {
+  .landing-art {
+    height: 72px;
+  }
+  .waitlist-area {
+    margin-top: var(--spacing-sm);
+  }
+}
+@media (max-height: 620px) {
+  .waitlist-invitation,
+  .landing-footer {
+    display: none;
+  }
+  .signup-fields input,
+  .join-button {
+    min-height: 48px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-icon,
+  .art-cradle,
+  .landing-art,
+  .landing-story h1,
+  .landing-description,
+  .waitlist-area,
+  .waitlist-success,
+  .success-check-stroke {
+    animation: none;
+  }
+  .waitlist-form,
+  .join-button,
+  .join-button svg {
+    transition: none;
+  }
+  .join-button:active:not(:disabled) {
+    scale: 1;
+  }
+  .join-button:hover:not(:disabled) svg {
+    transform: none;
+  }
+}
