@@ -79,6 +79,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          answer_kind: string | null
+          body: string
+          created_at: string
+          id: string
+          retrieved_passage_ids: string[]
+          role: string
+          user_id: string
+        }
+        Insert: {
+          answer_kind?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          retrieved_passage_ids?: string[]
+          role: string
+          user_id: string
+        }
+        Update: {
+          answer_kind?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          retrieved_passage_ids?: string[]
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       checkins: {
         Row: {
           body: string
@@ -120,6 +150,68 @@ export type Database = {
           },
         ]
       }
+      checklist_items: {
+        Row: {
+          body: string
+          category: string
+          content_item_slug: string | null
+          id: string
+          is_active: boolean
+          locale: string
+          sort_order: number
+        }
+        Insert: {
+          body: string
+          category: string
+          content_item_slug?: string | null
+          id?: string
+          is_active?: boolean
+          locale: string
+          sort_order?: number
+        }
+        Update: {
+          body?: string
+          category?: string
+          content_item_slug?: string | null
+          id?: string
+          is_active?: boolean
+          locale?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      checklist_progress: {
+        Row: {
+          checklist_item_id: string
+          done_at: string | null
+          id: string
+          is_done: boolean
+          user_id: string
+        }
+        Insert: {
+          checklist_item_id: string
+          done_at?: string | null
+          id?: string
+          is_done?: boolean
+          user_id: string
+        }
+        Update: {
+          checklist_item_id?: string
+          done_at?: string | null
+          id?: string
+          is_done?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_progress_checklist_item_id_fkey"
+            columns: ["checklist_item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consents: {
         Row: {
           consent_key: string
@@ -152,6 +244,98 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      content_items: {
+        Row: {
+          body_md: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          is_published: boolean
+          kind: string
+          locale: string
+          media_url: string | null
+          narration_url: string | null
+          slug: string
+          summary: string | null
+          tags: string[]
+          title: string
+          week_max: number | null
+          week_min: number | null
+        }
+        Insert: {
+          body_md?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          is_published?: boolean
+          kind: string
+          locale: string
+          media_url?: string | null
+          narration_url?: string | null
+          slug: string
+          summary?: string | null
+          tags?: string[]
+          title: string
+          week_max?: number | null
+          week_min?: number | null
+        }
+        Update: {
+          body_md?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          is_published?: boolean
+          kind?: string
+          locale?: string
+          media_url?: string | null
+          narration_url?: string | null
+          slug?: string
+          summary?: string | null
+          tags?: string[]
+          title?: string
+          week_max?: number | null
+          week_min?: number | null
+        }
+        Relationships: []
+      }
+      content_passages: {
+        Row: {
+          body: string
+          content_item_id: string
+          created_at: string
+          heading: string | null
+          id: string
+          locale: string
+          search_tsv: unknown
+        }
+        Insert: {
+          body: string
+          content_item_id: string
+          created_at?: string
+          heading?: string | null
+          id?: string
+          locale: string
+          search_tsv?: unknown
+        }
+        Update: {
+          body?: string
+          content_item_id?: string
+          created_at?: string
+          heading?: string | null
+          id?: string
+          locale?: string
+          search_tsv?: unknown
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passage_locale_matches_item"
+            columns: ["content_item_id", "locale"]
+            isOneToOne: false
+            referencedRelation: "content_items"
+            referencedColumns: ["id", "locale"]
+          },
+        ]
       }
       contraction_sessions: {
         Row: {
@@ -499,6 +683,35 @@ export type Database = {
         }
         Relationships: []
       }
+      question_marks: {
+        Row: {
+          created_at: string
+          id: string
+          suggested_question_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          suggested_question_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          suggested_question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_marks_suggested_question_id_fkey"
+            columns: ["suggested_question_id"]
+            isOneToOne: false
+            referencedRelation: "suggested_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string
@@ -535,6 +748,72 @@ export type Database = {
           storage_path?: string
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      suggested_questions: {
+        Row: {
+          body: string
+          id: string
+          is_active: boolean
+          locale: string
+          priority: number
+          week_max: number
+          week_min: number
+        }
+        Insert: {
+          body: string
+          id?: string
+          is_active?: boolean
+          locale: string
+          priority?: number
+          week_max: number
+          week_min: number
+        }
+        Update: {
+          body?: string
+          id?: string
+          is_active?: boolean
+          locale?: string
+          priority?: number
+          week_max?: number
+          week_min?: number
+        }
+        Relationships: []
+      }
+      symptom_rules: {
+        Row: {
+          created_at: string
+          guidance_body: string
+          guidance_title: string
+          id: string
+          is_active: boolean
+          locale: string
+          match_terms: string[]
+          priority: number
+          severity: string
+        }
+        Insert: {
+          created_at?: string
+          guidance_body: string
+          guidance_title: string
+          id?: string
+          is_active?: boolean
+          locale: string
+          match_terms: string[]
+          priority?: number
+          severity: string
+        }
+        Update: {
+          created_at?: string
+          guidance_body?: string
+          guidance_title?: string
+          id?: string
+          is_active?: boolean
+          locale?: string
+          match_terms?: string[]
+          priority?: number
+          severity?: string
         }
         Relationships: []
       }
@@ -669,6 +948,16 @@ export type Database = {
       join_waitlist: {
         Args: { p_email: string; p_locale: string; p_name: string }
         Returns: undefined
+      }
+      search_passages: {
+        Args: { in_locale: string; max_results?: number; query: string }
+        Returns: {
+          body: string
+          content_item_id: string
+          heading: string
+          id: string
+          rank: number
+        }[]
       }
       tables_without_rls: { Args: never; Returns: string[] }
     }
