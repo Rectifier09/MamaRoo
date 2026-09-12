@@ -8835,6 +8835,7 @@ Create `app/(app)/today/TodayEdgeState.test.tsx`. Assert, for each of the six `s
 ```tsx
 import { useTranslations } from "next-intl";
 import { IllustrationContainer } from "@/components/patterns/IllustrationContainer";
+import { PRODUCT_NAME } from "@/lib/config";
 
 export type TodayEdgeStateKind = "offline" | "missed_task" | "returning" | "overdue" | "save_failed" | "pending_reminder";
 
@@ -8886,16 +8887,21 @@ export interface TodayEdgeStateProps {
 }
 
 export function TodayEdgeState({ state, stage, onPrimary, onSecondary }: TodayEdgeStateProps) {
+  // { productName } is passed to every call, not just "returning"'s -- next-intl
+  // ignores an unused interpolation param, and this keeps the product-name guard
+  // (tests/guards/product-name.test.ts) satisfied by construction rather than by
+  // remembering which one state needs it.
   const t = useTranslations(`today.edge.${state}`);
+  const headline = t("headline", { productName: PRODUCT_NAME });
   const illustration = illustrationFor(state, stage);
 
   return (
     <div data-testid="today-edge-state">
       <div style={{ opacity: state === "offline" ? 0.55 : 1 }}>
-        <IllustrationContainer lottieUrl={illustration.lottieUrl} staticSrc={illustration.staticSrc} alt={t("headline")} />
+        <IllustrationContainer lottieUrl={illustration.lottieUrl} staticSrc={illustration.staticSrc} alt={headline} />
       </div>
       {MOTIF[state] && <span data-testid={`edge-motif-${MOTIF[state]}`} />}
-      <h1>{t("headline")}</h1>
+      <h1>{headline}</h1>
       {HAS_SUPPORTING[state] && <p>{t("supporting")}</p>}
       <button type="button" onClick={onPrimary}>
         {t("primary")}
