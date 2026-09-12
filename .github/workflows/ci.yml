@@ -32,8 +32,16 @@ jobs:
           node scripts/export-supabase-status.mjs /tmp/supabase-status.json >> "$GITHUB_ENV"
       - run: npm run test
       - run: npx playwright install --with-deps chromium
+      # Two passes, because Session 14 made / a real branch on APP_LAUNCHED
+      # instead of always being the waitlist: one webServer boot per
+      # playwright invocation, so both states need their own run rather
+      # than one flag flip mid-suite. @waitlist covers the live public
+      # page (today's default, unlaunched, state); everything else is the
+      # launched app, the eventual post-cutover state.
+      - name: Run e2e against the waitlist (today's live public page, pre-launch)
+        run: npx playwright test --grep "@waitlist"
       - name: Run e2e against the full app (the launch gate is a production-only concern)
-        run: npm run test:e2e
+        run: npx playwright test --grep-invert "@waitlist"
         env:
           APP_LAUNCHED: "true"
       # Kept permanently (not just for this debug session): a red e2e run with

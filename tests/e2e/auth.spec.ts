@@ -38,11 +38,11 @@ test("submitting an email on the auth form shows the code step", async ({ page }
   await expect(page.getByLabel(/6-digit code/i)).toBeVisible();
 });
 
-test("a signed-out deep link to /today redirects to / with a next query param preserving the original path", async ({
+test("a signed-out deep link to /today redirects to language select with a next query param preserving the original path", async ({
   page,
 }) => {
   await page.goto("/today");
-  await expect(page).toHaveURL(/\/\?next=%2Ftoday$/);
+  await expect(page).toHaveURL(/\/welcome\?next=%2Ftoday$/);
 });
 
 // startGoogleSignIn() and app/auth/callback/route.ts both redirect a failed Google

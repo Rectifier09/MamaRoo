@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("the waitlist fits short phones in both languages", async ({ page }) => {
+test("the waitlist fits short phones in both languages", { tag: "@waitlist" }, async ({ page }) => {
   for (const viewport of [
     { width: 320, height: 568 },
     { width: 375, height: 667 },
@@ -33,7 +33,7 @@ test("the waitlist fits short phones in both languages", async ({ page }) => {
   }
 });
 
-test("signup validates, handles retry, and only confirms an acknowledged signup", async ({
+test("signup validates, handles retry, and only confirms an acknowledged signup", { tag: "@waitlist" }, async ({
   page,
 }) => {
   await page.goto("/");
@@ -83,7 +83,7 @@ test("signup validates, handles retry, and only confirms an acknowledged signup"
     .toBe(0);
 });
 
-test("both languages are accessible and reduced motion stops the illustration", async ({
+test("both languages are accessible and reduced motion stops the illustration", { tag: "@waitlist" }, async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
