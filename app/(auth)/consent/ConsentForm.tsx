@@ -50,7 +50,7 @@ export function ConsentForm({ onSubmit, locale, onLocaleChange }: ConsentFormPro
   }
 
   return (
-    <div className="flex flex-col gap-lg bg-surface-raised p-lg">
+    <div className="mobile-screen flex min-h-dvh flex-col gap-lg bg-surface-raised p-lg">
       <p data-testid="consent-summary" className="text-body">
         {t("summary")}
       </p>

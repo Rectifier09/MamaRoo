@@ -211,7 +211,7 @@ export function OnboardingForm({ onSave }: OnboardingFormProps) {
 
   if (step === "journeyReady" && savedName) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-lg bg-bg px-screen text-center">
+      <div className="mobile-screen flex min-h-dvh flex-col items-center justify-center gap-lg bg-bg px-screen text-center">
         <h1 className="text-display text-text-primary">{t("onboarding.journeyReady.greeting", { name: savedName })}</h1>
         <Button onClick={() => router.push("/today")}>{t("onboarding.journeyReady.cta")}</Button>
       </div>
@@ -219,7 +219,7 @@ export function OnboardingForm({ onSave }: OnboardingFormProps) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col gap-lg bg-bg px-screen py-xl">
+    <div className="mobile-screen flex min-h-dvh flex-col gap-lg bg-bg px-screen py-xl">
       {step === "aboutYou" && (
         <div className="flex flex-col gap-lg">
           <h1 className="text-h1 text-text-primary">{t("onboarding.aboutYou.title")}</h1>
