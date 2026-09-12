@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import en from "@/i18n/en.json";
-import { OnboardingForm } from "@/app/(onboarding)/profile/OnboardingForm";
+import { OnboardingForm } from "@/app/onboarding/profile/OnboardingForm";
 import { EVENTS } from "@/lib/analytics/events";
 
 const push = vi.fn();

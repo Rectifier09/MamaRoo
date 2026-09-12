@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 // is therefore not exercised here -- that path is covered at the logic level
 // by lib/domain/onboarding.test.ts (validation, due-date derivation),
 // app/actions/onboarding.test.ts (the server write) and
-// app/(onboarding)/profile/OnboardingForm.test.tsx (the wizard's own
+// app/onboarding/profile/OnboardingForm.test.tsx (the wizard's own
 // step-by-step behavior, draft persistence and Journey Ready screen). What
 // this asserts instead is the reachable, unauthenticated part of the funnel.
 

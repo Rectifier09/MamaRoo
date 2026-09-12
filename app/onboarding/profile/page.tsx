@@ -1,4 +1,4 @@
-import { OnboardingForm } from "@/app/(onboarding)/profile/OnboardingForm";
+import { OnboardingForm } from "@/app/onboarding/profile/OnboardingForm";
 import { saveOnboarding } from "@/app/actions/onboarding";
 
 export default function OnboardingProfilePage() {
