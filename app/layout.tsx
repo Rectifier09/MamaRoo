@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Hind } from "next/font/google";
+import { Poppins, Hind, Mukta } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { PRODUCT_NAME } from "@/lib/config";
@@ -9,15 +9,27 @@ import "@/styles/globals.css";
 
 const poppins = Poppins({
   subsets: ["latin", "devanagari"],
-  weight: ["500"],
+  // 600 added for the splash screen's wordmark (Session 14).
+  weight: ["500", "600"],
   variable: "--font-poppins",
   display: "swap",
 });
 
+// Kept loaded (not just repointed to Mukta) because styles/landing.css pins
+// the waitlist to Hind so its live, public rendering doesn't shift with the
+// Design-updated.md retheme — see the Session 14 note in Implementation.md.
 const hind = Hind({
   subsets: ["latin", "devanagari"],
   weight: ["400", "500"],
   variable: "--font-hind",
+  display: "swap",
+});
+
+// Design-updated.md §3: Mukta is the app-wide body font, replacing Hind.
+const mukta = Mukta({
+  subsets: ["latin", "devanagari"],
+  weight: ["400", "500"],
+  variable: "--font-mukta",
   display: "swap",
 });
 
@@ -38,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang={locale} className={`${poppins.variable} ${hind.variable}`}>
+    <html lang={locale} className={`${poppins.variable} ${hind.variable} ${mukta.variable}`}>
       <body className="min-h-dvh bg-bg text-text-primary font-body">
         <NextIntlClientProvider messages={messages} locale={locale}>
           {children}
