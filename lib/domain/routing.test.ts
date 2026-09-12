@@ -40,16 +40,21 @@ describe("resolveRedirect", () => {
     ).toBeNull();
   });
 
-  it("sends a signed-in user without consent to the consent screen", () => {
+  // Consent capture is temporarily disabled (product decision, 2026-09-12):
+  // an authed-but-unconsented user now goes straight to the onboarding form,
+  // same as if she'd already consented. CONSENT_REQUIRED in routing.ts is the
+  // one flag to flip when it's re-enabled -- see Important/Implementation.md's
+  // Session 13 follow-up.
+  it("sends a signed-in, unconsented user straight to the onboarding form, since consent is temporarily disabled", () => {
     expect(
       resolveRedirect({ path: "/today", isAuthed: true, hasConsented: false, hasOnboarded: false }),
-    ).toBe("/consent");
+    ).toBe("/onboarding/profile");
   });
 
-  it("keeps a user without consent on the consent screen", () => {
+  it("sends an unconsented user visiting /consent directly to the onboarding form too, while consent is disabled", () => {
     expect(
       resolveRedirect({ path: "/consent", isAuthed: true, hasConsented: false, hasOnboarded: false }),
-    ).toBeNull();
+    ).toBe("/onboarding/profile");
   });
 
   it("lets a signed-in user without consent read a legal page, because the consent screen links there", () => {

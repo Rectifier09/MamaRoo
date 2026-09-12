@@ -15,6 +15,14 @@ body {
 /* Minimum touch target, applied to every interactive primitive. */
 .tap-target { min-width: 48px; min-height: 48px; }
 
+/* Caps a full-screen view to a single mobile column, centered on wider
+   (desktop web) viewports, so the product reads the same regardless of
+   window width. welcome.css and start.css each hardcode this same
+   max-width/margin-inline pair for their own pre-auth screens; this is the
+   shared version so a third and fourth screen (onboarding, consent) don't
+   copy it again. */
+.mobile-screen { width: 100%; max-width: 375px; margin-inline: auto; }
+
 @keyframes sheet-in {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }

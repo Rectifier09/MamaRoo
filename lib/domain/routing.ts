@@ -4,6 +4,13 @@ const CONSENT_PATH = "/consent";
 const ONBOARDING_FORM = "/onboarding/profile";
 const HOME = "/today";
 
+// Product decision, 2026-09-12: consent capture is temporarily out of the
+// funnel so she reaches onboarding right after verifying her code. /consent,
+// ConsentForm and recordConsents() are untouched and ready to go -- flip this
+// back to true to require Terms/Privacy consent again before onboarding. See
+// Important/Implementation.md's Session 13 follow-up.
+const CONSENT_REQUIRED = false;
+
 export interface RedirectInput {
   path: string;
   isAuthed: boolean;
@@ -30,7 +37,7 @@ export function resolveRedirect({ path, isAuthed, hasConsented, hasOnboarded }: 
     return next ? `/welcome?next=${encodeURIComponent(next)}` : "/welcome";
   }
 
-  if (!hasConsented) {
+  if (CONSENT_REQUIRED && !hasConsented) {
     return path === CONSENT_PATH || path.startsWith(LEGAL_PREFIX) ? null : CONSENT_PATH;
   }
 

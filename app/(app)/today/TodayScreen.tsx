@@ -11,6 +11,7 @@ import { MedicineQuickActionSheet } from "@/app/(app)/today/MedicineQuickActionS
 import { TriageResult, type TriageResultProps } from "@/app/(app)/today/TriageResult";
 import type { Reminder } from "@/lib/domain/reminders";
 import type { Transcriber } from "@/lib/speech/transcribe";
+import { webSpeechTranscriber } from "@/lib/speech/webspeech";
 import type { SaveCheckinResult } from "@/app/actions/checkin";
 
 export interface ReadingCard {
@@ -32,9 +33,19 @@ export interface TodayScreenProps {
   showWeeklyReflection: boolean;
   weeklyReflectionText: string;
   showCheckupNudge: boolean;
-  transcriber: Transcriber;
+  /** Defaults to the real browser transcriber so TodayPage (a Server
+   * Component) doesn't have to pass it -- an object of functions can't cross
+   * that boundary. Tests still inject their own mock via this same prop. */
+  transcriber?: Transcriber;
+  /** Matches saveCheckin's own { body, feeling, inputMethod } shape (not
+   * FeelingBox's { text, feeling, inputMethod }) precisely so TodayPage can
+   * pass the real "use server" action straight through as this prop, instead
+   * of wrapping it in a closure to rename the field -- that closure is what
+   * crashed /today, since only a genuine server-action reference is allowed
+   * to cross the Server-to-Client boundary. handleCheckinSubmit below does
+   * the text-to-body rename on the client side of that boundary instead. */
   onSubmitCheckin: (input: {
-    text: string;
+    body: string;
     feeling: Feeling | null;
     inputMethod: "text" | "voice";
   }) => Promise<SaveCheckinResult>;
@@ -63,7 +74,7 @@ export function TodayScreen({
   showWeeklyReflection,
   weeklyReflectionText,
   showCheckupNudge,
-  transcriber,
+  transcriber = webSpeechTranscriber,
   onSubmitCheckin,
   doctorName,
   clinicName,
@@ -96,7 +107,7 @@ export function TodayScreen({
       : t("reminders.appointment", { title: nextReminder.title });
 
   async function handleCheckinSubmit(input: { text: string; feeling: Feeling | null; inputMethod: "text" | "voice" }) {
-    const result = await onSubmitCheckin(input);
+    const result = await onSubmitCheckin({ body: input.text, feeling: input.feeling, inputMethod: input.inputMethod });
     if (result.ok) {
       setCheckinResult({ severity: result.severity, guidance: result.guidance, feeling: input.feeling });
     }
