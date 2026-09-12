@@ -6849,7 +6849,7 @@ Expected: PASS. Also run the full suite once (`npx vitest run`) to confirm the r
 
 Set `APP_LAUNCHED=true` locally (`.env.local`, do not commit it). Open `/`: confirm the sequence matches the mockup's timing, holds for the 3-second pause, then hands off to `/welcome` — and that tapping the screen at any point skips straight there instead. Then enable OS-level reduced motion and reload: confirm it settles instantly, still holds, and still hands off. Separately, load `/` with `APP_LAUNCHED` unset: confirm the waitlist looks pixel-identical to before this session.
 
-- [ ] **Step 9: Commit** — not yet done; work sits uncommitted on branch `session-14-splash-screen`
+- [x] **Step 9: Commit**
 
 ```bash
 git add app/\(public\) app/layout.tsx app/page.tsx styles tests/guards/tokens.test.ts
@@ -6892,7 +6892,7 @@ Expected: PASS. Also run the full suite once (`npx vitest run`) to confirm the r
 
 Open `/welcome` in the browser, pick Hindi, continue to `/signup`, and set the browser's font scale to 200%. Confirm no clipped or overlapping text and that no label truncates. Fix by letting labels wrap, never by shrinking the type.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add "app/(public)/welcome" "app/(public)/SplashScreen.tsx" lib/domain proxy.test.ts styles/welcome.css
