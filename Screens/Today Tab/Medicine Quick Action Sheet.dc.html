@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>body{margin:0;background:#3a3a3a;}</style>
+</helmet>
+
+<div style="position:relative;width:375px;height:812px;margin:0 auto;overflow:hidden;font-family:'Roboto',sans-serif;background:linear-gradient(180deg, #F7EEE3 0%, #F7DFD9 100%);">
+
+  <div style="position:absolute;inset:0;padding:56px 20px 0 20px;opacity:0.5;filter:blur(1px);">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span style="font-size:14px;color:rgba(103,0,53,0.85);">Next: <strong style="color:#670035;">Iron tablet at 8:00 PM</strong></span>
+    </div>
+  </div>
+
+  <button aria-label="Close" onClick="{{ dismiss }}" style="position:absolute;inset:0;width:100%;height:100%;border:none;background:rgba(103,0,53,0.35);cursor:pointer;{{ scrimVisible }}"></button>
+
+  <div style="{{ sheetStyle }}">
+    <div style="display:flex;justify-content:center;padding:10px 0 4px 0;">
+      <div style="width:36px;height:4px;border-radius:999px;background:rgba(103,0,53,0.15);"></div>
+    </div>
+
+    <div style="padding:8px 24px 0 24px;text-align:center;">
+      <p style="margin:0 0 4px 0;font-size:13px;color:rgba(103,0,53,0.55);">Just a gentle nudge</p>
+      <h2 style="margin:0;font-family:'Poppins',sans-serif;font-weight:600;font-size:19px;color:#670035;">Iron tablet, {{ timeText }}</h2>
+    </div>
+
+    <sc-if value="{{ showActions }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:10px;padding:22px 24px 8px 24px;">
+        <button onClick="{{ chooseTaken }}" style="border:none;cursor:pointer;border-radius:999px;padding:15px;background:#D63A29;font-size:15px;font-weight:600;color:#FFFFFF;font-family:'Roboto',sans-serif;">Taken</button>
+        <button onClick="{{ chooseSkip }}" style="border:none;cursor:pointer;border-radius:999px;padding:15px;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.06);font-size:15px;font-weight:500;color:#670035;font-family:'Roboto',sans-serif;">Skip today</button>
+        <button onClick="{{ chooseLater }}" style="border:none;cursor:pointer;border-radius:999px;padding:15px;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.06);font-size:15px;font-weight:500;color:#670035;font-family:'Roboto',sans-serif;">Move to later time</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showConfirmation }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:22px 24px 8px 24px;text-align:center;">
+        <p style="margin:0 0 6px 0;font-size:15px;line-height:22px;color:#670035;">{{ confirmationText }}</p>
+        <sc-if value="{{ showChange }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ changeAnswer }}" style="background:transparent;border:none;cursor:pointer;padding:4px;">
+            <span style="font-size:13px;color:rgba(103,0,53,0.6);text-decoration:underline;text-decoration-color:rgba(103,0,53,0.25);">Change</span>
+          </button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <button onClick="{{ dismiss }}" style="display:block;width:100%;background:transparent;border:none;text-align:center;padding:16px 0 28px 0;cursor:pointer;">
+      <span style="font-size:13px;color:rgba(103,0,53,0.6);text-decoration:underline;text-decoration-color:rgba(103,0,53,0.25);">See all medicines</span>
+    </button>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:375,&quot;height&quot;:812}}">
+const STORAGE_KEY = 'mamaroo_medicine_iron_8pm';
+
+function todayStr() {
+  return new Date().toDateString();
+}
+
+function bumpTime(time) {
+  const m = time.match(/(\d+):(\d+) (AM|PM)/);
+  if (!m) return time;
+  let hour = parseInt(m[1], 10);
+  let period = m[3];
+  hour += 1;
+  if (hour === 12) period = period === 'AM' ? 'PM' : 'AM';
+  if (hour > 12) hour -= 12;
+  return `${hour}:${m[2]} ${period}`;
+}
+
+class Component extends DCLogic {
+  state = { open: true, status: 'pending', time: '8:00 PM', justChose: null };
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved.date === todayStr()) {
+          this.setState({ status: saved.status, time: saved.time });
+        }
+      }
+    } catch (e) {}
+  }
+
+  persist(status, time) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: todayStr(), status, time }));
+    } catch (e) {}
+  }
+
+  renderVals() {
+    const open = this.state.open;
+    const status = this.state.status;
+    const justChose = this.state.justChose;
+    const messages = {
+      taken: "Taken, that is one more day you have shown up for yourself.",
+      skipped: "No worries, some days are like that. We will check in again tomorrow.",
+      later: `No rush at all, we will nudge you again at ${this.state.time}.`,
+    };
+
+    return {
+      timeText: this.state.time,
+      sheetStyle: {
+        position: 'absolute', left: 0, right: 0, bottom: 0,
+        background: '#F7EEE3', borderRadius: '24px 24px 0 0',
+        boxShadow: '0 -8px 24px rgba(103,0,53,0.18)',
+        transform: open ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 260ms ease',
+      },
+      scrimVisible: open ? 'opacity:1;' : 'opacity:0;pointer-events:none;',
+      dismiss: () => this.setState({ open: false }),
+      showActions: status === 'pending' && !justChose,
+      showConfirmation: status !== 'pending' || !!justChose,
+      showChange: status !== 'pending',
+      confirmationText: justChose ? messages[justChose] : messages[status],
+      chooseTaken: () => { this.persist('taken', this.state.time); this.setState({ status: 'taken', justChose: 'taken' }); },
+      chooseSkip: () => { this.persist('skipped', this.state.time); this.setState({ status: 'skipped', justChose: 'skipped' }); },
+      chooseLater: () => {
+        const newTime = bumpTime(this.state.time);
+        this.persist('pending', newTime);
+        this.setState({ time: newTime, justChose: 'later' });
+      },
+      changeAnswer: () => { this.persist('pending', this.state.time); this.setState({ status: 'pending', justChose: null }); },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

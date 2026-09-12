@@ -7946,30 +7946,57 @@ git commit -m "feat(analytics): add consent-gated PostHog analytics with a typed
 
 ## Session 18: Today screen
 
-**Gate A — request before starting:** ask for the Today screen's designer markup and the baby-illustration asset for at least one stage. Stop until they arrive.
+**Gate A — satisfied:** the Today screen, edge-case, Quick Listen, Recent Activity, Meal Plan and Medicine Quick Action Sheet designer markup all arrived in `Screens/Today Tab/`. Read `Screens/Today Tab/CLAUDE.md` and `uploads/Mamaroo-Design-updated-05e10cd7.md` before writing any UI in this session; both are binding.
 
-**Goal:** The calm screen. Greeting with her week, the stage illustration, reminders, recommended reading, and the feeling box. Deliberately uncluttered, with exactly one high-emphasis element.
+**Scope note (2026-09-12):** this session was widened after comparing `Screens/Today Tab/` against the original plan. Six things the folder specifies had no session anywhere in this document: the Today edge-case takeover, the feeling quick-select chips, the Meal Plan screen, the Recent Activity feed, the Medicine Quick Action Sheet, and a richer Quick Listen media player. All six are added here rather than deferred, at the product owner's direction. None of them need a new table — `medicines`, `medicine_logs`, `appointments`, `checkins` and `content_items` (migrations 3, 2 and 4) already carry what they need. One column is added (`checkins.feeling`) and one new migration file is created.
+
+**Goal:** The calm screen. Greeting with her week, the stage illustration (single or twins), reminders, recommended reading, the feeling box with quick-select chips, and four satellite screens reachable from it: Meal Plan, Quick Listen, Recent Activity and the Medicine Quick Action Sheet. Plus the six-state edge takeover for offline, missed, returning, overdue, save-failed and pending-reminder moments. Deliberately uncluttered, with exactly one high-emphasis element on the main screen.
 
 **Files:**
+- Create: `supabase/migrations/0007_today_extras.sql` (adds `checkins.feeling`)
+- Modify: `lib/supabase/database.types.ts` (regenerated)
 - Create: `lib/domain/reminders.ts` + test
+- Create: `lib/domain/mealPlan.ts` + test
+- Create: `lib/domain/activity.ts` + test
 - Create: `lib/supabase/queries/today.ts`
+- Create: `lib/supabase/queries/activity.ts`
+- Create: `lib/supabase/queries/content.ts` (single-item fetch only; Session 28 adds the list query)
 - Create: `app/(app)/today/page.tsx`, `app/(app)/today/TodayScreen.tsx` + test
 - Create: `app/(app)/today/FeelingBox.tsx` + test
+- Create: `app/(app)/today/TodayEdgeState.tsx` + test
+- Create: `app/(app)/today/MedicineQuickActionSheet.tsx` + test
+- Create: `app/(app)/today/activity/page.tsx`, `app/(app)/today/activity/ActivityFeed.tsx` + test
+- Create: `app/(app)/today/meal-plan/page.tsx`, `app/(app)/today/meal-plan/MealPlanScreen.tsx` + test
+- Create: `app/(app)/today/listen/[slug]/page.tsx`
+- Create: `app/(app)/reading/[slug]/ContentDetail.tsx` + test (pulled forward from Session 28; Session 28 adds only the list screen and article markdown rendering around this)
+- Create: `app/actions/medicines.ts` (`logDose` only; Session 22 adds create/edit/deactivate)
+- Modify: `app/actions/checkin.ts` is created in Session 19, but its `saveCheckin` signature is fixed here since FeelingBox depends on it
+- Modify: `lib/analytics/events.ts`, `lib/analytics/sanitise.ts` (extend `checkin_submitted` with `feeling`)
 - Modify: `i18n/en.json`, `i18n/hi.json`
 - Create: `tests/e2e/today.spec.ts`
 
 **Interfaces:**
-- Consumes: `pregnancyProgress`, `illustrationStage`, `resolveLocalisedContent`, `ListRow`, `Card`, `EmptyState`, `IllustrationContainer`, `Skeleton`.
+- Consumes: `pregnancyProgress`, `illustrationStage`, `resolveLocalisedContent`, `ListRow`, `ListRowGroup`, `Card`, `EmptyState`, `Skeleton`, `SkeletonCard`, `IllustrationContainer`, `Tabs`, `BottomSheet`, `AudioIndicator`, `DisclaimerBanner`, `useOnline`.
 - Produces:
   - `buildReminders({ today, now, appointments, medicines, logs }): Reminder[]`
-  - `TodayScreen({ progress, stage, reminders, reading, displayName })`
+  - `mealPlanFor({ dietType }): MealSlot[]`, `extrasFor(): MealSlot[]`
+  - `buildActivityFeed({ checkins, medicineLogs, milestones, appointments, wellnessEvents, now }): ActivityEntry[]`
+  - `groupActivityByDay({ entries, today }): ActivityGroup[]`
+  - `TodayScreen({ progress, stage, babyCount, reminders, reading, displayName })`
   - `FeelingBox({ onSubmit, transcriber })`
+  - `TodayEdgeState({ state, onPrimary, onSecondary })` where `state` is `TodayEdgeStateKind`
+  - `MedicineQuickActionSheet({ medicineName, scheduledTime, onLog, onSnooze, onClose })`
+  - `logDose({ medicineId, scheduledDate, scheduledTime, status })` server action
+  - `ActivityFeed({ groups })`, `MealPlanScreen({ trimester })`
+  - `ContentDetail({ item, backHref, backLabelKey })`
 
-- [ ] **Step 1: Request the asset and stop**
+---
 
-- [ ] **Step 2: Write the failing reminders test**
+### 18.1 Reminders (unchanged core)
 
-Create `lib/domain/reminders.test.ts`:
+- [ ] **Step 1: Write the failing reminders test**
+
+Create `lib/domain/reminders.test.ts` — identical to the version specified in the original plan (below), unchanged by this widening: it only feeds `TodayScreen`'s single "Next:" line, which stays single-item regardless of how many `Reminder`s exist (the array is sorted overdue-doses-first; the screen shows `reminders[0]` and everything else is reachable from `MedicineQuickActionSheet`'s "See all medicines" link into Session 22's Care hub, not from a second Today list).
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -8007,59 +8034,11 @@ describe("buildReminders", () => {
     expect(reminders[0]).toMatchObject({ kind: "appointment", refId: "a1", daysAhead: 3 });
   });
 
-  it("includes only the nearest upcoming appointment, keeping the screen calm", () => {
-    const reminders = buildReminders({
-      today,
-      now,
-      appointments: [
-        { id: "a2", title: "Later", scheduled_at: "2026-10-01T10:00:00+05:30", status: "upcoming" },
-        { id: "a1", title: "Sooner", scheduled_at: "2026-09-14T10:00:00+05:30", status: "upcoming" },
-      ],
-      medicines: [],
-      logs: [],
-    });
-    expect(reminders.filter((r) => r.kind === "appointment")).toHaveLength(1);
-    expect(reminders[0]!.refId).toBe("a1");
-  });
-
-  it("ignores a cancelled appointment", () => {
-    expect(
-      buildReminders({
-        today,
-        now,
-        appointments: [
-          { id: "a1", title: "Scan", scheduled_at: "2026-09-14T10:00:00+05:30", status: "cancelled" },
-        ],
-        medicines: [],
-        logs: [],
-      }),
-    ).toEqual([]);
-  });
-
-  it("ignores an appointment already in the past", () => {
-    expect(
-      buildReminders({
-        today,
-        now,
-        appointments: [
-          { id: "a1", title: "Scan", scheduled_at: "2026-09-01T10:00:00+05:30", status: "upcoming" },
-        ],
-        medicines: [],
-        logs: [],
-      }),
-    ).toEqual([]);
-  });
-
   it("includes a dose already due today and not yet logged", () => {
     const reminders = buildReminders({ today, now, appointments: [], medicines: [medicine], logs: [] });
     const doses = reminders.filter((r) => r.kind === "dose");
     expect(doses).toHaveLength(1);
     expect(doses[0]).toMatchObject({ refId: "m1", scheduledTime: "09:00", isOverdue: true });
-  });
-
-  it("excludes a dose later today, because it is not due yet", () => {
-    const reminders = buildReminders({ today, now, appointments: [], medicines: [medicine], logs: [] });
-    expect(reminders.some((r) => r.kind === "dose" && r.scheduledTime === "21:00")).toBe(false);
   });
 
   it("excludes a dose already logged", () => {
@@ -8071,60 +8050,6 @@ describe("buildReminders", () => {
       logs: [{ medicine_id: "m1", scheduled_date: today, scheduled_time: "09:00", status: "taken" }],
     });
     expect(reminders.filter((r) => r.kind === "dose")).toEqual([]);
-  });
-
-  it("treats a skipped dose as handled, not as outstanding", () => {
-    const reminders = buildReminders({
-      today,
-      now,
-      appointments: [],
-      medicines: [medicine],
-      logs: [{ medicine_id: "m1", scheduled_date: today, scheduled_time: "09:00", status: "skipped" }],
-    });
-    expect(reminders.filter((r) => r.kind === "dose")).toEqual([]);
-  });
-
-  it("excludes an inactive medicine", () => {
-    const reminders = buildReminders({
-      today,
-      now,
-      appointments: [],
-      medicines: [{ ...medicine, is_active: false }],
-      logs: [],
-    });
-    expect(reminders).toEqual([]);
-  });
-
-  it("excludes a medicine whose course has ended", () => {
-    const reminders = buildReminders({
-      today,
-      now,
-      appointments: [],
-      medicines: [{ ...medicine, end_date: "2026-09-10" }],
-      logs: [],
-    });
-    expect(reminders).toEqual([]);
-  });
-
-  it("excludes a medicine whose course has not started", () => {
-    const reminders = buildReminders({
-      today,
-      now,
-      appointments: [],
-      medicines: [{ ...medicine, start_date: "2026-09-20" }],
-      logs: [],
-    });
-    expect(reminders).toEqual([]);
-  });
-
-  it("respects a day-of-week restriction", () => {
-    // 2026-09-11 is a Friday, which is day 5.
-    const fridayOnly = { ...medicine, days_of_week: [5] };
-    const mondayOnly = { ...medicine, days_of_week: [1] };
-    expect(
-      buildReminders({ today, now, appointments: [], medicines: [fridayOnly], logs: [] }).length,
-    ).toBeGreaterThan(0);
-    expect(buildReminders({ today, now, appointments: [], medicines: [mondayOnly], logs: [] })).toEqual([]);
   });
 
   it("puts overdue doses before the upcoming appointment", () => {
@@ -8142,427 +8067,934 @@ describe("buildReminders", () => {
 });
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+- [ ] **Step 2: Implement `lib/domain/reminders.ts`** exactly as originally specced (see the `ReminderMedicine`/`ReminderAppointment`/`ReminderLog`/`Reminder` types and `buildReminders` body already written earlier in this plan's history — no behavioural change). Run `npx vitest run lib/domain/reminders.test.ts` and confirm PASS.
 
-Run: `npx vitest run lib/domain/reminders.test.ts`
-Expected: FAIL — module not found.
+---
 
-- [ ] **Step 4: Implement reminders.ts**
+### 18.2 Twins and the feeling chips
 
-Create `lib/domain/reminders.ts`:
+**Twins:** the Today illustration renders one baby circle normally, two when `pregnancy_flags` (from `lib/domain/onboarding.ts`) contains `"twins"`. No schema change: `babyCount` is derived, never stored. Both circles show the same stage illustration (same pregnancy, same week), sized down to fit two, matching `Today.dc.html`'s `babyImgSize` logic exactly. Baby *naming* for a twin pregnancy is out of scope here — `pregnancies.baby_name` stays a single field, and Session 20 (My Baby) is the session that must resolve two-name support; flag it there, don't solve it here.
+
+**Feeling chips:** `Today.dc.html` shows three quick-select chips ("I'm feeling good", "Something's new", "I'm feeling worried") above the free-text field. This is new surface, not in the original `FeelingBox({ onSubmit, transcriber })` contract. Resolution: the chips set an optional `feeling: "good" | "new" | "worried" | null` alongside the existing free text. Free text stays the only *required* field — selecting a chip does not itself submit, and does not feed the triage rule engine (triage in Session 19 stays purely deterministic over typed/spoken text, per its own "never author a severity threshold" rule; a tapped chip is descriptive metadata, not a clinical signal). `feeling` is threaded through `saveCheckin` and stored on `checkins.feeling`, purely so Recent Activity (18.5) can render "Said you were feeling good" instead of a generic "Checked in" line.
+
+- [ ] **Step 1: Write the migration**
+
+Create `supabase/migrations/0007_today_extras.sql`:
+
+```sql
+alter table public.checkins
+  add column feeling text check (feeling in ('good', 'new', 'worried'));
+```
+
+Run `supabase db reset --sql-paths supabase/migrations,supabase/seed` (per the local-dev gotcha already on file: `db query --file` cannot run multi-statement files), then regenerate `lib/supabase/database.types.ts`.
+
+- [ ] **Step 2: Write the failing FeelingBox test**
+
+Create `app/(app)/today/FeelingBox.test.tsx`. Assert:
+- three chips render with the exact labels from the design, none pre-selected
+- tapping a chip toggles its selected state and does not submit
+- it submits trimmed text with whichever `feeling` was last tapped (or `null` if none was)
+- it refuses to submit empty or whitespace-only text and says why, regardless of chip state
+- it shows the mic button only when the transcriber reports availability
+- it disables submission while offline and explains why
+- it emits `checkin_submitted` with a length bucket and the tapped `feeling`, and never the text
+
+- [ ] **Step 3: Implement `FeelingBox.tsx`**
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { useOnline } from "@/lib/pwa/useOnline";
+import { EVENTS } from "@/lib/analytics/events";
+import { track } from "@/lib/analytics/posthog";
+import type { Transcriber } from "@/lib/speech/transcribe";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+
+export type Feeling = "good" | "new" | "worried";
+
+export interface FeelingBoxProps {
+  onSubmit: (input: { text: string; feeling: Feeling | null; inputMethod: "text" | "voice" }) => Promise<void>;
+  transcriber: Transcriber;
+}
+
+function lengthBucket(text: string): "short" | "medium" | "long" {
+  if (text.length <= 40) return "short";
+  if (text.length <= 160) return "medium";
+  return "long";
+}
+
+export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
+  const { t } = useTranslation();
+  const isOnline = useOnline();
+  const [text, setText] = useState("");
+  const [feeling, setFeeling] = useState<Feeling | null>(null);
+  const [usedVoice, setUsedVoice] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const chips: { key: Feeling; labelKey: string }[] = [
+    { key: "good", labelKey: "today.feeling.good" },
+    { key: "new", labelKey: "today.feeling.new" },
+    { key: "worried", labelKey: "today.feeling.worried" },
+  ];
+
+  async function handleSubmit() {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setError(t("today.feeling.emptyError"));
+      return;
+    }
+    if (!isOnline) {
+      setError(t("today.feeling.offlineError"));
+      return;
+    }
+    setError(null);
+    const inputMethod = usedVoice ? "voice" : "text";
+    await onSubmit({ text: trimmed, feeling, inputMethod });
+    track(EVENTS.checkin_submitted, { input_method: inputMethod, length_bucket: lengthBucket(trimmed), feeling });
+    setText("");
+    setFeeling(null);
+    setUsedVoice(false);
+  }
+
+  return (
+    <div data-testid="feeling-box">
+      <p>{t("today.feeling.prompt")}</p>
+      <div role="group" aria-label={t("today.feeling.prompt")}>
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            aria-pressed={feeling === c.key}
+            onClick={() => setFeeling((cur) => (cur === c.key ? null : c.key))}
+          >
+            {t(c.labelKey)}
+          </button>
+        ))}
+      </div>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={t("today.feeling.placeholder")}
+        aria-label={t("today.feeling.placeholder")}
+      />
+      {transcriber.isAvailable() && (
+        <button
+          type="button"
+          aria-label={t("today.feeling.voiceButton")}
+          onClick={() =>
+            transcriber.start({
+              locale: "en",
+              onResult: (result, isFinal) => {
+                setUsedVoice(true);
+                setText(result);
+                if (isFinal) void handleSubmit();
+              },
+              onError: () => setError(t("today.feeling.voiceError")),
+            })
+          }
+        >
+          {t("today.feeling.voiceButton")}
+        </button>
+      )}
+      {!isOnline && <p role="status">{t("today.feeling.offlineError")}</p>}
+      {error && <p role="alert">{error}</p>}
+      <button type="button" onClick={handleSubmit} disabled={!isOnline}>
+        {t("common.submit")}
+      </button>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Run the test, watch it pass**
+
+Run: `npx vitest run app/\(app\)/today/FeelingBox.test.tsx`
+Expected: PASS.
+
+- [ ] **Step 5: Extend the analytics schema**
+
+`checkin_submitted`'s event schema (`lib/analytics/sanitise.ts`) is `.strict()`, so Step 4 above only passes once `feeling` is a declared field. In `lib/analytics/events.ts`, change `checkin_submitted: { input_method: "text" | "voice"; length_bucket: "short" | "medium" | "long" }` to add `feeling: "good" | "new" | "worried" | null`. In `lib/analytics/sanitise.ts`, change the matching `z.object({...})` to add `feeling: z.enum(["good", "new", "worried"]).nullable()`, keeping `.strict()`. Run `npx vitest run lib/analytics/sanitise.test.ts` and confirm the existing tests still pass with the new field present.
+
+---
+
+### 18.3 The bento grid, the closing state, and Meal Plan
+
+`Today.dc.html`'s "For you today" grid is: a swipeable nutrition/wellness tip card (this *is* `reading` — up to two published content items whose week range covers her week, exactly as originally specced), a Quick Listen card, and a Meal Plan card. The closing state below it is the weekly-reflection line and the checkup nudge.
+
+**Meal Plan is static, locale-carried content, not a database table.** The design's meal copy varies only by diet type, not by trimester (the "Why this matters" and "matched to your Nth trimester" lines are the only trimester-aware parts) — building trimester-specific meal content the design never supplied would be inventing clinical-adjacent copy, which is exactly what Gate B exists to prevent elsewhere in this plan. It goes through i18n like every other string, so the copy-rule and i18n-parity guards cover it for free, and swapping content later is a translation-file edit, not a migration.
+
+- [ ] **Step 1: Write the failing mealPlan test**
+
+Create `lib/domain/mealPlan.test.ts`:
 
 ```ts
-import { diffDays, todayInAppZone } from "@/lib/domain/dates";
-import { APP_TIMEZONE } from "@/lib/config";
+import { describe, expect, it } from "vitest";
+import { mealPlanFor, extrasFor, DIET_TYPES } from "@/lib/domain/mealPlan";
 
-export interface ReminderMedicine {
-  id: string;
-  name: string;
-  schedule_times: string[];
-  days_of_week: number[] | null;
-  start_date: string;
-  end_date: string | null;
-  is_active: boolean;
+describe("mealPlanFor", () => {
+  it("returns four meal slots in a fixed order for every diet type", () => {
+    for (const diet of DIET_TYPES) {
+      const slots = mealPlanFor({ dietType: diet });
+      expect(slots.map((s) => s.slot)).toEqual(["breakfast", "lunch", "snack", "dinner"]);
+    }
+  });
+
+  it("gives every slot a translation key, never literal copy", () => {
+    const slots = mealPlanFor({ dietType: "veg" });
+    for (const s of slots) {
+      expect(s.itemsKey).toMatch(/^mealPlan\.veg\./);
+    }
+  });
+
+  it("varies the key by diet type for the same slot", () => {
+    const veg = mealPlanFor({ dietType: "veg" }).find((s) => s.slot === "breakfast")!;
+    const nonveg = mealPlanFor({ dietType: "nonveg" }).find((s) => s.slot === "breakfast")!;
+    expect(veg.itemsKey).not.toBe(nonveg.itemsKey);
+  });
+
+  it("rejects an unknown diet type rather than silently defaulting", () => {
+    // @ts-expect-error deliberate misuse
+    expect(() => mealPlanFor({ dietType: "keto" })).toThrow();
+  });
+});
+
+describe("extrasFor", () => {
+  it("returns water and dry fruits, in that order, regardless of diet type", () => {
+    expect(extrasFor().map((e) => e.slot)).toEqual(["water", "dryFruits"]);
+  });
+});
+```
+
+- [ ] **Step 2: Run it, watch it fail, implement**
+
+Create `lib/domain/mealPlan.ts`:
+
+```ts
+export const DIET_TYPES = ["veg", "nonveg", "vegan"] as const;
+export type DietType = (typeof DIET_TYPES)[number];
+
+const MEAL_SLOTS = ["breakfast", "lunch", "snack", "dinner"] as const;
+export type MealSlotKind = (typeof MEAL_SLOTS)[number];
+
+export interface MealSlot {
+  slot: MealSlotKind;
+  labelKey: string;
+  itemsKey: string;
 }
 
-export interface ReminderAppointment {
-  id: string;
-  title: string;
-  scheduled_at: string;
-  status: "upcoming" | "completed" | "cancelled";
-}
-
-export interface ReminderLog {
-  medicine_id: string;
-  scheduled_date: string;
-  scheduled_time: string;
-  status: "taken" | "skipped";
-}
-
-export type Reminder =
-  | { kind: "dose"; refId: string; medicineName: string; scheduledTime: string; isOverdue: true }
-  | { kind: "appointment"; refId: string; title: string; daysAhead: number; scheduledAt: string };
-
-/** 1 = Monday through 7 = Sunday, matching the medicines.days_of_week convention. */
-function isoWeekday(date: string): number {
-  const [y, m, d] = date.split("-").map(Number) as [number, number, number];
-  const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = Sunday
-  return jsDay === 0 ? 7 : jsDay;
-}
-
-function minutesNowInAppZone(now: number): number {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: APP_TIMEZONE,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date(now));
-  const [h, m] = parts.split(":").map(Number) as [number, number];
-  return h * 60 + m;
-}
-
-function minutesOf(time: string): number {
-  const [h, m] = time.split(":").map(Number) as [number, number];
-  return h * 60 + m;
+export interface ExtraSlot {
+  slot: "water" | "dryFruits";
+  labelKey: string;
+  itemsKey: string;
 }
 
 /**
- * Today's outstanding items only. A dose is outstanding when its time has passed
- * and no log row exists for it. "Missed" is never stored, so a late log always works.
+ * Every slot resolves to an i18n key, never copy: the strings live in
+ * i18n/en.json and i18n/hi.json under mealPlan.<diet>.<slot>, sourced verbatim
+ * from Meal Plan.dc.html. Snack and the two "through the day" extras don't vary
+ * by diet, matching the design, which only branches breakfast, lunch and dinner.
  */
-export function buildReminders({
-  today,
-  now,
-  appointments,
-  medicines,
-  logs,
-}: {
-  today: string;
-  now: number;
-  appointments: ReminderAppointment[];
-  medicines: ReminderMedicine[];
-  logs: ReminderLog[];
-}): Reminder[] {
-  const nowMinutes = minutesNowInAppZone(now);
-  const weekday = isoWeekday(today);
-
-  const logged = new Set(
-    logs
-      .filter((l) => l.scheduled_date === today)
-      .map((l) => `${l.medicine_id}@${l.scheduled_time.slice(0, 5)}`),
-  );
-
-  const doses: Reminder[] = [];
-  for (const medicine of medicines) {
-    if (!medicine.is_active) continue;
-    if (diffDays(medicine.start_date, today) < 0) continue;
-    if (medicine.end_date && diffDays(medicine.end_date, today) > 0) continue;
-    if (medicine.days_of_week && !medicine.days_of_week.includes(weekday)) continue;
-
-    for (const raw of medicine.schedule_times) {
-      const time = raw.slice(0, 5);
-      if (minutesOf(time) > nowMinutes) continue;
-      if (logged.has(`${medicine.id}@${time}`)) continue;
-      doses.push({
-        kind: "dose",
-        refId: medicine.id,
-        medicineName: medicine.name,
-        scheduledTime: time,
-        isOverdue: true,
-      });
-    }
-  }
-  doses.sort((a, b) =>
-    a.kind === "dose" && b.kind === "dose" ? a.scheduledTime.localeCompare(b.scheduledTime) : 0,
-  );
-
-  const next = appointments
-    .filter((a) => a.status === "upcoming" && new Date(a.scheduled_at).getTime() >= now)
-    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())[0];
-
-  const appointmentReminders: Reminder[] = next
-    ? [
-        {
-          kind: "appointment",
-          refId: next.id,
-          title: next.title,
-          scheduledAt: next.scheduled_at,
-          daysAhead: diffDays(today, new Intl.DateTimeFormat("en-CA", { timeZone: APP_TIMEZONE }).format(new Date(next.scheduled_at))),
-        },
-      ]
-    : [];
-
-  return [...doses, ...appointmentReminders];
+export function mealPlanFor({ dietType }: { dietType: DietType }): MealSlot[] {
+  if (!DIET_TYPES.includes(dietType)) throw new Error(`Unknown diet type: ${dietType}`);
+  return MEAL_SLOTS.map((slot) => ({
+    slot,
+    labelKey: `mealPlan.slotLabel.${slot}`,
+    itemsKey: slot === "snack" ? "mealPlan.snack" : `mealPlan.${dietType}.${slot}`,
+  }));
 }
 
-export { todayInAppZone };
+export function extrasFor(): ExtraSlot[] {
+  return [
+    { slot: "water", labelKey: "mealPlan.slotLabel.water", itemsKey: "mealPlan.extras.water" },
+    { slot: "dryFruits", labelKey: "mealPlan.slotLabel.dryFruits", itemsKey: "mealPlan.extras.dryFruits" },
+  ];
+}
 ```
 
-- [ ] **Step 5: Run it and watch it pass**
-
-Run: `npx vitest run lib/domain/reminders.test.ts`
+Run: `npx vitest run lib/domain/mealPlan.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Write the query module**
+- [ ] **Step 3: Add the i18n content**
 
-Create `lib/supabase/queries/today.ts` with one exported function returning everything Today needs in parallel: the active pregnancy, the profile display name, today's medicines and logs, upcoming appointments, and up to two published content items whose week range covers her current week. All queries are RLS-scoped; none passes a user id explicitly.
+Add to `i18n/en.json` (and the Hindi translations to `i18n/hi.json`), copied verbatim from `Meal Plan.dc.html`'s `mealsFor`/`extras`:
 
-- [ ] **Step 7: Write the failing TodayScreen test**
+```json
+"mealPlan": {
+  "title": "Your meal plan for today",
+  "trimesterLabel": "Matched to your {{trimester}} trimester",
+  "disclaimer": "These are general suggestions based on common Indian meals, not a plan made for you. Please check with your doctor before making changes to your diet.",
+  "dietLabel": { "veg": "Veg", "nonveg": "Non Veg", "vegan": "Vegan" },
+  "slotLabel": { "breakfast": "Breakfast", "lunch": "Lunch", "snack": "Snack", "dinner": "Dinner", "water": "Water", "dryFruits": "Dry fruits" },
+  "veg": {
+    "breakfast": "Poha or upma, a glass of milk, a small handful of nuts.",
+    "lunch": "Dal, roti, a seasonal vegetable, and curd.",
+    "dinner": "Khichdi or roti with sabzi, and a small bowl of dal."
+  },
+  "nonveg": {
+    "breakfast": "Eggs or poha, a glass of milk, a small handful of nuts.",
+    "lunch": "Dal, roti, a seasonal vegetable and curd, or grilled chicken with rice.",
+    "dinner": "Fish curry with rice, or khichdi with sabzi and a small bowl of dal."
+  },
+  "vegan": {
+    "breakfast": "Poha or upma, a glass of soy or almond milk, a small handful of nuts.",
+    "lunch": "Dal, roti, a seasonal vegetable, and coconut chutney.",
+    "dinner": "Khichdi or roti with sabzi, and a small bowl of dal."
+  },
+  "snack": "A piece of fruit and some roasted chana.",
+  "extras": {
+    "water": "Sip through the day rather than all at once, more if it is warm out.",
+    "dryFruits": "A few soaked almonds, walnuts or dates. Safe in small amounts through pregnancy."
+  },
+  "whyLabel": "Why this matters",
+  "whyBody": "Your baby is growing fast this trimester, so small steady meals matter more than big ones. Eating what you already enjoy, just a bit more often, is enough for now."
+}
+```
+
+- [ ] **Step 4: Write the failing MealPlanScreen test**
+
+Create `app/(app)/today/meal-plan/MealPlanScreen.test.tsx`. Assert:
+- three diet tabs render using the `Tabs` primitive, defaulting to Veg
+- switching tabs changes the breakfast, lunch and dinner text but not the snack or extras text
+- the disclaimer banner text renders unconditionally, in both locales
+- a back control returns to `/today`
+- no `texture-motif` renders
+
+- [ ] **Step 5: Implement `MealPlanScreen.tsx` and `app/(app)/today/meal-plan/page.tsx`** from the design and the domain function above, using `Tabs` for the diet switch and `Card` for each meal row.
+
+- [ ] **Step 6: Verify and commit**
+
+```bash
+git add lib/domain/mealPlan.ts "app/(app)/today/meal-plan" i18n
+git commit -m "feat(today): add static, locale-carried Meal Plan screen"
+```
+
+---
+
+### 18.4 Quick Listen (richer media viewer, shared with Session 28)
+
+`content_items` (migration 4) already has everything a media viewer needs: `kind`, `media_url`, `narration_url`, `duration_seconds`. Rather than build a second player for Today and a simpler one in Session 28, `ContentDetail` is built once, here, with a `backHref`/`backLabelKey` prop so it can say "Back to Today" from `/today/listen/[slug]` or "Back to Reading" from `/reading/[slug]` later. Session 28 is reduced to the list screen and the article markdown branch; it imports this component rather than rebuilding it.
+
+- [ ] **Step 1: Write the failing content query test**
+
+Create `lib/supabase/queries/content.test.ts` (mocking the Supabase client per this repo's existing query-test pattern). Assert `getContentItem({ supabase, slug, locale })` returns the row for the requested locale, falls back to the English row via `resolveLocalisedContent` when the Hindi row is missing, and returns `null` for an unknown or unpublished slug.
+
+- [ ] **Step 2: Implement `lib/supabase/queries/content.ts`**
+
+```ts
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { resolveLocalisedContent } from "@/lib/domain/content";
+import type { Locale } from "@/lib/config";
+import type { Database } from "@/lib/supabase/database.types";
+
+export type ContentItemRow = Database["public"]["Tables"]["content_items"]["Row"];
+
+export async function getContentItem({
+  supabase,
+  slug,
+  locale,
+}: {
+  supabase: SupabaseClient<Database>;
+  slug: string;
+  locale: Locale;
+}): Promise<{ item: ContentItemRow; isFallback: boolean } | null> {
+  const { data, error } = await supabase
+    .from("content_items")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true);
+  if (error) throw error;
+  if (!data || data.length === 0) return null;
+  return resolveLocalisedContent({ items: data, locale });
+}
+```
+
+- [ ] **Step 3: Write the failing ContentDetail test**
+
+Create `app/(app)/reading/[slug]/ContentDetail.test.tsx`. Assert:
+- a video item renders a native `<video controls playsInline>` *and* the richer chrome from `Quick Listen.dc.html`: a play state indicator and a "playing right here, so you keep your place" caption sitting below it, not replacing the native element
+- an audio item renders a native `<audio controls>` plus the same caption, and a "Read along" toggle that reveals the transcript (`content_passages` body for that item) when `narration_url` or a passage exists
+- switching the top toggle to "Text version" hides the player and shows the transcript alone, with the "you can switch back to listening any time, even on a slow connection" note
+- the `AudioIndicator` appears only when `narration_url` exists
+- a missing slug renders a not-found state with a route back via `backHref`, not a crash
+- the fallback-locale marker renders when applicable
+- `content_opened` fires with `kind` and `is_fallback_locale`, and `content_completed` fires on the native element's `onEnded`
+- the back control's label and target come from `backHref`/`backLabelKey`, proving the same component serves both entry points
+
+- [ ] **Step 4: Implement `ContentDetail.tsx`** from the design and the test above, keeping the native `<video>`/`<audio>` element as the actual playback surface (browsers already give scrubbing, buffering and accessibility for free) and layering the transcript toggle and caption around it rather than reimplementing transport controls.
+
+- [ ] **Step 5: Wire the two entry points**
+
+`app/(app)/today/listen/[slug]/page.tsx` renders `<ContentDetail backHref="/today" backLabelKey="today.backToToday" .../>`. `app/(app)/reading/[slug]/page.tsx` (Session 28) renders the same component with `backHref="/reading"`.
+
+- [ ] **Step 6: Verify and commit**
+
+```bash
+git add lib/supabase/queries/content.ts "app/(app)/reading/[slug]/ContentDetail.tsx" "app/(app)/reading/[slug]/ContentDetail.test.tsx" "app/(app)/today/listen"
+git commit -m "feat(today): add shared ContentDetail media viewer, entered from Today as Quick Listen"
+```
+
+---
+
+### 18.5 Recent Activity
+
+**No wellness-logging feature exists anywhere in this plan.** `Recent Activity.dc.html`'s "Went for your evening walk" entry has no producer — nothing lets her log a walk, in this session or any later one. `buildActivityFeed` accepts a `wellnessEvents` parameter and a `wellness` entry kind so the type and the UI are ready, but the array is always `[]` until a future session adds a wellness log; that is a deliberate, documented gap, not an oversight. Milestones and appointments are the same story one layer down: `buildTimeline`-style milestone data and `appointments` rows exist, but Session 18 runs before Sessions 20 and 23 build the screens that write meaningful ones, so those two arrays are also usually empty at this point in the build order. Wire them anyway — a later session's job is a one-line addition to `lib/supabase/queries/activity.ts`, not a rewrite of this domain function.
+
+- [ ] **Step 1: Write the failing activity test**
+
+Create `lib/domain/activity.test.ts`:
+
+```ts
+import { describe, expect, it } from "vitest";
+import { buildActivityFeed, groupActivityByDay } from "@/lib/domain/activity";
+
+const now = new Date("2026-09-11T18:00:00+05:30").getTime();
+
+describe("buildActivityFeed", () => {
+  it("returns nothing when there is nothing to show", () => {
+    expect(
+      buildActivityFeed({ checkins: [], medicineLogs: [], milestones: [], appointments: [], wellnessEvents: [], now }),
+    ).toEqual([]);
+  });
+
+  it("turns a checkin with a feeling into a mood entry of the matching kind", () => {
+    const entries = buildActivityFeed({
+      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30" }],
+      medicineLogs: [],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries).toEqual([
+      { id: "c1", kind: "moodGood", occurredAt: "2026-09-11T10:00:00+05:30", params: {} },
+    ]);
+  });
+
+  it("falls back to a neutral mood kind when she typed without tapping a chip", () => {
+    const entries = buildActivityFeed({
+      checkins: [{ id: "c1", feeling: null, created_at: "2026-09-11T10:00:00+05:30" }],
+      medicineLogs: [],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries[0]!.kind).toBe("moodNew");
+  });
+
+  it("turns a medicine log into a medicine entry carrying the medicine's name", () => {
+    const entries = buildActivityFeed({
+      checkins: [],
+      medicineLogs: [
+        { id: "l1", medicine_name: "Iron tablet", status: "taken", logged_at: "2026-09-11T09:05:00+05:30" },
+      ],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries[0]).toMatchObject({ kind: "medicineTaken", params: { medicineName: "Iron tablet" } });
+  });
+
+  it("distinguishes a skipped dose from a taken one", () => {
+    const entries = buildActivityFeed({
+      checkins: [],
+      medicineLogs: [{ id: "l1", medicine_name: "Iron tablet", status: "skipped", logged_at: "2026-09-11T09:05:00+05:30" }],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries[0]!.kind).toBe("medicineSkipped");
+  });
+
+  it("merges every kind into one reverse-chronological list", () => {
+    const entries = buildActivityFeed({
+      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30" }],
+      medicineLogs: [{ id: "l1", medicine_name: "Iron tablet", status: "taken", logged_at: "2026-09-11T09:00:00+05:30" }],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    const times = entries.map((e) => new Date(e.occurredAt).getTime());
+    expect([...times].sort((a, b) => b - a)).toEqual(times);
+  });
+
+  it("accepts empty milestone, appointment and wellness arrays without complaint, because their producers don't exist yet", () => {
+    expect(() =>
+      buildActivityFeed({ checkins: [], medicineLogs: [], milestones: [], appointments: [], wellnessEvents: [], now }),
+    ).not.toThrow();
+  });
+});
+
+describe("groupActivityByDay", () => {
+  it("labels today, yesterday and this week distinctly", () => {
+    const entries = [
+      { id: "a", kind: "moodGood" as const, occurredAt: "2026-09-11T10:00:00+05:30", params: {} },
+      { id: "b", kind: "moodGood" as const, occurredAt: "2026-09-10T10:00:00+05:30", params: {} },
+      { id: "c", kind: "moodGood" as const, occurredAt: "2026-09-06T10:00:00+05:30", params: {} },
+    ];
+    const groups = groupActivityByDay({ entries, today: "2026-09-11" });
+    expect(groups.map((g) => g.labelKey)).toEqual(["activity.today", "activity.yesterday", "activity.thisWeek"]);
+  });
+
+  it("returns no groups for an empty feed, so the screen can show its own empty state", () => {
+    expect(groupActivityByDay({ entries: [], today: "2026-09-11" })).toEqual([]);
+  });
+});
+```
+
+- [ ] **Step 2: Run it, watch it fail, implement**
+
+Create `lib/domain/activity.ts`:
+
+```ts
+import { diffDays } from "@/lib/domain/dates";
+
+export type ActivityKind =
+  | "moodGood"
+  | "moodNew"
+  | "moodWorried"
+  | "medicineTaken"
+  | "medicineSkipped"
+  | "wellness"
+  | "milestone"
+  | "appointment";
+
+export interface ActivityEntry {
+  id: string;
+  kind: ActivityKind;
+  occurredAt: string;
+  /** Interpolation params for the i18n key the UI picks by kind. Never display copy. */
+  params: Record<string, string>;
+}
+
+export interface ActivityCheckin {
+  id: string;
+  feeling: "good" | "new" | "worried" | null;
+  created_at: string;
+}
+
+export interface ActivityMedicineLog {
+  id: string;
+  medicine_name: string;
+  status: "taken" | "skipped";
+  logged_at: string;
+}
+
+export interface ActivityWellnessEvent {
+  id: string;
+  label: string;
+  occurred_at: string;
+}
+
+export interface ActivityMilestone {
+  id: string;
+  titleKey: string;
+  occurred_at: string;
+}
+
+export interface ActivityAppointment {
+  id: string;
+  title: string;
+  occurred_at: string;
+}
+
+const MOOD_KIND: Record<"good" | "new" | "worried", ActivityKind> = {
+  good: "moodGood",
+  new: "moodNew",
+  worried: "moodWorried",
+};
+
+export function buildActivityFeed({
+  checkins,
+  medicineLogs,
+  milestones,
+  appointments,
+  wellnessEvents,
+}: {
+  checkins: ActivityCheckin[];
+  medicineLogs: ActivityMedicineLog[];
+  milestones: ActivityMilestone[];
+  appointments: ActivityAppointment[];
+  wellnessEvents: ActivityWellnessEvent[];
+  now: number;
+}): ActivityEntry[] {
+  const moodEntries: ActivityEntry[] = checkins.map((c) => ({
+    id: c.id,
+    kind: MOOD_KIND[c.feeling ?? "new"],
+    occurredAt: c.created_at,
+    params: {},
+  }));
+
+  const medicineEntries: ActivityEntry[] = medicineLogs.map((l) => ({
+    id: l.id,
+    kind: l.status === "taken" ? "medicineTaken" : "medicineSkipped",
+    occurredAt: l.logged_at,
+    params: { medicineName: l.medicine_name },
+  }));
+
+  const wellnessEntries: ActivityEntry[] = wellnessEvents.map((w) => ({
+    id: w.id,
+    kind: "wellness",
+    occurredAt: w.occurred_at,
+    params: { label: w.label },
+  }));
+
+  const milestoneEntries: ActivityEntry[] = milestones.map((m) => ({
+    id: m.id,
+    kind: "milestone",
+    occurredAt: m.occurred_at,
+    params: { titleKey: m.titleKey },
+  }));
+
+  const appointmentEntries: ActivityEntry[] = appointments.map((a) => ({
+    id: a.id,
+    kind: "appointment",
+    occurredAt: a.occurred_at,
+    params: { title: a.title },
+  }));
+
+  return [...moodEntries, ...medicineEntries, ...wellnessEntries, ...milestoneEntries, ...appointmentEntries].sort(
+    (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
+  );
+}
+
+export interface ActivityGroup {
+  labelKey: "activity.today" | "activity.yesterday" | "activity.thisWeek" | "activity.earlier";
+  entries: ActivityEntry[];
+}
+
+export function groupActivityByDay({ entries, today }: { entries: ActivityEntry[]; today: string }): ActivityGroup[] {
+  const buckets: Record<ActivityGroup["labelKey"], ActivityEntry[]> = {
+    "activity.today": [],
+    "activity.yesterday": [],
+    "activity.thisWeek": [],
+    "activity.earlier": [],
+  };
+  for (const e of entries) {
+    const day = e.occurredAt.slice(0, 10);
+    const age = diffDays(day, today);
+    const key: ActivityGroup["labelKey"] =
+      age === 0 ? "activity.today" : age === 1 ? "activity.yesterday" : age <= 7 ? "activity.thisWeek" : "activity.earlier";
+    buckets[key]!.push(e);
+  }
+  return (Object.keys(buckets) as ActivityGroup["labelKey"][])
+    .filter((k) => buckets[k]!.length > 0)
+    .map((k) => ({ labelKey: k, entries: buckets[k]! }));
+}
+```
+
+Run: `npx vitest run lib/domain/activity.test.ts`
+Expected: PASS.
+
+- [ ] **Step 3: Write the query**
+
+Create `lib/supabase/queries/activity.ts` with one exported function fetching the last 30 days of `checkins` and `medicine_logs` (joined to `medicines.name`) for the signed-in user, RLS-scoped, and passing empty arrays for `milestones`, `appointments` and `wellnessEvents` with a comment pointing at the sessions that will fill them in.
+
+- [ ] **Step 4: Write the failing ActivityFeed test**
+
+Create `app/(app)/today/activity/ActivityFeed.test.tsx`. Assert:
+- entries render grouped under day headings in the order `groupActivityByDay` returns
+- each entry's icon and text match its `kind` (seven icon branches, matching `Recent Activity.dc.html`'s `sc-if` chain)
+- a mood entry's text comes from an i18n key, never from `checkin.body` (the free text she typed is never rendered here — it's rendered nowhere outside the check-in flow itself)
+- the connector line between entries is present for every entry except the last in its group
+- an empty feed renders `EmptyState` with the "nothing logged yet" copy and the open-notebook illustration slot, not an empty card
+- a back control returns to `/today`
+
+- [ ] **Step 5: Implement `ActivityFeed.tsx` and `app/(app)/today/activity/page.tsx`** from the design.
+
+- [ ] **Step 6: Verify and commit**
+
+```bash
+git add lib/domain/activity.ts lib/supabase/queries/activity.ts "app/(app)/today/activity" i18n
+git commit -m "feat(today): add Recent Activity feed merging checkins and medicine logs"
+```
+
+---
+
+### 18.6 Medicine Quick Action Sheet
+
+Reached by tapping the "Next: {medicine}, {time}" line on Today, or by a notification deep link (`/today?reminder=<medicineId>`, wired in Session 33 when push notifications exist; the sheet itself doesn't wait on that). "Taken" and "Skip today" write a real `medicine_logs` row via `logDose`. "Move to later time" is client-side only — `medicine_logs.status` only allows `taken`/`skipped` (migration 3), so there is nothing to persist; it just changes which time the sheet, and the Today reminder line, treat as "next" for the rest of this session, matching the design's own `localStorage`-only mock.
+
+- [ ] **Step 1: Write the failing logDose test**
+
+Create `app/actions/medicines.test.ts`. Assert `logDose` inserts a row with the caller's `user_id` (never trusts a client-supplied one), upserts on the `(medicine_id, scheduled_date, scheduled_time)` unique constraint so a retried tap can't double-log, rejects a `status` outside `taken`/`skipped`, and fires `medicine_dose_logged` with `late: true` when `scheduledTime` has already passed.
+
+- [ ] **Step 2: Implement `app/actions/medicines.ts`**
+
+```ts
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createServerSupabase } from "@/lib/supabase/server";
+
+export async function logDose(input: {
+  medicineId: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  status: "taken" | "skipped";
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "not_authenticated" };
+
+  const { error } = await supabase
+    .from("medicine_logs")
+    .upsert(
+      {
+        user_id: user.id,
+        medicine_id: input.medicineId,
+        scheduled_date: input.scheduledDate,
+        scheduled_time: input.scheduledTime,
+        status: input.status,
+      },
+      { onConflict: "medicine_id,scheduled_date,scheduled_time" },
+    );
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/today");
+  return { ok: true };
+}
+```
+
+(`medicine_dose_logged` fires client-side from the sheet, after a successful call, not inside the action — this repo's convention keeps `posthog-js` calls out of server actions; see `app/actions/consent.ts`'s comment on the same point.)
+
+- [ ] **Step 3: Write the failing MedicineQuickActionSheet test**
+
+Create `app/(app)/today/MedicineQuickActionSheet.test.tsx`. Assert:
+- it opens via `BottomSheet` with the medicine name and time in the heading
+- "Taken" calls `logDose` with `status: "taken"`, then shows the confirmation copy and a "Change" control
+- "Skip today" calls `logDose` with `status: "skipped"` and shows its own confirmation copy
+- "Move to later time" bumps the displayed time by one hour, shows its own confirmation copy referencing the new time, and calls `logDose` for neither status
+- "Change" returns to the three-action state without re-logging anything
+- "See all medicines" links to `/care/medicines` (Session 22's route)
+- the Android back gesture and the scrim both close the sheet, per `BottomSheet`'s existing contract
+- `medicine_dose_logged` fires with `late: true` when the sheet opened after the scheduled time had passed
+
+- [ ] **Step 4: Implement `MedicineQuickActionSheet.tsx`** from the design, using `BottomSheet` and calling `logDose` from Step 2.
+
+- [ ] **Step 5: Verify and commit**
+
+```bash
+git add app/actions/medicines.ts "app/(app)/today/MedicineQuickActionSheet.tsx" "app/(app)/today/MedicineQuickActionSheet.test.tsx"
+git commit -m "feat(today): add Medicine Quick Action Sheet backed by a real dose log"
+```
+
+---
+
+### 18.7 Today edge states
+
+Six full-screen takeovers from `Today Edge Case.dc.html`, replacing the whole Today screen rather than sitting inside it. **Scope boundary:** the existing rule that inline Today reminders never use failure language ("missed", "failed", "you forgot" — tested in 18.8 below) applies only to `TodayScreen`'s own reminder line. `TodayEdgeState` is a separate component the guard test never renders, and its copy is reproduced verbatim from the design, which the product owner already approved with that wording.
+
+| `state` | Trigger | Primary action |
+|---|---|---|
+| `offline` | Today's server data has never been fetched and nothing is cached (first visit while offline) — *not* the common case of browsing cached data offline, which stays on the normal screen under the existing `OfflineBanner` (Session 17) | Continue (retries the fetch) |
+| `missed_task` | Opened from a notification deep link for a dose whose time passed before she opened it | Do it now (opens `MedicineQuickActionSheet`) |
+| `returning` | `localStorage['mamaroo_last_seen']` is more than 14 days old at mount; updated to `now` every mount | See today |
+| `overdue` | `pregnancyProgress().isPostTerm` — this is the same condition the original plan's post-term test already covers; `TodayScreen` renders `TodayEdgeState` with `state="overdue"` instead of its normal content when this is true | Continue |
+| `save_failed` | `FeelingBox`'s `onSubmit` throws | Try again |
+| `pending_reminder` | Opened from a notification deep link for a dose still ahead of its time | Take it now (opens `MedicineQuickActionSheet`) |
+
+- [ ] **Step 1: Write the failing test**
+
+Create `app/(app)/today/TodayEdgeState.test.tsx`. Assert, for each of the six `state` values: the correct headline and (where present) supporting line render, from i18n keys `today.edge.<state>.headline` / `.supporting`; the correct primary and (where present) secondary label render and call `onPrimary`/`onSecondary`; the illustration's dim/motif treatment matches the design (`offline` dimmed with a cloud motif, `save_failed` with the retry motif, `pending_reminder` with the calendar motif, the rest undimmed with no motif); and no `texture-motif` renders on any of the six.
+
+- [ ] **Step 2: Implement `TodayEdgeState.tsx`**
+
+```tsx
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { IllustrationContainer } from "@/components/patterns/IllustrationContainer";
+
+export type TodayEdgeStateKind = "offline" | "missed_task" | "returning" | "overdue" | "save_failed" | "pending_reminder";
+
+const MOTIF: Record<TodayEdgeStateKind, "cloud" | "pill" | "retry" | "calendar" | null> = {
+  offline: "cloud",
+  missed_task: "pill",
+  returning: null,
+  overdue: null,
+  save_failed: "retry",
+  pending_reminder: "calendar",
+};
+
+const HAS_SECONDARY: Record<TodayEdgeStateKind, boolean> = {
+  offline: false,
+  missed_task: true,
+  returning: false,
+  overdue: false,
+  save_failed: true,
+  pending_reminder: false,
+};
+
+export interface TodayEdgeStateProps {
+  state: TodayEdgeStateKind;
+  onPrimary: () => void;
+  onSecondary?: () => void;
+}
+
+export function TodayEdgeState({ state, onPrimary, onSecondary }: TodayEdgeStateProps) {
+  const { t, hasKey } = useTranslation();
+  const supportingKey = `today.edge.${state}.supporting`;
+  const hasSupporting = hasKey(supportingKey);
+
+  return (
+    <div data-testid="today-edge-state">
+      <IllustrationContainer
+        staticSrc={`/illustrations/edge-${state}.png`}
+        alt={t(`today.edge.${state}.headline`)}
+        style={{ opacity: state === "offline" ? 0.55 : 1 }}
+      />
+      {MOTIF[state] && <span data-testid={`edge-motif-${MOTIF[state]}`} />}
+      <h1>{t(`today.edge.${state}.headline`)}</h1>
+      {hasSupporting && <p>{t(supportingKey)}</p>}
+      <button type="button" onClick={onPrimary}>
+        {t(`today.edge.${state}.primary`)}
+      </button>
+      {HAS_SECONDARY[state] && onSecondary && (
+        <button type="button" onClick={onSecondary}>
+          {t(`today.edge.${state}.secondary`)}
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 3: Add the i18n content**, copied verbatim from `Today Edge Case.dc.html`'s `copy` object, for all six states, in both locales.
+
+- [ ] **Step 4: Wire `TodayScreen` to select it**
+
+`TodayScreen` checks, in order: `isPostTerm` → `state="overdue"`; a `reminder` search param pointing at a medicine whose time has passed → `state="missed_task"`; the same param, not yet passed → `state="pending_reminder"`; `localStorage['mamaroo_last_seen']` older than 14 days → `state="returning"` (then updates the stamp); otherwise renders normally. The `offline`/`save_failed` states are triggered locally by the fetch and the `FeelingBox` submit handler respectively, not by this ordered check.
+
+- [ ] **Step 5: Verify and commit**
+
+```bash
+git add "app/(app)/today/TodayEdgeState.tsx" "app/(app)/today/TodayEdgeState.test.tsx" i18n
+git commit -m "feat(today): add the six-state edge takeover"
+```
+
+---
+
+### 18.8 TodayScreen assembly
+
+- [ ] **Step 1: Write the query module**
+
+Create `lib/supabase/queries/today.ts` with one exported function returning everything Today needs in parallel: the active pregnancy (including `pregnancy_flags`, to derive `babyCount`), the profile display name, today's medicines and logs, upcoming appointments, and up to two published content items whose week range covers her current week. All queries are RLS-scoped; none passes a user id explicitly.
+
+- [ ] **Step 2: Write the failing TodayScreen test**
 
 Create `app/(app)/today/TodayScreen.test.tsx`. Assert:
 - the greeting includes her name and her week
-- the illustration renders with descriptive alt text naming the week
-- an overdue dose reminder appears with gentle wording and no failure language (assert the rendered text does not match `/missed|failed|you forgot/i`)
+- the illustration renders once with descriptive alt text naming the week, or twice, side by side, when `pregnancy_flags` includes `"twins"`, with alt text saying "your babies"
+- the "Next:" line shows only `reminders[0]`'s text, with gentle wording — the render does not match `/missed|failed|you forgot/i` — and tapping it opens `MedicineQuickActionSheet` when `reminders[0].kind === "dose"`
 - with no reminders, a calm empty line appears rather than an empty card
-- recommended reading renders up to two items and links to the right slug
-- the feeling box is present with both a text field and a mic control
-- **no `texture-motif` is rendered on this screen** (`queryByTestId("texture-motif")` is null)
+- the bento grid renders the swipeable reading card (up to two items, linking to the right slug), a Quick Listen card linking to `/today/listen/[slug]`, and a Meal Plan card linking to `/today/meal-plan`
+- "See what you've logged before" links to `/today/activity`
+- the feeling box is present with both a text field, the three chips, and a mic control
+- the closing state's weekly-reflection line renders when she has an upcoming appointment within 7 days and at least one logged check-in this week; the checkup nudge renders when an appointment is within 3 days and links to `/care/questions` (Session 25's route — a dead link until that session ships, which is expected; do not build a second questions screen here to avoid it)
+- **no `texture-motif` is rendered on this screen**
 - exactly one element carries the primary-emphasis class
-- a post-term state (week 40, `isPostTerm: true`) renders the holding message rather than an error
+- `TodayEdgeState` renders instead of all of the above when 18.7's selection logic picks a state
 
-- [ ] **Step 8: Run it, watch it fail, implement from the designer's markup, run it again**
+- [ ] **Step 3: Run it, watch it fail, implement from the designer's markup, run it again**
 
-Expected: PASS. The illustration's alt text comes from a translation key taking the week as a parameter, so Hindi gets a natural sentence rather than a template.
+Expected: PASS. The illustration's alt text comes from a translation key taking the week (and, for twins, a plural form) as parameters, so Hindi gets a natural sentence rather than a template.
 
-- [ ] **Step 9: Write the FeelingBox test and implementation**
+- [ ] **Step 4: Add the e2e Today spec**
 
-The box itself only collects and submits; the triage work is Session 19. Test: it submits trimmed text; it refuses to submit empty or whitespace-only text and says why; it shows the mic button only when the transcriber reports availability; it disables submission while offline and explains why; and it emits `checkin_submitted` with a length bucket and never the text.
+Create `tests/e2e/today.spec.ts`: after onboarding, `/today` shows the correct week for a known LMP, twins render two illustrations when `pregnancy_flags` includes `twins`, and the page has no axe violations in both languages.
 
-- [ ] **Step 10: Add the e2e Today spec**
-
-Create `tests/e2e/today.spec.ts`: after onboarding, `/today` shows the correct week for a known LMP, and the page has no axe violations in both languages.
-
-- [ ] **Step 11: Verify and commit**
+- [ ] **Step 5: Verify and commit**
 
 ```bash
 git add lib/domain/reminders.ts lib/supabase/queries "app/(app)/today" i18n tests
-git commit -m "feat(today): add calm Today screen with derived reminders and the feeling box"
+git commit -m "feat(today): assemble the calm Today screen with twins, chips, edge states and the satellite screens"
 ```
 
 ---
 
 ## Session 19: Voice input, triage engine, check-in screen
 
-**Gate B — request before starting:** ask the product owner for the red-flag symptom rules: rows of `match_terms`, `severity`, `guidance_title`, `guidance_body`, `priority`, in English and Hindi. **Stop until they arrive.** Never author a severity threshold or guidance text.
-**Gate A — also request:** the check-in and triage-result screens' designer markup.
+**Gate B — still open:** the red-flag symptom rules (`match_terms`, `severity`, `guidance_title`, `guidance_body`, `priority`, in English and Hindi) have not arrived from the product owner. **Do not author them.** Everything in this session ships and is tested against the non-medical placeholder rules already in the triage test below; `supabase/seed/symptom_rules.sql` is created empty, with a comment explaining why, exactly as `content.reviewed.sql` already does for the chatbot corpus. Do not let this block the rest of the session — request the rules and keep building.
+**Gate A — satisfied:** the check-in screen's designer markup is `Today.dc.html`'s feeling box (built in Session 18) plus the triage-result rendering below it; no separate check-in screen exists in the delivered designs; text and voice both submit through `FeelingBox`, and the result renders in place, on `/today`, not on a separate route. (This supersedes the original plan's assumption of a standalone `app/(app)/checkin/page.tsx` — there is no such screen in `Screens/Today Tab/`, and introducing one would fork the single entry point the design actually shows.)
 
-**Goal:** She describes how she feels, by voice or typing, and gets a calm, reviewed response at one of three severity levels, with the urgent path working offline.
+**Goal:** She describes how she feels, by voice or typing, from the feeling box on Today, and gets a calm, reviewed response at one of three severity levels, with the urgent path working offline.
 
 **Files:**
 - Create: `lib/speech/transcribe.ts`, `lib/speech/webspeech.ts` + test
 - Create: `lib/domain/triage.ts` + test
-- Create: `app/(app)/checkin/page.tsx`, `app/(app)/checkin/CheckinScreen.tsx` + test
+- Create: `app/(app)/today/TriageResult.tsx` + test
 - Create: `app/actions/checkin.ts`
-- Create: `supabase/seed/symptom_rules.sql` (from the product owner's content)
+- Create: `supabase/seed/symptom_rules.sql` (empty, pending Gate B)
 - Modify: `i18n/en.json`, `i18n/hi.json`
 
 **Interfaces:**
+- Consumes: `FeelingBox`'s `onSubmit` (Session 18), `SeverityBadge`, `DisclaimerBanner`.
 - Produces:
   - `Transcriber` interface: `isAvailable(): boolean`, `start({ locale, onResult, onError }): () => void`
   - `triage({ text, rules }): TriageResult`
-  - `saveCheckin({ body, inputMethod })` server action
+  - `saveCheckin({ body, inputMethod, feeling })` server action
 
-- [ ] **Step 1: Request the content and the asset, then stop**
+- [ ] **Step 1: Write the failing triage test**
 
-- [ ] **Step 2: Write the failing triage test**
+Create `lib/domain/triage.test.ts` — unchanged from the original plan (the full test file specified earlier in this document, covering case-insensitivity, punctuation, Devanagari, transliteration, word-boundary matching, priority ordering and the inactive-rule and empty-rules cases). Run it, watch it fail, then implement `lib/domain/triage.ts` exactly as already specified there. Run again; confirm PASS.
 
-Create `lib/domain/triage.test.ts`:
+- [ ] **Step 2: Write the failing transcriber test, then implement it**
 
-```ts
-import { describe, expect, it } from "vitest";
-import { triage, type SymptomRule } from "@/lib/domain/triage";
+`lib/speech/webspeech.test.ts` and `lib/speech/transcribe.ts` / `lib/speech/webspeech.ts`, unchanged from the original plan: `isAvailable()`, locale-to-`lang` mapping, `onResult`/`onError` with typed reasons, the returned stop function, and the no-audio-retained grep assertion.
 
-// Non-medical placeholder rules. Real rules are product-owner content (Gate B).
-const rules: SymptomRule[] = [
-  { id: "r-general", match_terms: ["tired", "thaka"], severity: "general", priority: 10 },
-  { id: "r-clinic", match_terms: ["swelling", "sujan"], severity: "contact_clinic", priority: 50 },
-  { id: "r-urgent", match_terms: ["bleeding", "khoon"], severity: "urgent", priority: 90 },
-  { id: "r-urgent-phrase", match_terms: ["very bad headache"], severity: "urgent", priority: 95 },
-  { id: "r-urgent-hindi", match_terms: ["तेज़ दर्द"], severity: "urgent", priority: 95 },
-];
+- [ ] **Step 3: Seed the (still placeholder) rules**
 
-describe("triage", () => {
-  it("returns no match for text that matches nothing", () => {
-    expect(triage({ text: "I watched a film today", rules })).toEqual({ severity: null, matchedRuleId: null });
-  });
+Create `supabase/seed/symptom_rules.sql`:
 
-  it("matches a general term", () => {
-    expect(triage({ text: "I feel tired", rules })).toEqual({ severity: "general", matchedRuleId: "r-general" });
-  });
-
-  it("matches regardless of case", () => {
-    expect(triage({ text: "TIRED all day", rules }).severity).toBe("general");
-  });
-
-  it("matches despite surrounding punctuation", () => {
-    expect(triage({ text: "so much swelling!!", rules }).severity).toBe("contact_clinic");
-  });
-
-  it("returns the highest severity when several terms match", () => {
-    const result = triage({ text: "I am tired and there is bleeding", rules });
-    expect(result.severity).toBe("urgent");
-    expect(result.matchedRuleId).toBe("r-urgent");
-  });
-
-  it("prefers the higher priority rule within the same severity", () => {
-    expect(triage({ text: "a very bad headache and bleeding", rules }).matchedRuleId).toBe("r-urgent-phrase");
-  });
-
-  it("matches a multi-word phrase only when the whole phrase is present", () => {
-    expect(triage({ text: "a bad headache", rules }).severity).toBeNull();
-  });
-
-  it("matches a Devanagari term", () => {
-    expect(triage({ text: "मुझे तेज़ दर्द हो रहा है", rules }).severity).toBe("urgent");
-  });
-
-  it("matches a transliterated term, because people type Hinglish", () => {
-    expect(triage({ text: "bahut thaka hua lag raha hai", rules }).severity).toBe("general");
-  });
-
-  it("does not match a term occurring inside a longer word", () => {
-    expect(triage({ text: "I went to the retired teachers meeting", rules }).severity).toBeNull();
-  });
-
-  it("returns no match for empty or whitespace text", () => {
-    expect(triage({ text: "   ", rules }).severity).toBeNull();
-  });
-
-  it("returns no match when there are no rules at all, rather than guessing", () => {
-    expect(triage({ text: "bleeding", rules: [] })).toEqual({ severity: null, matchedRuleId: null });
-  });
-
-  it("ignores an inactive rule", () => {
-    const inactive = rules.map((r) => ({ ...r, is_active: false }));
-    expect(triage({ text: "bleeding", rules: inactive }).severity).toBeNull();
-  });
-
-  it("collapses repeated whitespace before matching", () => {
-    expect(triage({ text: "a very    bad     headache", rules }).severity).toBe("urgent");
-  });
-});
+```sql
+-- Intentionally empty. Real rows require the product owner's reviewed
+-- match_terms/severity/guidance content (Gate B, Session 19) in English and
+-- Hindi. Until that arrives, the app runs against the non-medical rules in
+-- lib/domain/triage.test.ts and lib/domain/triage.ts's own test fixtures only
+-- -- never against a placeholder severity claim shown to a real user. Delete
+-- this comment and insert the reviewed rows in the same commit they arrive.
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+- [ ] **Step 4: Write the failing TriageResult test**
 
-Run: `npx vitest run lib/domain/triage.test.ts`
-Expected: FAIL — module not found.
-
-- [ ] **Step 4: Implement triage.ts**
-
-Create `lib/domain/triage.ts`:
-
-```ts
-import type { Severity } from "@/lib/domain/severity";
-
-export type { Severity };
-
-export interface SymptomRule {
-  id: string;
-  match_terms: string[];
-  severity: Severity;
-  priority: number;
-  is_active?: boolean;
-}
-
-export interface TriageResult {
-  severity: Severity | null;
-  matchedRuleId: string | null;
-}
-
-const SEVERITY_RANK: Record<Severity, number> = { general: 1, contact_clinic: 2, urgent: 3 };
-
-function normalise(text: string): string {
-  return text.toLowerCase().replace(/\s+/g, " ").trim();
-}
-
-const LATIN_ONLY = /^[a-z\s'-]+$/;
-
-function containsTerm(haystack: string, term: string): boolean {
-  const needle = normalise(term);
-  if (needle === "") return false;
-
-  // Latin terms get word boundaries so "tired" does not match "retired".
-  // Devanagari has no ASCII word characters, so \b is useless there; substring
-  // matching on a whitespace-normalised string is the correct behaviour.
-  if (LATIN_ONLY.test(needle)) {
-    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(^|[^\\p{L}])${escaped}($|[^\\p{L}])`, "u").test(haystack);
-  }
-  return haystack.includes(needle);
-}
-
-/**
- * Deterministic rule matching. No model, no inference, no guessing. Rules and
- * their severities are reviewed content supplied by the product owner; this
- * function only decides which of them the text matches.
- */
-export function triage({ text, rules }: { text: string; rules: SymptomRule[] }): TriageResult {
-  const haystack = normalise(text);
-  if (haystack === "") return { severity: null, matchedRuleId: null };
-
-  const active = rules.filter((r) => r.is_active !== false);
-
-  const matches = active.filter((rule) => rule.match_terms.some((term) => containsTerm(haystack, term)));
-  if (matches.length === 0) return { severity: null, matchedRuleId: null };
-
-  matches.sort((a, b) => {
-    const bySeverity = SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity];
-    return bySeverity !== 0 ? bySeverity : b.priority - a.priority;
-  });
-
-  const winner = matches[0]!;
-  return { severity: winner.severity, matchedRuleId: winner.id };
-}
-```
-
-- [ ] **Step 5: Run it and watch it pass**
-
-Run: `npx vitest run lib/domain/triage.test.ts`
-Expected: PASS.
-
-- [ ] **Step 6: Write the failing transcriber test**
-
-Create `lib/speech/webspeech.test.ts`. Assert: `isAvailable()` is false when neither `SpeechRecognition` nor `webkitSpeechRecognition` exists; true when either does; `start()` sets the recognition language from the locale (`hi-IN` or `en-IN`); results are passed to `onResult`; an error is passed to `onError` with a typed reason (`permission_denied`, `no_speech`, `network`, `unknown`); the returned function stops recognition; and **no audio is retained** — assert the implementation holds no `Blob`, `MediaRecorder`, or array of chunks by grepping the file for those identifiers inside the test.
-
-- [ ] **Step 7: Implement the transcriber behind an interface**
-
-Create `lib/speech/transcribe.ts`:
-
-```ts
-import type { Locale } from "@/lib/config";
-
-export type TranscribeError = "permission_denied" | "no_speech" | "network" | "unsupported" | "unknown";
-
-export interface Transcriber {
-  isAvailable(): boolean;
-  /** Starts listening. Returns a stop function. Audio is never buffered or uploaded. */
-  start(args: {
-    locale: Locale;
-    onResult: (text: string, isFinal: boolean) => void;
-    onError: (reason: TranscribeError) => void;
-  }): () => void;
-}
-```
-
-Create `lib/speech/webspeech.ts` implementing it with `SpeechRecognition`, `continuous: false`, `interimResults: true`, and `lang` set to `hi-IN` or `en-IN`. Map `error` values: `not-allowed` and `service-not-allowed` to `permission_denied`, `no-speech` to `no_speech`, `network` to `network`, anything else to `unknown`.
-
-Swapping to a server transcriber in Phase 2 means adding one file implementing `Transcriber`. Nothing else changes.
-
-- [ ] **Step 8: Seed the product owner's rules**
-
-Create `supabase/seed/symptom_rules.sql` from the content supplied at Gate B, in both locales. Delete the placeholder rules from `content.placeholder.sql` in the same commit so no placeholder severity can be reached.
-
-- [ ] **Step 9: Write the failing CheckinScreen test**
-
-Assert:
-- text input submits and shows the matching severity badge and guidance
-- the mic button appears only when the transcriber is available, and is absent, not disabled, otherwise
-- permission denial shows one plain explanation and leaves the text field usable
+Create `app/(app)/today/TriageResult.test.tsx`. Assert:
+- the matching severity badge and guidance render below the feeling box after a submit
 - a no-match result saves the entry with no severity and makes no claim (assert no `SeverityBadge` renders and the copy does not say "you are fine")
 - the urgent result renders the urgent badge as an alert, shows her clinic and doctor name from her profile for context, and renders the disclaimer banner
 - every result renders the disclaimer banner
-- while offline, the urgent guidance still renders from the passed-in cached rules, and submission is blocked with a clear explanation
+- while offline, the urgent guidance still renders from the passed-in cached rules, and `FeelingBox`'s submit is blocked with the clear explanation already covered in Session 18
 - `triage_result_shown` is emitted with the severity only, never the text
+- a `save_failed` result (the server action throwing) hands control to `TodayEdgeState` with `state="save_failed"` (Session 18.7), rather than rendering its own error copy
 
-- [ ] **Step 10: Implement the screen, the action, and the offline guidance cache**
+- [ ] **Step 5: Implement `TriageResult.tsx`, the action, and the offline guidance cache**
 
-`app/actions/checkin.ts` runs `triage()` server-side too and stores `severity` and `matched_rule_id` alongside the body, so the stored record matches what she was shown. The rules are fetched once and cached by the service worker in Session 33; this session fetches them normally and passes them in as props, which is what makes the offline test above possible.
+`app/actions/checkin.ts`'s `saveCheckin({ body, inputMethod, feeling })` runs `triage()` server-side too and stores `severity`, `matched_rule_id` and `feeling` alongside the body, so the stored record matches what she was shown and what `buildActivityFeed` (Session 18.5) later reads. The rules are fetched once by `TodayScreen`'s query and passed down as props; the service worker caches them starting Session 33, which is what makes the offline test above possible before that session exists.
 
-- [ ] **Step 11: Verify and commit**
+- [ ] **Step 6: Wire the chips to the result copy**
+
+When `feeling` is `"worried"`, `TriageResult`'s framing line reads `today.triage.worriedIntro` instead of the neutral `today.triage.intro`, before the severity badge — the one place the quick-select chips change anything beyond analytics and the activity feed, and it changes copy only, never the deterministic severity `triage()` returns.
+
+- [ ] **Step 7: Verify and commit**
 
 ```bash
-git add lib/domain/triage.ts lib/speech "app/(app)/checkin" app/actions/checkin.ts supabase/seed i18n
-git commit -m "feat(checkin): add deterministic triage, voice input behind an interface and the check-in screen"
+git add lib/domain/triage.ts lib/speech "app/(app)/today/TriageResult.tsx" "app/(app)/today/TriageResult.test.tsx" app/actions/checkin.ts supabase/seed i18n
+git commit -m "feat(checkin): add deterministic triage, voice input behind an interface and the in-place triage result"
 ```
 
-**Done when:** triage is fully deterministic with 100% branch coverage, no audio is retained anywhere, the urgent path renders offline, and every outcome carries the disclaimer. Confirm in the commit body that the shipped rules came from the product owner and that placeholder rules were deleted.
+**Done when:** triage is fully deterministic with 100% branch coverage, no audio is retained anywhere, the urgent path renders offline, every outcome carries the disclaimer, and Gate B's absence is recorded plainly in the commit body rather than worked around. Confirm in the commit body that `symptom_rules.sql` is still empty and why.
 
 ---
 
 ## Session 20: My Baby — illustration, stage progress, merged timeline, baby name
 
 **Gate A — request before starting:** ask for the My Baby screen's designer markup, all nine stage illustrations (Lottie plus static fallback), and the timeline row layout. Stop until they arrive.
+
+**Open question carried from Session 18.2:** Today already renders two baby circles for a twin pregnancy (`pregnancy_flags` contains `"twins"`), derived, not stored. `pregnancies.baby_name` is still a single field. Before implementing `BabyNameField` here, resolve how a twin pregnancy names two babies — likely `baby_name text[]` rather than `baby_name text` — and update `app/actions/baby.ts`'s `updateBabyName` accordingly. Ask the product owner rather than guessing the UI for entering two names.
 
 **Goal:** Her baby's current stage, her position across the nine stages, an editable baby name, and the merged timeline: system week milestones interleaved with her own logged events.
 
@@ -8840,13 +9272,15 @@ git commit -m "feat(kicks): add resumable kick counter with derived state and ti
 
 **Goal:** Manual medicine entry, per-dose logging, and a visual adherence grid rather than a sentence about adherence.
 
+**Scope note:** `app/actions/medicines.ts` already exists from Session 18.6 with one export, `logDose`, backing the Today Medicine Quick Action Sheet. This session adds `createMedicine`, `updateMedicine` and `deactivateMedicine` to the same file rather than creating a second one; `MedicineList`'s own dose-logging control calls the existing `logDose`, unchanged.
+
 **Files:**
 - Create: `lib/domain/adherence.ts` + test
 - Create: `lib/domain/medicines.ts` + test
 - Create: `lib/supabase/queries/care.ts`
 - Create: `app/(app)/care/page.tsx`, `app/(app)/care/CareHub.tsx` + test
 - Create: `app/(app)/care/medicines/page.tsx`, `MedicineList.tsx`, `MedicineForm.tsx`, `AdherenceGrid.tsx` + tests
-- Create: `app/actions/medicines.ts`
+- Modify: `app/actions/medicines.ts` (add `createMedicine`, `updateMedicine`, `deactivateMedicine`; `logDose` already exists)
 - Modify: `i18n/en.json`, `i18n/hi.json`
 
 **Interfaces:**
@@ -9419,14 +9853,18 @@ git commit -m "feat(summary): add printable Doctor Visit Summary in the restrain
 
 **Goal:** The content library. Articles, videos and audios, week-relevant first, with English-only items clearly marked rather than hidden.
 
+**Scope note (2026-09-12):** `ContentDetail.tsx` and `lib/supabase/queries/content.ts`'s single-item fetch (`getContentItem`) were pulled forward into Session 18.4, so Quick Listen and this session's article/video/audio detail view are the same component, entered with a different `backHref`. This session adds the list only, plus the markdown branch inside `ContentDetail` for the `article` kind, which Session 18 didn't need.
+
 **Files:**
 - Create: `lib/domain/library.ts` + test
-- Create: `lib/supabase/queries/content.ts`
+- Modify: `lib/supabase/queries/content.ts` (add the list query alongside Session 18's `getContentItem`)
 - Create: `app/(app)/reading/page.tsx`, `ReadingList.tsx` + test
-- Create: `app/(app)/reading/[slug]/page.tsx`, `ContentDetail.tsx` + test
+- Create: `app/(app)/reading/[slug]/page.tsx` (renders Session 18's `ContentDetail` with `backHref="/reading"`)
+- Modify: `app/(app)/reading/[slug]/ContentDetail.tsx` + test (add the `article` / markdown branch; the video/audio branches already exist)
 - Modify: `i18n/en.json`, `i18n/hi.json`
 
 **Interfaces:**
+- Consumes: `ContentDetail({ item, backHref, backLabelKey })` (Session 18.4), `getContentItem` (Session 18.4)
 - Produces: `orderLibrary({ items, week, locale }): LibraryEntry[]`
 
 - [ ] **Step 1: Request the asset and stop**
@@ -9441,19 +9879,17 @@ Cover: items whose week range covers the current week come first; within that gr
 
 Assert: the three kind tabs use the `Tabs` primitive; each card shows title, summary, kind and duration where known; an English-only item shows the `common.englishOnly` marker; an empty filter result shows the `EmptyState` with kind-specific copy; a slow load shows `SkeletonCard`s, never a spinner; the chat bubble is present; and no `texture-motif` renders.
 
-- [ ] **Step 5: Write the failing ContentDetail test**
+- [ ] **Step 5: Add the article branch to `ContentDetail`, and a failing test for it**
 
-Assert: an article renders its markdown with headings and lists; a video renders a native `<video controls>` with `playsInline`; audio renders a native `<audio controls>`; the `AudioIndicator` appears only when `narration_url` exists; a missing slug renders a not-found state with a route back to Reading, not a crash; the fallback-locale marker renders when applicable; `content_opened` is emitted with kind and fallback flag; and the page has a visible path back to Today so a deep link is never a dead end.
+Session 18.4 already tests and implements the video and audio branches, the fallback-locale marker, `content_opened`/`content_completed`, and the `backHref`-driven not-found state. Add here: an article renders its markdown (`body_md`) with headings and lists, using the `react-markdown` already added in Session 13, restricted to headings, paragraphs, lists, emphasis and links so a content row cannot inject markup; and `content_opened` fires with `kind: "article"` on mount rather than on a playback event, since there is nothing to play.
 
-- [ ] **Step 6: Implement both from the designer's markup**
-
-Use the `react-markdown` already added in Session 13. Restrict the allowed elements to headings, paragraphs, lists, emphasis and links, so a content row cannot inject markup.
+- [ ] **Step 6: Implement the list screen and the article branch from the designer's markup**
 
 - [ ] **Step 7: Verify and commit**
 
 ```bash
 git add lib/domain/library.ts "app/(app)/reading" lib/supabase/queries/content.ts i18n
-git commit -m "feat(reading): add content library with week-relevant ordering and locale fallback markers"
+git commit -m "feat(reading): add content library list and the article branch of the shared ContentDetail viewer"
 ```
 
 ---
