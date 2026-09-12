@@ -146,6 +146,105 @@
       "weightRange": "Weight should be between 25 and 250 kg."
     }
   },
+  "today": {
+    "feeling": {
+      "prompt": "How are you feeling right now?",
+      "good": "I'm feeling good",
+      "new": "Something's new",
+      "worried": "I'm feeling worried",
+      "placeholder": "Add detail, type or use voice",
+      "voiceButton": "Add detail by voice",
+      "voiceError": "We couldn't hear that. You can still type.",
+      "emptyError": "Add a few words before you send this.",
+      "offlineError": "You're offline right now. This will send once you're back."
+    },
+    "edge": {
+      "offline": {
+        "headline": "You're offline right now",
+        "supporting": "Today's plan is still here. We'll catch up once you're back online.",
+        "primary": "Continue"
+      },
+      "missed_task": {
+        "headline": "Looks like you missed this one",
+        "primary": "Do it now",
+        "secondary": "Ask your doctor about it instead"
+      },
+      "returning": {
+        "headline": "Your MamaRoo journey is ready whenever you need it",
+        "primary": "See today"
+      },
+      "overdue": {
+        "headline": "Still on your way, little one",
+        "supporting": "Every pregnancy has its own timing. Your care team will guide you from here.",
+        "primary": "Continue"
+      },
+      "save_failed": {
+        "headline": "That didn't save, want to try again?",
+        "primary": "Try again",
+        "secondary": "Do it later"
+      },
+      "pending_reminder": {
+        "headline": "This is still waiting for you",
+        "primary": "Take it now"
+      }
+    }
+  },
+  "mealPlan": {
+    "title": "Your meal plan for today",
+    "trimesterLabel": "Matched to your {trimester} trimester",
+    "disclaimer": "These are general suggestions based on common Indian meals, not a plan made for you. Please check with your doctor before making changes to your diet.",
+    "dietLabel": {
+      "veg": "Veg",
+      "nonveg": "Non Veg",
+      "vegan": "Vegan"
+    },
+    "slotLabel": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "snack": "Snack",
+      "dinner": "Dinner",
+      "water": "Water",
+      "dryFruits": "Dry fruits"
+    },
+    "veg": {
+      "breakfast": "Poha or upma, a glass of milk, a small handful of nuts.",
+      "lunch": "Dal, roti, a seasonal vegetable, and curd.",
+      "dinner": "Khichdi or roti with sabzi, and a small bowl of dal."
+    },
+    "nonveg": {
+      "breakfast": "Eggs or poha, a glass of milk, a small handful of nuts.",
+      "lunch": "Dal, roti, a seasonal vegetable and curd, or grilled chicken with rice.",
+      "dinner": "Fish curry with rice, or khichdi with sabzi and a small bowl of dal."
+    },
+    "vegan": {
+      "breakfast": "Poha or upma, a glass of soy or almond milk, a small handful of nuts.",
+      "lunch": "Dal, roti, a seasonal vegetable, and coconut chutney.",
+      "dinner": "Khichdi or roti with sabzi, and a small bowl of dal."
+    },
+    "snack": "A piece of fruit and some roasted chana.",
+    "extras": {
+      "water": "Sip through the day rather than all at once, more if it is warm out.",
+      "dryFruits": "A few soaked almonds, walnuts or dates. Safe in small amounts through pregnancy."
+    },
+    "whyLabel": "Why this matters",
+    "whyBody": "Your baby is growing fast this trimester, so small steady meals matter more than big ones. Eating what you already enjoy, just a bit more often, is enough for now."
+  },
+  "activity": {
+    "title": "What you've logged",
+    "empty": "Nothing logged yet. It'll show up here as you go.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "earlier": "Earlier",
+    "moodGood": "Said you were feeling good",
+    "moodNew": "Said something felt new",
+    "moodWorried": "Said you were feeling worried",
+    "medicineTaken": "Took your {medicineName}",
+    "medicineSkipped": "Skipped your {medicineName}",
+    "wellness": "Went for your {label}",
+    "milestone": "Reached {title}",
+    "appointment": "Added a question for your {title}"
+  },
   "consent": {
     "summary": "By continuing, you agree to how we collect and use your information. You can read the full details before deciding on the choices below.",
     "baseline": "I agree to the Terms of Use and Privacy Policy",
