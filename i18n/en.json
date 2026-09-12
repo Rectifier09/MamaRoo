@@ -11,7 +11,8 @@
     "englishOnly": "English only for now",
     "language": "Language",
     "languageEnglish": "English",
-    "languageHindi": "हिंदी"
+    "languageHindi": "हिंदी",
+    "submit": "Send"
   },
   "landing": {
     "continueInEnglish": "Continue in English",
