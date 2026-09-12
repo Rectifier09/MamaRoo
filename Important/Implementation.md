@@ -8107,9 +8107,9 @@ Create `app/(app)/today/FeelingBox.test.tsx`. Assert:
 import { useState } from "react";
 import { useOnline } from "@/lib/pwa/useOnline";
 import { EVENTS } from "@/lib/analytics/events";
-import { track } from "@/lib/analytics/posthog";
+import { track } from "@/components/AnalyticsProvider";
 import type { Transcriber } from "@/lib/speech/transcribe";
-import { useTranslation } from "@/lib/i18n/useTranslation";
+import { useTranslations } from "next-intl";
 
 export type Feeling = "good" | "new" | "worried";
 
@@ -8125,27 +8125,29 @@ function lengthBucket(text: string): "short" | "medium" | "long" {
 }
 
 export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
-  const { t } = useTranslation();
+  const t = useTranslations("today.feeling");
   const isOnline = useOnline();
   const [text, setText] = useState("");
   const [feeling, setFeeling] = useState<Feeling | null>(null);
   const [usedVoice, setUsedVoice] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const chips: { key: Feeling; labelKey: string }[] = [
-    { key: "good", labelKey: "today.feeling.good" },
-    { key: "new", labelKey: "today.feeling.new" },
-    { key: "worried", labelKey: "today.feeling.worried" },
+  const tCommon = useTranslations("common");
+
+  const chips: { key: Feeling; labelKey: "good" | "new" | "worried" }[] = [
+    { key: "good", labelKey: "good" },
+    { key: "new", labelKey: "new" },
+    { key: "worried", labelKey: "worried" },
   ];
 
   async function handleSubmit() {
     const trimmed = text.trim();
     if (!trimmed) {
-      setError(t("today.feeling.emptyError"));
+      setError(t("emptyError"));
       return;
     }
     if (!isOnline) {
-      setError(t("today.feeling.offlineError"));
+      setError(t("offlineError"));
       return;
     }
     setError(null);
@@ -8159,8 +8161,8 @@ export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
 
   return (
     <div data-testid="feeling-box">
-      <p>{t("today.feeling.prompt")}</p>
-      <div role="group" aria-label={t("today.feeling.prompt")}>
+      <p>{t("prompt")}</p>
+      <div role="group" aria-label={t("prompt")}>
         {chips.map((c) => (
           <button
             key={c.key}
@@ -8175,13 +8177,13 @@ export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={t("today.feeling.placeholder")}
-        aria-label={t("today.feeling.placeholder")}
+        placeholder={t("placeholder")}
+        aria-label={t("placeholder")}
       />
       {transcriber.isAvailable() && (
         <button
           type="button"
-          aria-label={t("today.feeling.voiceButton")}
+          aria-label={t("voiceButton")}
           onClick={() =>
             transcriber.start({
               locale: "en",
@@ -8190,29 +8192,51 @@ export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
                 setText(result);
                 if (isFinal) void handleSubmit();
               },
-              onError: () => setError(t("today.feeling.voiceError")),
+              onError: () => setError(t("voiceError")),
             })
           }
         >
-          {t("today.feeling.voiceButton")}
+          {t("voiceButton")}
         </button>
       )}
-      {!isOnline && <p role="status">{t("today.feeling.offlineError")}</p>}
+      {!isOnline && <p role="status">{t("offlineError")}</p>}
       {error && <p role="alert">{error}</p>}
       <button type="button" onClick={handleSubmit} disabled={!isOnline}>
-        {t("common.submit")}
+        {tCommon("submit")}
       </button>
     </div>
   );
 }
 ```
 
-- [ ] **Step 4: Run the test, watch it pass**
+- [ ] **Step 4: Add the i18n content**
+
+Add to `i18n/en.json` under a new `today.feeling` key, translated into `i18n/hi.json`:
+
+```json
+"today": {
+  "feeling": {
+    "prompt": "How are you feeling right now?",
+    "good": "I'm feeling good",
+    "new": "Something's new",
+    "worried": "I'm feeling worried",
+    "placeholder": "Add detail, type or use voice",
+    "voiceButton": "Add detail by voice",
+    "voiceError": "We couldn't hear that. You can still type.",
+    "emptyError": "Add a few words before you send this.",
+    "offlineError": "You're offline right now. This will send once you're back."
+  }
+}
+```
+
+Add `"submit": "Send"` to the existing `common` key in both files — no key by that name exists yet (`common` currently has `continue`, `back`, `save`, `cancel`, `showMore`, `saved`, `offline`, `englishOnly`, `language`, `languageEnglish`, `languageHindi`).
+
+- [ ] **Step 5: Run the test, watch it pass**
 
 Run: `npx vitest run app/\(app\)/today/FeelingBox.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 5: Extend the analytics schema**
+- [ ] **Step 6: Extend the analytics schema**
 
 `checkin_submitted`'s event schema (`lib/analytics/sanitise.ts`) is `.strict()`, so Step 4 above only passes once `feeling` is a declared field. In `lib/analytics/events.ts`, change `checkin_submitted: { input_method: "text" | "voice"; length_bucket: "short" | "medium" | "long" }` to add `feeling: "good" | "new" | "worried" | null`. In `lib/analytics/sanitise.ts`, change the matching `z.object({...})` to add `feeling: z.enum(["good", "new", "worried"]).nullable()`, keeping `.strict()`. Run `npx vitest run lib/analytics/sanitise.test.ts` and confirm the existing tests still pass with the new field present.
 
@@ -8804,10 +8828,12 @@ Six full-screen takeovers from `Today Edge Case.dc.html`, replacing the whole To
 
 Create `app/(app)/today/TodayEdgeState.test.tsx`. Assert, for each of the six `state` values: the correct headline and (where present) supporting line render, from i18n keys `today.edge.<state>.headline` / `.supporting`; the correct primary and (where present) secondary label render and call `onPrimary`/`onSecondary`; the illustration's dim/motif treatment matches the design (`offline` dimmed with a cloud motif, `save_failed` with the retry motif, `pending_reminder` with the calendar motif, the rest undimmed with no motif); and no `texture-motif` renders on any of the six.
 
+**Sub-Gate A — still open:** `Today Edge Case.dc.html` uses `image-slot` placeholders for all six illustrations (`"Baby illustration, softly dimmed"`, `"Soft looping retry motif"`, etc.) — none of the six has a delivered Lottie or static asset the way the nine pregnancy stages do. `overdue` and `returning` say plainly they reuse the baby illustration ("current week" / "calm and unchanged"), so those two use `illustrationStage`'s existing Lottie/static pair, same as the main Today screen. The other four (`offline`, `missed_task`, `save_failed`, `pending_reminder`) need their own small static illustrations from the product owner. Request them; until they arrive, implement against a named placeholder path (`/illustrations/edge-<state>-placeholder.svg`) and record in the commit body that real art is still pending for those four — do not block the rest of this session on it, since `IllustrationContainer` requires *some* asset to render at all and the component, copy and behaviour are otherwise complete.
+
 - [ ] **Step 2: Implement `TodayEdgeState.tsx`**
 
 ```tsx
-import { useTranslation } from "@/lib/i18n/useTranslation";
+import { useTranslations } from "next-intl";
 import { IllustrationContainer } from "@/components/patterns/IllustrationContainer";
 
 export type TodayEdgeStateKind = "offline" | "missed_task" | "returning" | "overdue" | "save_failed" | "pending_reminder";
@@ -8821,6 +8847,15 @@ const MOTIF: Record<TodayEdgeStateKind, "cloud" | "pill" | "retry" | "calendar" 
   pending_reminder: "calendar",
 };
 
+const HAS_SUPPORTING: Record<TodayEdgeStateKind, boolean> = {
+  offline: true,
+  missed_task: false,
+  returning: false,
+  overdue: true,
+  save_failed: false,
+  pending_reminder: false,
+};
+
 const HAS_SECONDARY: Record<TodayEdgeStateKind, boolean> = {
   offline: false,
   missed_task: true,
@@ -8830,33 +8865,44 @@ const HAS_SECONDARY: Record<TodayEdgeStateKind, boolean> = {
   pending_reminder: false,
 };
 
+/**
+ * overdue and returning reuse the same baby illustration Today itself shows
+ * (the design's own copy says so); the other four need dedicated art the
+ * product owner hasn't supplied yet (see the sub-Gate A note above).
+ */
+function illustrationFor(state: TodayEdgeStateKind, stage: { lottieUrl: string; staticSrc: string }) {
+  if (state === "overdue" || state === "returning") return stage;
+  return {
+    lottieUrl: `/illustrations/edge-${state}-placeholder.json`,
+    staticSrc: `/illustrations/edge-${state}-placeholder.svg`,
+  };
+}
+
 export interface TodayEdgeStateProps {
   state: TodayEdgeStateKind;
+  stage: { lottieUrl: string; staticSrc: string };
   onPrimary: () => void;
   onSecondary?: () => void;
 }
 
-export function TodayEdgeState({ state, onPrimary, onSecondary }: TodayEdgeStateProps) {
-  const { t, hasKey } = useTranslation();
-  const supportingKey = `today.edge.${state}.supporting`;
-  const hasSupporting = hasKey(supportingKey);
+export function TodayEdgeState({ state, stage, onPrimary, onSecondary }: TodayEdgeStateProps) {
+  const t = useTranslations(`today.edge.${state}`);
+  const illustration = illustrationFor(state, stage);
 
   return (
     <div data-testid="today-edge-state">
-      <IllustrationContainer
-        staticSrc={`/illustrations/edge-${state}.png`}
-        alt={t(`today.edge.${state}.headline`)}
-        style={{ opacity: state === "offline" ? 0.55 : 1 }}
-      />
+      <div style={{ opacity: state === "offline" ? 0.55 : 1 }}>
+        <IllustrationContainer lottieUrl={illustration.lottieUrl} staticSrc={illustration.staticSrc} alt={t("headline")} />
+      </div>
       {MOTIF[state] && <span data-testid={`edge-motif-${MOTIF[state]}`} />}
-      <h1>{t(`today.edge.${state}.headline`)}</h1>
-      {hasSupporting && <p>{t(supportingKey)}</p>}
+      <h1>{t("headline")}</h1>
+      {HAS_SUPPORTING[state] && <p>{t("supporting")}</p>}
       <button type="button" onClick={onPrimary}>
-        {t(`today.edge.${state}.primary`)}
+        {t("primary")}
       </button>
       {HAS_SECONDARY[state] && onSecondary && (
         <button type="button" onClick={onSecondary}>
-          {t(`today.edge.${state}.secondary`)}
+          {t("secondary")}
         </button>
       )}
     </div>
@@ -8864,7 +8910,7 @@ export function TodayEdgeState({ state, onPrimary, onSecondary }: TodayEdgeState
 }
 ```
 
-- [ ] **Step 3: Add the i18n content**, copied verbatim from `Today Edge Case.dc.html`'s `copy` object, for all six states, in both locales.
+- [ ] **Step 3: Add the i18n content**, copied verbatim from `Today Edge Case.dc.html`'s `copy` object, for all six states, in both locales, as `today.edge.<state>.{headline,supporting,primary,secondary}` (omit `supporting`/`secondary` per state per the `HAS_SUPPORTING`/`HAS_SECONDARY` maps above, matching which states have them in the design).
 
 - [ ] **Step 4: Wire `TodayScreen` to select it**
 
