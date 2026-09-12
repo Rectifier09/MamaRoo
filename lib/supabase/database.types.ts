@@ -113,6 +113,7 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          feeling: string | null
           id: string
           input_method: string
           matched_rule_id: string | null
@@ -123,6 +124,7 @@ export type Database = {
         Insert: {
           body: string
           created_at?: string
+          feeling?: string | null
           id?: string
           input_method: string
           matched_rule_id?: string | null
@@ -133,6 +135,7 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          feeling?: string | null
           id?: string
           input_method?: string
           matched_rule_id?: string | null

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="./image-slot.js"></script>
+<style>body{margin:0;background:linear-gradient(180deg, #F7EEE3, #F7DFD9);}</style>
+</helmet>
+
+<div style="position:relative;width:375px;min-height:812px;margin:0 auto;background:linear-gradient(180deg, #F7EEE3 0%, #F7DFD9 100%);font-family:'Roboto',sans-serif;box-sizing:border-box;padding:64px 28px 40px 28px;display:flex;flex-direction:column;align-items:center;overflow:hidden;">
+
+  <div style="position:relative;width:100%;flex:1;display:flex;align-items:center;justify-content:center;min-height:420px;">
+    <image-slot id="edge-illo-{{ edgeState }}" shape="rounded" radius="24" style="{{ illoStyle }}" placeholder="{{ illoPlaceholder }}"></image-slot>
+
+    <sc-if value="{{ showCloudMotif }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:8%;right:8%;width:44px;height:44px;border-radius:50%;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.10);display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18H6a4 4 0 1 1 .7-7.94A5.5 5.5 0 0 1 17 9.5 3.5 3.5 0 0 1 17 18z"></path><line x1="9" y1="21" x2="9.01" y2="21"></line><line x1="13" y1="21" x2="13.01" y2="21"></line></svg>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showPillMotif }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:8%;right:8%;width:44px;height:44px;border-radius:50%;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.10);display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="3" stroke="#670035" stroke-width="1.75"></rect><line x1="12" y1="9" x2="12" y2="15" stroke="#670035" stroke-width="1.75"></line></svg>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showRetryMotif }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:8%;right:8%;width:44px;height:44px;border-radius:50%;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.10);display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><polyline points="21 3 21 9 15 9"></polyline></svg>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showCalendarMotif }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:8%;right:8%;width:44px;height:44px;border-radius:50%;background:#FFC53D;box-shadow:0 2px 8px rgba(103,0,53,0.10);display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position:relative;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px;">
+    <h1 style="margin:0;font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;line-height:30px;color:#670035;text-align:center;">{{ headline }}</h1>
+    <sc-if value="{{ hasSupporting }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0;font-size:15px;line-height:22px;color:rgba(103,0,53,0.85);text-align:center;max-width:290px;">{{ supportingLine }}</p>
+    </sc-if>
+  </div>
+
+  <div style="position:relative;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px;">
+    <button style="width:100%;box-sizing:border-box;padding:16px;border-radius:999px;border:none;background:#D63A29;color:#FFFFFF;font-family:'Roboto',sans-serif;font-weight:500;font-size:16px;line-height:20px;cursor:pointer;">{{ primaryLabel }}</button>
+    <sc-if value="{{ hasSecondary }}" hint-placeholder-val="{{ false }}">
+      <button style="background:transparent;border:none;font-family:'Roboto',sans-serif;font-size:14px;color:rgba(103,0,53,0.7);text-decoration:underline;text-decoration-color:rgba(103,0,53,0.3);cursor:pointer;padding:4px;">{{ secondaryLabel }}</button>
+    </sc-if>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:375,&quot;height&quot;:812},&quot;edgeState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;offline&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;offline&quot;,&quot;missed_task&quot;,&quot;returning&quot;,&quot;overdue&quot;,&quot;save_failed&quot;,&quot;pending_reminder&quot;],&quot;section&quot;:&quot;Content&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.edgeState ?? 'offline';
+
+    const copy = {
+      offline: {
+        headline: "You're offline right now",
+        supporting: "Today's plan is still here. We'll catch up once you're back online.",
+        primary: 'Continue', secondary: null,
+        illo: 'Baby illustration, softly dimmed', dim: true,
+      },
+      missed_task: {
+        headline: 'Looks like you missed this one',
+        supporting: null,
+        primary: 'Do it now', secondary: 'Ask your doctor about it instead',
+        illo: 'The missed item, sitting gently', dim: false,
+      },
+      returning: {
+        headline: 'Your MamaRoo journey is ready whenever you need it',
+        supporting: null,
+        primary: 'See today', secondary: null,
+        illo: 'Baby illustration, current week', dim: false,
+      },
+      overdue: {
+        headline: 'Still on your way, little one',
+        supporting: 'Every pregnancy has its own timing. Your care team will guide you from here.',
+        primary: 'Continue', secondary: null,
+        illo: 'Baby illustration, calm and unchanged', dim: false,
+      },
+      save_failed: {
+        headline: "That didn't save, want to try again?",
+        supporting: null,
+        primary: 'Try again', secondary: 'Do it later',
+        illo: 'Soft looping retry motif', dim: false,
+      },
+      pending_reminder: {
+        headline: 'This is still waiting for you',
+        supporting: null,
+        primary: 'Take it now', secondary: null,
+        illo: 'The pending item, softly highlighted', dim: false,
+      },
+    };
+    const c = copy[s] ?? copy.offline;
+
+    return {
+      edgeState: s,
+      illoPlaceholder: c.illo,
+      illoStyle: {
+        width: '260px', height: '260px',
+        opacity: c.dim ? 0.55 : 1,
+        filter: c.dim ? 'grayscale(0.2)' : 'none',
+      },
+      showCloudMotif: s === 'offline',
+      showPillMotif: s === 'missed_task',
+      showRetryMotif: s === 'save_failed',
+      showCalendarMotif: s === 'pending_reminder',
+      headline: c.headline,
+      hasSupporting: !!c.supporting,
+      supportingLine: c.supporting ?? '',
+      primaryLabel: c.primary,
+      hasSecondary: !!c.secondary,
+      secondaryLabel: c.secondary ?? '',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

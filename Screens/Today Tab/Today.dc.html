@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:linear-gradient(180deg, #F7EEE3, #F7DFD9);}
+@keyframes mr-breathe{0%,100%{opacity:0.04;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.09;transform:translate(-50%,-50%) scale(1.12);}}
+@keyframes mr-bloom{0%{opacity:0.5;transform:translate(-50%,-50%) scale(0.4);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6);}}
+</style>
+</helmet>
+
+<div style="position:relative;width:375px;min-height:812px;margin:0 auto;background:linear-gradient(180deg, #F7EEE3 0%, #F7DFD9 100%);font-family:'Roboto',sans-serif;box-sizing:border-box;padding:56px 20px 40px 20px;display:flex;flex-direction:column;gap:20px;overflow:hidden;">
+
+  <!-- 1. Baby illustration + week tag, glow behind -->
+  <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding:8px 0 4px 0;">
+    <div style="{{ glowStyle }}"></div>
+    <sc-if value="{{ bloomActive }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:78px;left:50%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(255,197,61,0.55), rgba(255,197,61,0) 70%);animation:mr-bloom 550ms ease-out forwards;pointer-events:none;"></div>
+    </sc-if>
+
+    <div style="position:relative;display:flex;gap:14px;justify-content:center;">
+      <sc-for list="{{ babies }}" as="baby" hint-placeholder-count="1">
+        <image-slot id="baby-illo-{{ baby.id }}" shape="circle" style="width:{{ babyImgSize }};height:{{ babyImgSize }};" placeholder="Baby illustration"></image-slot>
+      </sc-for>
+    </div>
+
+    <div style="position:relative;margin-top:14px;padding:6px 16px;border-radius:999px;background:#FFFFFF;box-shadow:0 2px 8px rgba(103,0,53,0.10);">
+      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#670035;">{{ weekTagText }}</span>
+    </div>
+  </div>
+
+  <!-- 2. What's next -->
+  <div style="position:relative;display:flex;align-items:center;gap:8px;justify-content:center;margin:0;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    <span style="font-size:14px;color:rgba(103,0,53,0.85);">Next: <strong style="color:#670035;">{{ nextReminderText }}</strong></span>
+  </div>
+
+  <!-- 3. Feeling check-in -->
+  <div style="position:relative;background:#FFFFFF;border-radius:20px;padding:18px;box-shadow:0 4px 16px rgba(103,0,53,0.08);">
+    <p style="margin:0 0 12px 0;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#670035;">How are you feeling right now?</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <button style="{{ okayStyle }}" onClick="{{ selectFeeling('okay') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ okayIconColor }}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        <span style="font-size:13px;font-weight:500;line-height:17px;color:#670035;">I'm feeling good</span>
+      </button>
+      <button style="{{ symptomStyle }}" onClick="{{ selectFeeling('symptom') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ symptomIconColor }}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        <span style="font-size:13px;font-weight:500;line-height:17px;color:#670035;">Something's new</span>
+      </button>
+      <button style="{{ worriedStyle }}" onClick="{{ selectFeeling('worried') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ worriedIconColor }}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        <span style="font-size:13px;font-weight:500;line-height:17px;color:#670035;">I'm feeling worried</span>
+      </button>
+    </div>
+
+    <div style="position:relative;margin-top:12px;display:flex;align-items:center;gap:8px;background:#F7EEE3;border-radius:14px;padding:10px 12px;">
+      <input type="text" placeholder="Add detail, type or use voice" style="flex:1;border:none;background:transparent;outline:none;font-family:'Roboto',sans-serif;font-size:14px;color:#670035;"/>
+      <button aria-label="Add detail by voice" style="width:32px;height:32px;flex-shrink:0;border:none;border-radius:50%;background:#D63A29;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. Review past entries -->
+  <button style="position:relative;background:#FFFFFF;border:1px solid rgba(103,0,53,0.1);border-radius:999px;display:flex;align-items:center;justify-content:flex-start;gap:8px;margin:0;padding:10px 18px;cursor:pointer;font-family:'Roboto',sans-serif;box-shadow:0 2px 8px rgba(103,0,53,0.06);">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D63A29" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 16 14"></polyline></svg>
+    <span style="font-size:14px;font-weight:500;color:#670035;">See what you've logged before</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(103,0,53,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
+
+  <!-- For you today: bento grid -->
+  <div style="position:relative;">
+    <p style="margin:0 0 12px 0;font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:#670035;">For you today</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <button onClick="{{ swipeTip }}" style="grid-column:1 / -1;width:100%;box-sizing:border-box;text-align:left;border:none;cursor:pointer;background:#FFFFFF;border-left:5px solid {{ tipAccentColor }};border-radius:20px;padding:18px;display:flex;gap:14px;box-shadow:0 4px 16px rgba(103,0,53,0.08);font-family:'Roboto',sans-serif;">
+        <div style="width:48px;height:48px;flex-shrink:0;border-radius:14px;background:{{ tipIconBg }};display:flex;align-items:center;justify-content:center;">
+          <sc-if value="{{ isNutritionTip }}" hint-placeholder-val="{{ true }}">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="11" rx="9" ry="2.2" stroke="#670035" stroke-width="2"></ellipse><path d="M3 11c0 4 4 7 9 7s9-3 9-7" stroke="#670035" stroke-width="2" stroke-linecap="round"></path><path d="M9 4c-1 1-1 2 0 3" stroke="#670035" stroke-width="1.5" stroke-linecap="round"></path><path d="M14 4c-1 1-1 2 0 3" stroke="#670035" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </sc-if>
+          <sc-if value="{{ isWellnessTip }}" hint-placeholder-val="{{ false }}">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2.3" fill="#3B723F"></circle><path d="M12 8v6" stroke="#3B723F" stroke-width="2" stroke-linecap="round"></path><path d="M12 9c-1.8-1.5-3-1.8-4-1.2" stroke="#3B723F" stroke-width="2" stroke-linecap="round" fill="none"></path><path d="M12 9c1.8-1.5 3-1.8 4-1.2" stroke="#3B723F" stroke-width="2" stroke-linecap="round" fill="none"></path><path d="M6 20c2-3 4-3 6-3s4 0 6 3" stroke="#3B723F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"></path></svg>
+          </sc-if>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="margin:0 0 4px 0;font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:{{ tipLabelColor }};">{{ tipLabel }}</p>
+          <p style="margin:0;font-size:15px;line-height:22px;color:#670035;">{{ tipBody }}</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+            <div style="display:flex;gap:6px;">
+              <span style="{{ tipDot0 }}"></span>
+              <span style="{{ tipDot1 }}"></span>
+            </div>
+            <span style="font-size:11px;color:rgba(103,0,53,0.5);">Low data? Text version available.</span>
+          </div>
+        </div>
+      </button>
+
+      <button style="width:100%;box-sizing:border-box;text-align:left;border:none;cursor:pointer;background:#FFFFFF;border-left:5px solid #FF6D57;border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:0 4px 16px rgba(103,0,53,0.08);font-family:'Roboto',sans-serif;">
+        <div style="width:40px;height:40px;border-radius:12px;background:#FFE3DC;display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="3" height="6" rx="1.5" fill="#D63A29"></rect><rect x="8" y="5" width="3" height="14" rx="1.5" fill="#D63A29"></rect><rect x="13" y="2" width="3" height="20" rx="1.5" fill="#D63A29"></rect><rect x="18" y="7" width="3" height="10" rx="1.5" fill="#D63A29"></rect></svg>
+        </div>
+        <div>
+          <p style="margin:0 0 4px 0;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#D63A29;">Quick listen</p>
+          <p style="margin:0;font-size:13px;line-height:19px;color:#670035;">Why your back aches now, and what helps.</p>
+        </div>
+        <span style="font-size:10px;color:rgba(103,0,53,0.5);">Text version available.</span>
+      </button>
+
+      <button style="width:100%;box-sizing:border-box;text-align:left;border:none;cursor:pointer;background:#FFFFFF;border-left:5px solid #FFC53D;border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:0 4px 16px rgba(103,0,53,0.08);font-family:'Roboto',sans-serif;">
+        <div style="width:40px;height:40px;border-radius:12px;background:#FFF3D6;display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#670035" stroke-width="2"></circle><path d="M12 12L12 3" stroke="#670035" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 12L19 16" stroke="#670035" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 12L5 16" stroke="#670035" stroke-width="1.5" stroke-linecap="round"></path></svg>
+        </div>
+        <div>
+          <p style="margin:0 0 4px 0;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#670035;opacity:0.65;">Meal plan</p>
+          <p style="margin:0;font-size:13px;line-height:19px;color:#670035;">Dal, roti, a green vegetable, curd and fruit for these months.</p>
+        </div>
+        <span style="font-size:10px;color:rgba(103,0,53,0.5);">Matched to your trimester.</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Closing state -->
+  <div style="position:relative;margin-top:0;display:flex;flex-direction:column;gap:16px;">
+
+    <sc-if value="{{ showWeeklyReflection }}" hint-placeholder-val="{{ false }}">
+      <div style="background:rgba(255,164,143,0.14);border-radius:16px;padding:16px 18px;text-align:left;">
+        <p style="margin:0 0 4px 0;font-family:'Roboto',sans-serif;font-weight:500;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(103,0,53,0.5);">You're done for today</p>
+        <p style="margin:0;font-family:'Roboto',sans-serif;font-weight:400;font-size:15px;line-height:23px;color:#670035;">{{ weeklyReflectionText }}</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showCheckupNudge }}" hint-placeholder-val="{{ false }}">
+      <button style="display:flex;align-items:center;gap:12px;background:#FFF3D6;border:none;border-radius:16px;padding:14px 16px;cursor:pointer;text-align:left;font-family:'Roboto',sans-serif;box-shadow:0 4px 16px rgba(103,0,53,0.06);">
+        <div style="width:38px;height:38px;flex-shrink:0;border-radius:11px;background:#FFC53D;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#670035" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="margin:0 0 2px 0;font-size:13px;line-height:18px;color:#670035;font-weight:600;">Your checkup is coming up soon</p>
+          <p style="margin:0;font-size:13px;line-height:18px;color:rgba(103,0,53,0.7);">Want to add a question?</p>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(103,0,53,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </sc-if>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:375,&quot;height&quot;:812},&quot;babyCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:2,&quot;section&quot;:&quot;Content&quot;},&quot;weekNumber&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:24,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:42,&quot;section&quot;:&quot;Content&quot;},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Priya&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;}}">
+class Component extends DCLogic {
+  state = { feeling: null, tipIndex: 0, reduceMotion: false, bloomActive: false };
+
+  componentDidMount() {
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.setState({ reduceMotion: mq.matches });
+    } catch (e) {}
+    if (!this.state.reduceMotion) {
+      this.setState({ bloomActive: true });
+      setTimeout(() => this.setState({ bloomActive: false }), 600);
+    }
+  }
+
+  feelingButtonStyle(isSelected) {
+    return {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px',
+      padding: '14px 8px', minHeight: '76px', justifyContent: 'center', borderRadius: '14px', cursor: 'pointer',
+      background: isSelected ? '#F7EEE3' : '#FFFFFF',
+      border: isSelected ? '1.5px solid #D63A29' : '1.5px solid rgba(103,0,53,0.08)',
+      fontFamily: 'Roboto, sans-serif',
+    };
+  }
+
+  dotStyle(active) {
+    return {
+      width: active ? '16px' : '6px', height: '6px', borderRadius: '999px',
+      background: active ? '#D63A29' : 'rgba(103,0,53,0.32)',
+      transition: 'width 200ms ease',
+    };
+  }
+
+  renderVals() {
+    const babyCount = this.props.babyCount ?? 1;
+    const weekNumber = this.props.weekNumber ?? 24;
+    const userName = this.props.userName ?? 'Priya';
+    const babies = Array.from({ length: babyCount }, (_, i) => ({ id: i }));
+    const babyImgSize = babyCount > 1 ? '110px' : '160px';
+    const weekTagText = babyCount > 1 ? `Week ${weekNumber} · your babies` : `Week ${weekNumber} · your baby`;
+    const tipIdx = this.state.tipIndex;
+    const f = this.state.feeling;
+
+    return {
+      babies,
+      babyImgSize,
+      weekTagText,
+      nextReminderText: 'Iron tablet at 8:00 PM',
+      glowStyle: {
+        position: 'absolute', top: '90px', left: '50%',
+        width: '220px', height: '220px', borderRadius: '50%',
+        background: 'radial-gradient(circle, #FF6D57, #FFA48F 60%, transparent 75%)',
+        transform: 'translate(-50%,-50%)',
+        animation: this.state.reduceMotion ? 'none' : 'mr-breathe 7s ease-in-out infinite',
+        pointerEvents: 'none',
+      },
+      bloomActive: this.state.bloomActive,
+
+      okayStyle: this.feelingButtonStyle(f === 'okay'),
+      symptomStyle: this.feelingButtonStyle(f === 'symptom'),
+      worriedStyle: this.feelingButtonStyle(f === 'worried'),
+      helpStyle: this.feelingButtonStyle(f === 'help'),
+      okayIconColor: f === 'okay' ? '#D63A29' : '#670035',
+      symptomIconColor: f === 'symptom' ? '#D63A29' : '#670035',
+      worriedIconColor: f === 'worried' ? '#D63A29' : '#670035',
+      helpIconColor: f === 'help' ? '#D63A29' : '#670035',
+      selectFeeling: (val) => () => this.setState({ feeling: val }),
+
+      isNutritionTip: tipIdx === 0,
+      isWellnessTip: tipIdx === 1,
+      tipLabel: tipIdx === 0 ? "Today's nutrition tip" : "Today's wellness tip",
+      tipBody: tipIdx === 0
+        ? 'Add a spoon of ghee to your dal today. Good fat helps your baby grow this week.'
+        : 'A slow ten minute walk this evening can ease the heaviness in your legs.',
+      tipAccentColor: tipIdx === 0 ? '#FFA48F' : '#9DDDA1',
+      tipIconBg: tipIdx === 0 ? '#FFA48F' : '#9DDDA1',
+      tipLabelColor: tipIdx === 0 ? 'rgba(103,0,53,0.6)' : '#3B723F',
+      swipeTip: () => this.setState({ tipIndex: (tipIdx + 1) % 2 }),
+      tipDot0: this.dotStyle(tipIdx === 0),
+      tipDot1: this.dotStyle(tipIdx === 1),
+
+      showWeeklyReflection: true,
+      weeklyReflectionText: `Rest well. ${userName}, you kept up with your iron tablets and checked in most days this week.`,
+      showCheckupNudge: true,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

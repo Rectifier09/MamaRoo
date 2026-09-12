@@ -33,6 +33,7 @@ export const EVENT_SCHEMAS = {
   [EVENTS.checkin_submitted]: z.object({
     input_method: z.enum(["text", "voice"]),
     length_bucket: z.enum(["short", "medium", "long"]),
+    feeling: z.enum(["good", "new", "worried"]).nullable(),
   }).strict(),
   [EVENTS.triage_result_shown]: z.object({
     severity: z.enum(["general", "contact_clinic", "urgent", "no_match"]),
