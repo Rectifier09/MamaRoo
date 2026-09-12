@@ -6903,9 +6903,11 @@ git commit -m "feat(welcome): add language select screen, route the unauthentica
 
 ## Session 15: Onboarding intro carousel
 
-**Gate A — request before starting:** ask for the intro panels' artwork (duotone illustrations or Lottie) and copy, plus the designer's layout. Stop until it arrives.
+**Gate A — status:** superseded 2026-09-12. This session was never built as its own standalone carousel. The asset delivery that arrived (`Screens/Onboarding Flow/1. Welcome.html` through `8. Journey Ready.dc.html`, 8 screens) covers Sessions 15 and 16 together with a different structure than either session originally assumed, and both were implemented in one combined PR — see **Session 16**'s "Delivered scope (revision)" note for what actually shipped and why. In short: there is no separate expectations-setting carousel. Its job — a calm, skippable beat before the intake form — is absorbed into a single pre-auth `/start` (Welcome) branding screen, after which she goes straight into sign-up and then the onboarding wizard.
 
-**Goal:** Three to four panels that set expectations, skippable at any point, with motion that respects the reduced-motion preference.
+No `app/(onboarding)/intro` route, `IntroCarousel` component, or its test exist, and none of the steps below were executed — they're kept only as a record of the original plan. `lib/domain/routing.ts` explicitly retired the `/onboarding/intro` exemption (a stale link to it now lands on the real onboarding form instead of being treated as an exempt path); `lib/domain/routing.test.ts` and `proxy.test.ts` cover that.
+
+**Original goal (not pursued):** Three to four panels that set expectations, skippable at any point, with motion that respects the reduced-motion preference.
 
 **Files:**
 - Create: `app/(onboarding)/intro/page.tsx`, `app/(onboarding)/intro/IntroCarousel.tsx` + test
@@ -6999,11 +7001,37 @@ git commit -m "feat(onboarding): add skippable intro carousel"
 
 ## Session 16: Onboarding form
 
-**Gate A — request before starting:** ask for the onboarding form's designer layout. Stop until it arrives.
+**Gate A — status:** satisfied 2026-09-12. Assets delivered as `Screens/Onboarding Flow/` — Welcome, Email/Mobile Signup, Verify Code, About You, Pregnancy Start, Pregnancy Details, Notification Privacy, Journey Ready (a mix of plain HTML and `.dc.html` Claude Design canvas artboards). Built and merged as PR #11 (`de26f90`, "Sessions 15+16 — full signup + onboarding flow"), combining this session with Session 15 into one delivery — see below.
+
+**Delivered scope (revision):** the actual build is materially different from — and larger than — the plan below, because the mockups that arrived specified a longer flow than either session assumed:
+
+- **Session 15's standalone intro carousel was dropped entirely** (see Session 15's note above) and replaced by a single pre-auth `/start` (`Start.tsx`) branding screen with two CTAs, sitting ahead of a reworked `/signup` + `/verify` (Session 12's `AuthForm` extended in place, not replaced).
+- **The onboarding form became a four-step client wizard**, not a single page: About You → Pregnancy Start → Pregnancy Details → Notification Privacy, each step gated by `validateOnboarding` and persisted via `useDraft`, ending in a **Journey Ready** completion screen (shows her name) before handing off to `/today`.
+- **Due-date methods expanded from two to five**: last menstrual period, ultrasound, doctor-given due date, IVF/IUI transfer date (`eddFromIvfTransfer` in `lib/domain/pregnancy.ts`, day-5 blastocyst convention: 280 − 19 days), and a placeholder "not sure yet" EDD.
+- **New fields not in the original plan**: an optional emergency contact (name + phone, both-or-neither enforced), `notification_privacy` (private/detailed, defaults to private — captured ahead of the Phase 2 push-notification work so the choice isn't lost), `pregnancy_flags` (the Pregnancy Details multi-select), and `twin_type`.
+- **`saveOnboarding` no longer redirects itself** — it returns `{ ok: true }` or `{ errors }`, and the wizard owns navigation to Journey Ready and then `/today`. (The original Step 7 example below, which has it call `redirect("/today")` directly, does not reflect the shipped code.)
+- **New migration** `supabase/migrations/0006_onboarding_extras.sql`, applied to the live linked Supabase project (ap-south-1) and `database.types.ts` regenerated from it.
+- i18n restructured into `aboutYou` / `pregnancyStart` / `pregnancyDetails` / `notificationPrivacy` / `journeyReady` / `errors` sub-namespaces (a flat `onboarding.errors.*` shape collided with `keyof` typing once UI copy needed its own nested keys).
+- `eslint.config.mjs` now excludes `Screens/` from lint (the vendored Claude Design canvas runtime isn't application source).
+
+The step-by-step plan below is retained as the original design intent (still broadly true: domain validation → draft persistence → form → server action → e2e), but its file list, single-page form shape, and code samples predate the mockups and don't match the shipped structure. Treat the bullets above as the authoritative record of what was actually built.
 
 **Goal:** The medium-length intake from spec §4.5, written to `profiles` and `pregnancies`, with a draft that survives an interruption.
 
-**Files:**
+**Files (as delivered):**
+- Create: `lib/domain/onboarding.ts` + test
+- Create: `lib/useDraft.ts` + test
+- Create: `app/(public)/start/Start.tsx`, `app/(public)/start/page.tsx` + test, `styles/start.css`
+- Modify: `app/(auth)/AuthForm.tsx` + test (Email/Mobile Signup, Verify Code)
+- Create: `app/(onboarding)/profile/page.tsx`, `app/(onboarding)/profile/OnboardingForm.tsx` + test (4-step wizard + Journey Ready)
+- Create: `app/actions/onboarding.ts` + test
+- Modify: `lib/domain/pregnancy.ts` + test (`eddFromIvfTransfer`)
+- Modify: `lib/domain/routing.ts` + test, `proxy.test.ts` (retire `/onboarding/intro`, add `/start`)
+- Create: `supabase/migrations/0006_onboarding_extras.sql`; regenerate `lib/supabase/database.types.ts`
+- Modify: `i18n/en.json`, `i18n/hi.json`, `eslint.config.mjs`
+- Create: `tests/e2e/onboarding.spec.ts`
+
+**Original files (superseded by the list above):**
 - Create: `lib/domain/onboarding.ts` + test
 - Create: `app/(onboarding)/profile/page.tsx`, `app/(onboarding)/profile/OnboardingForm.tsx` + test
 - Create: `app/actions/onboarding.ts`
@@ -7014,9 +7042,9 @@ git commit -m "feat(onboarding): add skippable intro carousel"
 **Interfaces:**
 - Produces: `validateOnboarding(input): { ok: true; value: OnboardingValue } | { ok: false; errors: Record<string, string> }`; `saveOnboarding(value)` server action; `useDraft<T>(key, initial)`.
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing validation test**
+- [x] **Step 2: Write the failing validation test**
 
 Create `lib/domain/onboarding.test.ts`:
 
@@ -7117,18 +7145,18 @@ describe("validateOnboarding", () => {
 });
 ```
 
-- [ ] **Step 3: Run it, watch it fail, then implement `lib/domain/onboarding.ts`**
+- [x] **Step 3: Run it, watch it fail, then implement `lib/domain/onboarding.ts`**
 
 Use `validateLmp`, `eddFromLmp` and `lmpFromEdd` from `lib/domain/pregnancy.ts`. Error strings are translation keys resolved by the caller, not English sentences — but the test above asserts on English, so return keys and have the test look them up through the catalogue. Adjust the test to assert on keys if that reads more cleanly; either is acceptable as long as no English copy is hardcoded in `lib/domain/`.
 
 Run: `npx vitest run lib/domain/onboarding.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Write the failing draft-persistence test**
+- [x] **Step 4: Write the failing draft-persistence test**
 
 Create `lib/useDraft.test.ts` asserting that `useDraft` writes to `sessionStorage` on change, restores on mount, clears on `reset()`, and silently no-ops when `sessionStorage` throws (Safari private mode).
 
-- [ ] **Step 5: Implement `lib/useDraft.ts`**
+- [x] **Step 5: Implement `lib/useDraft.ts`**
 
 ```ts
 "use client";
@@ -7182,11 +7210,11 @@ export function useDraft<T extends object>(key: string, initial: T) {
 }
 ```
 
-- [ ] **Step 6: Write the failing OnboardingForm test**
+- [x] **Step 6: Write the failing OnboardingForm test**
 
 Assert: the name field is required; a toggle switches between "I know my last period date" and "I know my due date" and only the relevant field shows; the derived other date is displayed read-only so she can sanity-check it; native input types are used (`date`, `number`); errors appear per field with specific text; optional fields can be left blank and the form still submits; the draft is restored after an unmount and remount; and **there is no field, label or option anywhere referring to the baby's sex** (assert `queryByLabelText(/gender|sex/i)` is null).
 
-- [ ] **Step 7: Implement the form from the designer's markup, then the server action**
+- [x] **Step 7: Implement the form from the designer's markup, then the server action**
 
 Create `app/actions/onboarding.ts`:
 
@@ -7239,14 +7267,14 @@ export async function saveOnboarding(input: OnboardingInput): Promise<{ errors: 
 
 The profile write comes first and sets `onboarding_completed_at` last in its own row, so a failure between the two writes leaves her on the form rather than in a half-onboarded state with no pregnancy.
 
-- [ ] **Step 8: Write the e2e onboarding spec**
+- [x] **Step 8: Write the e2e onboarding spec**
 
 Create `tests/e2e/onboarding.spec.ts`: sign in via the local Inbucket OTP, accept consent, skip the intro, fill the form with an LMP, and assert arrival on `/today` with the correct week shown. Add a second case that reloads mid-form and asserts the entered name is still there.
 
 Run: `npx playwright test tests/e2e/onboarding.spec.ts`
 Expected: PASS.
 
-- [ ] **Step 9: Verify and commit**
+- [x] **Step 9: Verify and commit**
 
 ```bash
 git add lib/domain/onboarding.ts lib/useDraft.ts "app/(onboarding)/profile" app/actions/onboarding.ts i18n tests
@@ -7257,7 +7285,15 @@ git commit -m "feat(onboarding): add intake form with derived due date, per-fiel
 
 ## Session 17: App shell, bottom navigation, offline state, view transitions
 
-**Gate A — request before starting:** ask for the bottom navigation's designer markup including the five icons and the active state. Stop until it arrives.
+**Gate A — status:** resolved 2026-09-12 without a designer asset. No bottom-navigation markup exists yet in `Screens/MamaRoo` (checked: the Today mockup and its scrap screenshots only show scrollable page content, no nav bar). Rochak confirmed the five tabs (Today, Baby, Care, Reading, Profile) and said the active-state styling should be left blank/placeholder for now, to be restyled per screen in later sessions. `BottomNav` below ships with generic Phosphor icons and a minimal colour+weight active state on that basis.
+
+**Delivered scope (revision):**
+- `middleware.ts` does not exist in this codebase; this Next.js version renamed it to `proxy.ts` (see its own header comment). The `x-pathname` header is set there instead.
+- Added one i18n key not in the original plan, `nav.label` (en/hi), for the `<nav>` element's `aria-label` — the plan's file list already covered `i18n/en.json` and `i18n/hi.json` for this session.
+- The Hindi `BottomNav` test as written in Step 4 uses `require("@/i18n/hi.json")`, which fails under this project's Vite/ESM test setup; changed to a static `import hi from "@/i18n/hi.json"` instead. Same assertion, no behaviour change.
+- Added `proxy.test.ts` coverage for the new `x-pathname` header (not in the original file list, but proxy.ts's own existing tests live there).
+
+**Original gate text (superseded by the note above):** ask for the bottom navigation's designer markup including the five icons and the active state. Stop until it arrives.
 
 **Goal:** The persistent frame every app screen renders inside: five tabs, safe areas, the chat bubble slot, the offline banner, and view transitions.
 
@@ -7273,13 +7309,13 @@ git commit -m "feat(onboarding): add intake form with derived due date, per-fiel
 **Interfaces:**
 - Produces: `BottomNav({ activePath })`, `OfflineBanner()`, `useOnline(): boolean`, the `(app)` layout.
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing useOnline test**
+- [x] **Step 2: Write the failing useOnline test**
 
 Create `lib/pwa/useOnline.test.ts` asserting: it returns `true` when `navigator.onLine` is true; `false` when false; it flips on the `offline` and `online` window events; and it returns `true` when `navigator.onLine` is `undefined`, because an unknown state must not lock the app into a read-only mode.
 
-- [ ] **Step 3: Implement useOnline**
+- [x] **Step 3: Implement useOnline**
 
 ```ts
 "use client";
@@ -7305,7 +7341,7 @@ export function useOnline(): boolean {
 }
 ```
 
-- [ ] **Step 4: Write the failing BottomNav test**
+- [x] **Step 4: Write the failing BottomNav test**
 
 ```tsx
 import { describe, expect, it } from "vitest";
@@ -7373,15 +7409,15 @@ describe("BottomNav", () => {
 });
 ```
 
-- [ ] **Step 5: Run it, watch it fail, implement from the designer's markup**
+- [x] **Step 5: Run it, watch it fail, implement from the designer's markup**
 
 Five `Link`s, each with an `Icon` at `size="nav"` and a label. Active detection is `activePath === href || activePath.startsWith(href + "/")`. Expected: PASS.
 
-- [ ] **Step 6: Write and implement OfflineBanner**
+- [x] **Step 6: Write and implement OfflineBanner**
 
 Test: it renders nothing when online; when offline it renders a `role="status"` with the `common.offline` message and an icon. Then implement.
 
-- [ ] **Step 7: Build the app layout**
+- [x] **Step 7: Build the app layout**
 
 Create `app/(app)/layout.tsx`:
 
@@ -7410,7 +7446,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
 Set `x-pathname` in `middleware.ts` by adding `response.headers.set("x-pathname", request.nextUrl.pathname)` before returning, so the layout knows the active tab without a client component.
 
-- [ ] **Step 8: Add view transitions**
+- [x] **Step 8: Add view transitions**
 
 In `styles/globals.css`:
 
@@ -7425,11 +7461,11 @@ In `styles/globals.css`:
 
 Enable the Next.js view-transitions behaviour in `next.config.ts` if the installed version exposes a flag for it; otherwise rely on the browser default for cross-document transitions. **Verify on a real mid-range Android device before relying on it**, per design document §3 — note the result in the commit message.
 
-- [ ] **Step 9: Create the chat bubble placeholder**
+- [x] **Step 9: Create the chat bubble placeholder**
 
 `app/(app)/ChatBubbleSlot.tsx` renders nothing in this session and is replaced in Session 29. It exists now so the layout's bottom spacing is settled once.
 
-- [ ] **Step 10: Verify and commit**
+- [x] **Step 10: Verify and commit**
 
 ```bash
 git add "app/(app)" components/patterns lib/pwa middleware.ts styles i18n

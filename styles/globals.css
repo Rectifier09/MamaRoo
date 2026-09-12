@@ -28,3 +28,13 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* View transitions between app screens (Session 17). Relies on the browser's
+   default cross-document transition; this installed Next.js version exposes
+   no additional flag for it (checked next.config.ts's NextConfig type). */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root), ::view-transition-new(root) {
+    animation-duration: var(--motion-slow);
+    animation-timing-function: var(--ease-standard);
+  }
+}

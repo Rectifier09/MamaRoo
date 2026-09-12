@@ -67,4 +67,12 @@ describe("launch gate", () => {
     // handler instead of being redirected.
     expect(result.headers.get("location")).toBeNull();
   });
+
+  // Session 17: the (app) layout is a server component and has no client-side
+  // usePathname() of its own -- it reads the active tab off this header instead.
+  it("sets x-pathname on the response so the (app) layout knows the active tab", async () => {
+    vi.stubEnv("APP_LAUNCHED", "true");
+    const result = await proxy(request("/signin"));
+    expect(result.headers.get("x-pathname")).toBe("/signin");
+  });
 });
