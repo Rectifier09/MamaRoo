@@ -6765,6 +6765,8 @@ git commit -m "feat(consent): add consent register with immutable trail, separat
 
 **Done when:** consent writes four rows with the version and locale, the optional consents default to off, the required consent gates the button with a stated reason, and every legal draft passes the guards.
 
+> **Pre-deployment follow-up, added 2026-09-12:** the consent gate is temporarily disabled at the product owner's request, so a signed-in user reaches the onboarding form right after verifying her code, without a consent screen in between. `/consent`, `ConsentForm` and `recordConsents()` are all still built and untouched; only `CONSENT_REQUIRED` in `lib/domain/routing.ts` was flipped to `false`. **Do not launch with consent disabled** — a pregnancy-health app collecting emergency contacts, medicine logs and pregnancy status needs a recorded agreement to Terms/Privacy before that data is collected. Flip `CONSENT_REQUIRED` back to `true` before release and confirm the legal drafts have had their review (still open per this session's original goal). Tracked again in the release checklist.
+
 ---
 
 ## Session 14: Splash screen
@@ -10841,7 +10843,7 @@ This document exists in the repository so the declaration and the implementation
 
 - [ ] **Step 5: Write the release checklist**
 
-Create `docs/play-store/release-checklist.md` with the repeatable steps: confirm custom SMTP is configured for Supabase Auth so OTP email is not rate-limited (Session 12's pre-deployment follow-up), bump `versionCode` and `versionName`, rebuild the web app, rebuild the bundle, verify asset links, verify the privacy policy URL resolves, confirm the Data Safety form matches the document, upload to internal testing first, test the install from Play, then promote.
+Create `docs/play-store/release-checklist.md` with the repeatable steps: confirm custom SMTP is configured for Supabase Auth so OTP email is not rate-limited (Session 12's pre-deployment follow-up), confirm `CONSENT_REQUIRED` in `lib/domain/routing.ts` is back to `true` so the funnel requires Terms/Privacy consent again (Session 13's pre-deployment follow-up), bump `versionCode` and `versionName`, rebuild the web app, rebuild the bundle, verify asset links, verify the privacy policy URL resolves, confirm the Data Safety form matches the document, upload to internal testing first, test the install from Play, then promote.
 
 - [ ] **Step 6: Assemble the listing artefacts**
 
