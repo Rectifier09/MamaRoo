@@ -44,7 +44,7 @@ beforeEach(() => {
 describe("getTodayData", () => {
   it("fetches every Today source with RLS-scoped date and week filters", async () => {
     const pregnancy = { id: "pregnancy-1", pregnancy_flags: ["twins"], baby_name: "Mina" };
-    const profile = { display_name: "Priya" };
+    const profile = { display_name: "Priya", doctor_name: "Dr Rao", clinic_name: "Sunrise Clinic" };
     const medicines = [{ id: "medicine-1" }];
     const medicineLogs = [{ id: "log-1" }];
     const appointments = [{ id: "appointment-1" }];
@@ -56,7 +56,7 @@ describe("getTodayData", () => {
     responses.set("appointments", { data: appointments, error: null });
     responses.set("content_items", { data: contentItems, error: null });
 
-    await expect(getTodayData({ today: "2026-09-12", currentWeek: 24 })).resolves.toEqual({
+    await expect(getTodayData({ today: "2026-09-12", currentWeek: 24, locale: "en" })).resolves.toEqual({
       pregnancy,
       profile,
       medicines,
@@ -73,6 +73,7 @@ describe("getTodayData", () => {
         { table: "medicine_logs", method: "eq", args: ["scheduled_date", "2026-09-12"] },
         { table: "appointments", method: "eq", args: ["status", "upcoming"] },
         { table: "content_items", method: "eq", args: ["is_published", true] },
+        { table: "content_items", method: "eq", args: ["locale", "en"] },
         { table: "content_items", method: "or", args: ["week_min.is.null,week_min.lte.24"] },
         { table: "content_items", method: "or", args: ["week_max.is.null,week_max.gte.24"] },
         { table: "content_items", method: "limit", args: [2] },
@@ -95,13 +96,13 @@ describe("getTodayData", () => {
     responses.set("appointments", { data: [], error: null });
     responses.set("content_items", { data: [{ id: "any-week", week_min: null, week_max: null }], error: null });
 
-    const result = await getTodayData({ today: "2026-09-12", currentWeek: 24 });
+    const result = await getTodayData({ today: "2026-09-12", currentWeek: 24, locale: "en" });
     expect(result.contentItems).toEqual([{ id: "any-week", week_min: null, week_max: null }]);
   });
 
   it("throws a query error instead of returning partial Today data", async () => {
     responses.set("pregnancies", { data: null, error: new Error("pregnancy query failed") });
-    await expect(getTodayData({ today: "2026-09-12", currentWeek: 24 })).rejects.toThrow(
+    await expect(getTodayData({ today: "2026-09-12", currentWeek: 24, locale: "en" })).rejects.toThrow(
       "pregnancy query failed",
     );
   });

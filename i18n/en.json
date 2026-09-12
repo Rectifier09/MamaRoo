@@ -215,7 +215,28 @@
       "notFoundTitle": "We couldn't find that",
       "notFoundBody": "This may have been removed or the link may be old."
     },
-    "backToToday": "Back to Today"
+    "backToToday": "Back to Today",
+    "triage": {
+      "intro": "Here is what we found",
+      "worriedIntro": "We hear you, here is what we found",
+      "noMatch": "Nothing here points to a specific concern. If something still feels off, mention it at your next checkup.",
+      "urgentContext": "Contact {doctorName} at {clinicName}, or go to your nearest clinic."
+    },
+    "greeting": "Hello, {name}",
+    "weekTag": "Week {week} · your baby",
+    "weekTagTwins": "Week {week} · your babies",
+    "forYouToday": "For you today",
+    "seeLoggedBefore": "See what you've logged before",
+    "mealPlanCardLabel": "Meal plan",
+    "mealPlanCardBody": "Matched to your trimester",
+    "checkupNudgeTitle": "Your checkup is coming up soon",
+    "checkupNudgeBody": "Want to add a question?",
+    "reminders": {
+      "next": "Next: {reminder}",
+      "dose": "{medicineName} at {time}",
+      "appointment": "{title}",
+      "nothingDue": "Nothing waiting for you right now"
+    }
   },
   "mealPlan": {
     "title": "Your meal plan for today",

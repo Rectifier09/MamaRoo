@@ -215,7 +215,28 @@
       "notFoundTitle": "यह नहीं मिल सका",
       "notFoundBody": "हो सकता है यह हटा दिया गया हो, या लिंक पुराना हो।"
     },
-    "backToToday": "आज पर वापस जाएँ"
+    "backToToday": "आज पर वापस जाएँ",
+    "triage": {
+      "intro": "यह हमें मिला",
+      "worriedIntro": "हम समझते हैं, यह हमें मिला",
+      "noMatch": "यहाँ किसी खास चिंता का संकेत नहीं मिला। अगर फिर भी कुछ ठीक नहीं लग रहा, तो अपने अगले चेकअप में इसका ज़िक्र करें।",
+      "urgentContext": "{doctorName} से {clinicName} पर संपर्क करें, या अपने नज़दीकी क्लिनिक जाएँ।"
+    },
+    "greeting": "नमस्ते, {name}",
+    "weekTag": "सप्ताह {week}, आपका शिशु",
+    "weekTagTwins": "सप्ताह {week}, आपके शिशु",
+    "forYouToday": "आज आपके लिए",
+    "seeLoggedBefore": "पहले जो आपने दर्ज किया था, वह देखें",
+    "mealPlanCardLabel": "भोजन योजना",
+    "mealPlanCardBody": "आपकी तिमाही के अनुसार",
+    "checkupNudgeTitle": "आपका चेकअप जल्द ही आने वाला है",
+    "checkupNudgeBody": "कोई सवाल जोड़ना चाहेंगी",
+    "reminders": {
+      "next": "आगे: {reminder}",
+      "dose": "{medicineName}, {time}",
+      "appointment": "{title}",
+      "nothingDue": "अभी आपके लिए कुछ भी बाकी नहीं है"
+    }
   },
   "mealPlan": {
     "title": "आज के लिए आपकी भोजन योजना",

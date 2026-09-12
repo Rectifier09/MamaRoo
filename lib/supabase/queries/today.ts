@@ -1,9 +1,10 @@
 import { createServerSupabase } from "@/lib/supabase/server";
+import type { Locale } from "@/lib/config";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Tables = Database["public"]["Tables"];
 export type PregnancyRow = Tables["pregnancies"]["Row"];
-export type ProfileDisplayName = Pick<Tables["profiles"]["Row"], "display_name">;
+export type TodayProfile = Pick<Tables["profiles"]["Row"], "display_name" | "doctor_name" | "clinic_name">;
 export type MedicineRow = Tables["medicines"]["Row"];
 export type MedicineLogRow = Tables["medicine_logs"]["Row"];
 export type AppointmentRow = Tables["appointments"]["Row"];
@@ -11,7 +12,7 @@ export type TodayContentItemRow = Tables["content_items"]["Row"];
 
 export interface TodayData {
   pregnancy: PregnancyRow | null;
-  profile: ProfileDisplayName | null;
+  profile: TodayProfile | null;
   medicines: MedicineRow[];
   medicineLogs: MedicineLogRow[];
   appointments: AppointmentRow[];
@@ -21,16 +22,18 @@ export interface TodayData {
 export async function getTodayData({
   today,
   currentWeek,
+  locale,
 }: {
   today: string;
   currentWeek: number;
+  locale: Locale;
 }): Promise<TodayData> {
   const supabase = await createServerSupabase();
 
   const [pregnancy, profile, medicines, medicineLogs, appointments, contentItems] =
     await Promise.all([
       supabase.from("pregnancies").select("*").eq("status", "active").maybeSingle(),
-      supabase.from("profiles").select("display_name").maybeSingle(),
+      supabase.from("profiles").select("display_name, doctor_name, clinic_name").maybeSingle(),
       supabase
         .from("medicines")
         .select("*")
@@ -47,6 +50,11 @@ export async function getTodayData({
         .from("content_items")
         .select("*")
         .eq("is_published", true)
+        // Session 18's reading cards deliberately skip Session 28's full
+        // fallback-with-marker logic (resolveLocalisedContent) -- this is a
+        // plain locale filter, so a week with no content in her language
+        // simply shows fewer cards, same as a week with no content at all.
+        .eq("locale", locale)
         // week_min/week_max are nullable -- null means "not week-restricted",
         // i.e. it covers every week. .lte()/.gte() alone would silently drop
         // those rows, since PostgREST's null comparison excludes them rather
