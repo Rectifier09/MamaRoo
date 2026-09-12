@@ -7,7 +7,6 @@ import { pregnancyProgress } from "@/lib/domain/pregnancy";
 import { illustrationStage, TOTAL_STAGES } from "@/lib/domain/stages";
 import { getTodayData } from "@/lib/supabase/queries/today";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { webSpeechTranscriber } from "@/lib/speech/webspeech";
 
 /**
  * getTodayData's content_items query needs the current week to filter by,
@@ -86,8 +85,16 @@ export default async function TodayPage() {
       showWeeklyReflection={false}
       weeklyReflectionText=""
       showCheckupNudge={daysToNearestAppointment.some((days) => days <= 3)}
-      transcriber={webSpeechTranscriber}
-      onSubmitCheckin={({ text, inputMethod, feeling }) => saveCheckin({ body: text, inputMethod, feeling })}
+      // No transcriber prop: it's a plain object of functions (window.SpeechRecognition
+      // bindings), and a Server Component can't pass that to a Client Component --
+      // TodayScreen defaults to the real one itself. Likewise onSubmitCheckin is
+      // saveCheckin directly, not a wrapping closure -- only a genuine "use server"
+      // reference is allowed to cross this boundary, and TodayScreen's prop shape
+      // now matches saveCheckin's own { body, feeling, inputMethod } exactly so no
+      // wrapper is needed. Both were crashing /today with real RSC errors before
+      // this fix ("Functions cannot be passed directly to Client Components", "Event
+      // handlers cannot be passed to Client Component props").
+      onSubmitCheckin={saveCheckin}
       doctorName={data.profile?.doctor_name ?? null}
       clinicName={data.profile?.clinic_name ?? null}
     />

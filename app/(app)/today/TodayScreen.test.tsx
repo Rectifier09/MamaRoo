@@ -147,6 +147,25 @@ describe("TodayScreen", () => {
     expect(screen.getAllByTestId("primary-emphasis")).toHaveLength(1);
   });
 
+  // TodayPage (a Server Component) must be able to pass saveCheckin itself as
+  // onSubmitCheckin -- wrapping it in a closure to remap field names is what
+  // crashed /today ("Event handlers cannot be passed to Client Component
+  // props"), since only a real "use server" reference can cross that
+  // boundary. That only works if this prop already matches saveCheckin's own
+  // { body, feeling, inputMethod } shape, so the remapping happens here
+  // instead, on the client side of the boundary.
+  it("calls onSubmitCheckin with saveCheckin's own shape (body, not text)", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event");
+    const user = userEvent.setup();
+    const onSubmitCheckin = vi.fn().mockResolvedValue({ ok: true, severity: null, guidance: null });
+    renderScreen({ onSubmitCheckin });
+
+    await user.type(screen.getByRole("textbox"), "Feeling steady");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(onSubmitCheckin).toHaveBeenCalledWith({ body: "Feeling steady", feeling: null, inputMethod: "text" });
+  });
+
   it("renders the post-term holding state instead of the normal screen", () => {
     renderScreen({ isPostTerm: true });
     expect(screen.getByTestId("today-edge-state")).toBeInTheDocument();
