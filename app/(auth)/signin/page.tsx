@@ -19,7 +19,13 @@ export default async function SignInPage({
           both redirect failures here as ?error=google|missing_code|exchange_failed
           -- without this, she lands back on a blank form with no explanation. */}
       {error && <p role="alert">{t("errorGoogle")}</p>}
-      <AuthForm mode="signin" onSendOtp={sendEmailOtp} onVerifyOtp={verifyEmailOtp} onGoogle={startGoogle} />
+      <AuthForm
+        mode="signin"
+        onSendOtp={sendEmailOtp}
+        onVerifyOtp={verifyEmailOtp}
+        onGoogle={startGoogle}
+        next={next ?? null}
+      />
       <p>
         <Link href={signUpHref}>{t("switchToSignUp")}</Link>
       </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { resendState } from "@/lib/domain/otp";
@@ -28,11 +29,17 @@ export interface AuthFormProps {
   onSendOtp: (email: string) => Promise<AuthResult>;
   onVerifyOtp: (email: string, code: string) => Promise<AuthResult>;
   onGoogle: () => void | Promise<void>;
+  /** Where to continue after a successful verify, e.g. a deep link she was
+   * bounced from pre-auth. Same shape as app/auth/callback/route.ts's `next`:
+   * only a same-origin, non-protocol-relative path is honored, else "/today" --
+   * proxy.ts's funnel gate takes it from there (consent, then onboarding). */
+  next: string | null;
 }
 
 /** Two-step email authentication, with its server actions injected for testability. */
-export function AuthForm({ mode, onSendOtp, onVerifyOtp, onGoogle }: AuthFormProps) {
+export function AuthForm({ mode, onSendOtp, onVerifyOtp, onGoogle, next }: AuthFormProps) {
   const t = useTranslations();
+  const router = useRouter();
   const emailId = useId();
   const codeId = useId();
 
@@ -118,6 +125,8 @@ export function AuthForm({ mode, onSendOtp, onVerifyOtp, onGoogle }: AuthFormPro
       setCodeError(null);
       setStep("verified");
       track(mode === "signup" ? EVENTS.signup_completed : EVENTS.signin_completed, { method: "email_otp" });
+      const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/today";
+      router.push(target);
     } finally {
       setVerifying(false);
     }
