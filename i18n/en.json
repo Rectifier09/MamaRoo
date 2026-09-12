@@ -170,7 +170,7 @@
         "secondary": "Ask your doctor about it instead"
       },
       "returning": {
-        "headline": "Your MamaRoo journey is ready whenever you need it",
+        "headline": "Your {productName} journey is ready whenever you need it",
         "primary": "See today"
       },
       "overdue": {
