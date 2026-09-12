@@ -20,7 +20,7 @@ export interface ConsentFormProps {
   onLocaleChange: (locale: Locale) => void;
 }
 
-const LINK_CLASS = "text-body-sm text-accent-primary underline-offset-4 hover:underline";
+const LINK_CLASS = "text-body-sm text-text-primary underline-offset-4 hover:underline";
 
 /**
  * Restrained register (design doc §6): no illustration, no motion, no

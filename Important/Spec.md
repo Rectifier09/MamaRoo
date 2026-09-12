@@ -53,9 +53,13 @@ claims revision 2 made about itself that were not true:**
    (design assets, medical content, credentials).
 5. **§13 and §14 marked entirely optional**, with the reason each item was deferred.
 
-**Design reference:** `Important/Design.md` (tokens, components, voice, accessibility). This spec
-never restates a token value; it references tokens by name. Where this spec and the design
-document disagree, the amendments in §1.3 are authoritative.
+**Design reference:** `Important/Design.md`, layered with `Important/Design-updated.md` (2026-09-12
+revision, authoritative for color/typography/motion/iconography/layout basics/illustration/
+sensitive-moment mode/personalization/tone; `Design.md` remains authoritative for navigation,
+screen assemblies, the splash/DVS/consent registers, the component library, PWA requirements and
+the chatbot section — see `Important/Implementation.md`'s design-reference note for the full
+split). This spec never restates a token value; it references tokens by name. Where this spec and
+the design document(s) disagree, the amendments in §1.3 are authoritative.
 
 ---
 

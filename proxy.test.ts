@@ -37,7 +37,7 @@ describe("launch gate", () => {
 
     const dashboard = await proxy(request("/dashboard"));
     expect(dashboard.status).toBe(307);
-    expect(dashboard.headers.get("location")).toBe("http://localhost:3025/?next=%2Fdashboard");
+    expect(dashboard.headers.get("location")).toBe("http://localhost:3025/welcome?next=%2Fdashboard");
   });
 
   it("keeps the dev component gallery open once launched -- it is a QA tool, not part of her funnel", async () => {

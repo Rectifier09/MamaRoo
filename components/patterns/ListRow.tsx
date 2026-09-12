@@ -54,7 +54,7 @@ export function ListRowGroup({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="tap-target w-full py-sm text-button text-accent-primary underline underline-offset-2"
+          className="tap-target w-full py-sm text-button text-text-primary underline underline-offset-2"
         >
           {showMoreLabel}
         </button>

@@ -3,6 +3,27 @@
    sits above the story and signup. Short screens reduce illustration space
    before content; text enlargement remains free to scroll for accessibility. */
 .coming-soon {
+  /* Frozen to the pre-retheme (Design.md) palette and font on purpose: the
+     waitlist is the live public page until launch and must not visually
+     change when styles/tokens.css moves to the Design-updated.md palette
+     (Session 14). --font-body is redeclared, not just font-family, because
+     Button/Input apply the `font-body` utility class directly to themselves
+     -- a custom-property override here reaches that var() lookup even
+     though plain inheritance would not. */
+  --color-bg: #EDE3D3;
+  --color-text-primary: #2E2822;
+  --color-text-secondary: #5A4F42;
+  --color-accent-primary: #A8482E;
+  --color-accent-secondary: #3D6B58;
+  --font-body: var(--font-hind), system-ui, sans-serif;
+  /* Explicit, not just the custom-property redeclaration above: body itself
+     paints its background/color from these same token names at the body
+     element's own scope (see app/layout.tsx), which this element would
+     otherwise just inherit -- painting them again here, from the locally
+     pinned values, is what actually stops the retheme from bleeding through. */
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
   min-height: 100svh;
   display: flex;
   flex-direction: column;

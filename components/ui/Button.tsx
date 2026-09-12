@@ -22,10 +22,14 @@ const BASE =
 const VARIANTS: Record<Variant, string> = {
   primary:
     "bg-accent-primary text-surface-raised active:scale-[0.98] active:brightness-[0.92] disabled:opacity-40",
+  // Border stays accent-primary (a non-text UI component, held to the looser
+  // 3:1 contrast requirement); the label text uses text-primary instead --
+  // Design-updated.md's CTA coral is specified for button fills only, and as
+  // small text on a light surface it falls short of the 4.5:1 text minimum.
   secondary:
-    "bg-surface text-accent-primary border-[1.5px] border-accent-primary active:scale-[0.98] disabled:opacity-40",
+    "bg-surface text-text-primary border-[1.5px] border-accent-primary active:scale-[0.98] disabled:opacity-40",
   tertiary:
-    "bg-transparent text-accent-primary underline-offset-4 hover:underline disabled:opacity-40",
+    "bg-transparent text-text-primary underline-offset-4 hover:underline disabled:opacity-40",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

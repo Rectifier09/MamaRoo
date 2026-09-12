@@ -10,7 +10,9 @@
 
 **Spec:** `Important/Spec.md`
 
-**Design reference:** `Important/Design.md`. Tokens, component states, voice and accessibility rules come from there and are never re-invented here.
+**Design reference:** `Important/Design.md`, layered with `Important/Design-updated.md` (2026-09-12 revision — this is not a full replacement, see note below). Tokens, component states, voice and accessibility rules come from there and are never re-invented here.
+
+> **Design.md vs Design-updated.md, read before any screen session:** `Design-updated.md` is authoritative for color, typography, motion, iconography, layout/component basics, the illustration system, sensitive-moment mode, personalization and tone/voice — check it first for these. It does **not** cover navigation, screen assemblies, the splash / Doctor Visit Summary / consent visual registers, the full component library, PWA requirements, or the chatbot section — `Design.md` remains the sole authority there until it, too, is revised. When both docs speak to the same topic, `Design-updated.md` wins.
 
 ---
 
@@ -374,6 +376,17 @@ The guards run on every session automatically; they are the continuous control. 
 - **A full review before the accessibility sweep** in wave 8.
 
 Deferring all review to the end is the expensive option: the cost of fixing a foundational mistake grows with every session built on top of it.
+
+## Launch gate discipline — binding on every session from Session 14 onward
+
+**The waitlist stays live at `/` until explicitly told to cut over.** As of 2026-09-12 the waitlist (`ComingSoon`, wired in `app/page.tsx`) is the real, public-facing page at the root route. It is not a placeholder to delete as soon as a real screen exists to replace it — visitors hit it today, and it stays reachable through every session in this "screens" phase, right up until Rochak says all screens are done and the waitlist should come down. This applies identically whether the session is run by Claude or by Codex.
+
+Two pieces of infra already exist to make this safe, and every session should use them rather than re-solving the problem:
+
+- **`APP_LAUNCHED` (see `proxy.ts`)** gates reachability of every route except `/` and `/api/waitlist`: while it is unset/false, any other path 404s regardless of what gets merged to main. Build and merge freely behind this — it is already the "hidden by default" mechanism.
+- **`app/page.tsx` itself is the one exception the gate can't cover**, because it renders unconditionally at `/` — there's no route-level gate on a page rendering a different component. So `app/page.tsx` must branch on `APP_LAUNCHED` itself: real splash/landing screen when true, `ComingSoon` when false/unset. **No session may replace or delete `app/page.tsx`'s `ComingSoon` render path, and no session may add a second `page.tsx` that also resolves to `/`** (a route-group file like `app/(public)/page.tsx` collides with it and is a build error waiting to happen). Session 14 below has been corrected to do this branch — later sessions should follow the same pattern for anything else that would otherwise touch the root route.
+
+**Cutover, when it happens:** flip `APP_LAUNCHED=true` in the Vercel env. That's it — no file deletions, no separate deploy pipeline. Only do this on explicit instruction that all screens are done and the waitlist should come down.
 
 ---
 
@@ -6754,136 +6767,136 @@ git commit -m "feat(consent): add consent register with immutable trail, separat
 
 ---
 
-## Session 14: Landing screen
+## Session 14: Splash screen
 
-**Gate A — request before starting:** ask for the landing screen's designer HTML/CSS (or images) and any logo or splash Lottie. Stop until it arrives.
+**Gate A — status:** satisfied 2026-09-12. Asset delivered as `Screens/Splash screen .html` — a self-contained, animated HTML/CSS mockup (no interactivity): logo mark, wordmark, tagline, "journey pill", ambient glow/shapes/sparkles, all sequenced by CSS keyframes with a `prefers-reduced-motion` fallback. Build it **exactly as given** — no rearranging, no added elements, no invented interaction. Where the mockup wraps the content in a `.phone`/`.phone-screen` device frame for browser preview, that frame is not part of the deliverable — only what's inside it (`#screen`'s content) ships.
 
-**Goal:** The first screen she sees. Language chosen before anything else, then sign up or sign in.
+**Goal:** The first, wordless brand beat — plays once, holds, then hands off to language selection (**Session 14B**, `/welcome`). This replaces what this slot in the plan originally called "Landing screen": that was written before any asset existed, and assumed the first screen would carry language choice plus sign-up/sign-in buttons directly. The delivered asset carries neither — it's pure branding.
+
+**Hand-off timing:** once the animation has settled (or immediately, under reduced motion), hold the finished brand moment for a fixed **3000 ms**, then auto-advance. Tapping anywhere on the screen skips the wait and advances immediately, at any point in the sequence — she should never feel stuck waiting on a brand moment if she wants to move faster.
+
+**Always English, deliberately not run through next-intl:** this screen (and Session 14B's language select) render before she has chosen a language, so there is no locale to honour yet — and critically, a *returning* visitor's already-set `mr_locale` cookie must not leak in here either, because picking a language on 14B is what her whole session's locale depends on next. Both screens' copy is fixed English string constants in the component file, not `i18n/*.json` keys — putting locale-invariant copy through next-intl's locale-lookup machinery is the wrong signal (it implies the copy *should* vary by locale, which is exactly what must not happen here). Verify this by setting the `mr_locale` cookie to `hi` (e.g. by actually completing language select once) and confirming `/` and `/welcome` still render in English on a later visit.
+
+**Launch gate — read before Step 6:** the waitlist (`ComingSoon`) is the live public page at `/` and stays that way until Rochak says every screen is done and it can come down (see "Launch gate discipline" above). This session does **not** replace it. `app/page.tsx` becomes a branch on `APP_LAUNCHED`: `SplashScreen` when `process.env.APP_LAUNCHED === "true"`, `ComingSoon` otherwise. Do not create a second file that also resolves to `/` (e.g. `app/(public)/page.tsx`) — it collides with `app/page.tsx` at build time.
+
+**Palette/font retheme, folded into this session:** the splash asset uses `Design-updated.md`'s palette (warm cream, CTA coral, deep plum, peach, golden sunrise, darkened sage) and its body font (Mukta, replacing Hind — see the design-reference note at the top of this file), not what `styles/tokens.css` currently holds. Building the splash with real token utilities (never one-off hex, per the usual rule) means updating the shared tokens now, which re-themes every previously built screen's colors app-wide. **Except the waitlist:** `.coming-soon` gets its old color/font values pinned locally in `styles/landing.css` (scoped custom-property overrides), so the live public page's rendered output does not change, independent of the token update. `tests/guards/tokens.test.ts` hard-asserts literal token values and must be updated in the same commit as `tokens.css`, or it fails by design.
 
 **Files:**
-- Create: `app/(public)/page.tsx`, `app/(public)/LandingScreen.tsx` + test
-- Modify: `i18n/en.json`, `i18n/hi.json`
-- Modify: `tests/e2e/auth.spec.ts`
+- Create: `app/(public)/SplashScreen.tsx` + test, `styles/splash.css`
+- Modify: `app/page.tsx` (the `APP_LAUNCHED` branch), `app/layout.tsx` (add the Mukta font loader; Poppins needs weight 600 added for the wordmark), `styles/tokens.css` (new palette + `--ease-pop`), `styles/landing.css` (freeze `.coming-soon`'s old palette/font), `tests/guards/tokens.test.ts` (new expected literals)
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Update the shared tokens and their guard, together**
 
-Ask the product owner for the landing screen asset. Do not proceed to Step 3 without it. Steps 2 is safe to do while waiting.
+In `styles/tokens.css`, update to the `Design-updated.md` values: `--color-bg: #F7EEE3`, `--color-text-primary: #670035`, `--color-text-secondary: rgba(103, 0, 53, 0.78)` (the updated doc has no separate secondary hex — it's primary at reduced opacity), `--color-accent-primary: #D63A29`, `--color-accent-secondary: #3B723F`. Add new tokens the splash screen needs: `--color-blush: #F7DFD9`, `--color-peach: #FFA48F`, `--color-gold: #FFC53D`, `--ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1)`. Leave `--color-surface`, `--color-surface-raised`, `--color-alert`, `--color-success`, `--color-divider` and the chart colors untouched — `Design-updated.md` doesn't redefine them. Change `--font-body` to `var(--font-mukta), system-ui, sans-serif`. Update `tests/guards/tokens.test.ts`'s `REQUIRED` array to match the new literal values in the same commit.
 
-- [ ] **Step 2: Write the failing LandingScreen test (behaviour only, no layout assertions)**
+- [x] **Step 2: Freeze the waitlist's palette and font**
 
-Create `app/(public)/LandingScreen.test.tsx`:
+In `styles/landing.css`, on the `.coming-soon` rule, add the pre-retheme values as local overrides plus an explicit `font-family` (custom-property overrides don't reach an ancestor's already-computed inherited value, so the explicit declaration is what actually pins it):
 
-```tsx
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { NextIntlClientProvider } from "next-intl";
-import en from "@/i18n/en.json";
-import { LandingScreen } from "@/app/(public)/LandingScreen";
-
-const onChooseLocale = vi.fn();
-
-function renderScreen(locale: "en" | "hi" = "en") {
-  return render(
-    <NextIntlClientProvider locale={locale} messages={en}>
-      <LandingScreen locale={locale} onChooseLocale={onChooseLocale} next={null} />
-    </NextIntlClientProvider>,
-  );
+```css
+.coming-soon {
+  --color-bg: #EDE3D3;
+  --color-text-primary: #2E2822;
+  --color-text-secondary: #5A4F42;
+  --color-accent-primary: #A8482E;
+  --color-accent-secondary: #3D6B58;
+  --font-body: var(--font-hind), system-ui, sans-serif;
+  font-family: var(--font-body);
+  /* ...existing rule content... */
 }
-
-beforeEach(() => onChooseLocale.mockReset());
-
-describe("LandingScreen", () => {
-  it("offers two separate language buttons, each in its own script", () => {
-    renderScreen();
-    expect(screen.getByRole("button", { name: "Continue in English" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "हिंदी में जारी रखें" })).toBeInTheDocument();
-  });
-
-  it("reports the chosen language", async () => {
-    renderScreen();
-    await userEvent.click(screen.getByRole("button", { name: "हिंदी में जारी रखें" }));
-    expect(onChooseLocale).toHaveBeenCalledWith("hi");
-  });
-
-  it("offers both sign up and sign in", () => {
-    renderScreen();
-    expect(screen.getByRole("link", { name: /create an account/i })).toHaveAttribute("href", "/signup");
-    expect(screen.getByRole("link", { name: /sign in/i })).toHaveAttribute("href", "/signin");
-  });
-
-  it("carries a deep-link target through to sign up, so a shared link resumes", () => {
-    render(
-      <NextIntlClientProvider locale="en" messages={en}>
-        <LandingScreen locale="en" onChooseLocale={onChooseLocale} next="/care/summary" />
-      </NextIntlClientProvider>,
-    );
-    expect(screen.getByRole("link", { name: /create an account/i })).toHaveAttribute(
-      "href",
-      "/signup?next=%2Fcare%2Fsummary",
-    );
-  });
-
-  it("renders the decorative motif hidden from assistive technology", () => {
-    renderScreen();
-    expect(screen.getByTestId("texture-motif")).toHaveAttribute("aria-hidden", "true");
-  });
-
-  it("has exactly one high-emphasis action, per the hierarchy law", () => {
-    renderScreen();
-    const primaries = screen
-      .getAllByRole("link")
-      .filter((el) => el.className.includes("bg-accent-primary"));
-    expect(primaries).toHaveLength(1);
-  });
-
-  it("renders the tagline in the body face, not the display face", () => {
-    renderScreen();
-    expect(screen.getByText(en.common.appTagline).className).toContain("font-body");
-  });
-});
 ```
 
-- [ ] **Step 3: Run it and watch it fail**
+Keep loading the Hind font in `app/layout.tsx` (don't drop it when adding Mukta) — `.coming-soon` depends on `--font-hind` staying defined.
 
-Run: `npx vitest run "app/(public)/LandingScreen.test.tsx"`
+- [x] **Step 3: Write the failing SplashScreen test (behaviour only, no pixel assertions)**
+
+Create `app/(public)/SplashScreen.test.tsx`. Cover: the wordmark and tagline render as visible text; the SVG logo has an accessible name (`PRODUCT_NAME`, not a hardcoded literal — the product-name guard scans this directory); the ambient background/sparkle layer is `aria-hidden`; with motion allowed, it navigates (via `router.replace`) to `/welcome` only after the animation has settled *plus* the 3000 ms hold (mock timers — don't wait on real animation events); with `prefers-reduced-motion: reduce`, the settle wait is skipped and only the hold applies; a `next` search param is carried through onto the redirect target's own `next` query param; clicking/tapping the screen at any point navigates immediately, without double-navigating if it had already auto-advanced. Mock `next/navigation`'s `useRouter` and `lib/motion`'s `prefersReducedMotion` the way `IllustrationContainer.test.tsx` mocks `matchMedia`. Use `fireEvent.click`, not `userEvent`, for the tap-to-skip cases — `userEvent` combined with fake timers deadlocks.
+
+- [x] **Step 4: Run it and watch it fail**
+
+Run: `npx vitest run "app/(public)/SplashScreen.test.tsx"`
 Expected: FAIL — module not found.
 
-- [ ] **Step 4: Port the designer's markup into LandingScreen**
+- [x] **Step 5: Port the mockup into SplashScreen**
 
-Create `app/(public)/LandingScreen.tsx` by translating the designer's HTML into JSX, replacing every literal colour, size and spacing with the matching token utility, and wiring the behaviour the tests require. Keep the structure the designer gave; do not rearrange it. `TextureMotif` is permitted on this screen.
+Create `styles/splash.css` by porting the mockup's `<style>` block nearly verbatim — same selectors, same keyframes, same delays and durations (this is a "distinct visual register" screen per the design document; its geometry doesn't have to fit the general spacing/radius scale). The one required change: colors and fonts must resolve through the shared tokens, not restated hex — scope local aliases at the screen's root class (e.g. `.splash-screen { --peach: var(--color-peach); --sun: var(--color-gold); --sage: var(--color-accent-secondary); --accent: var(--color-accent-primary); }`) so the rest of the ported CSS stays line-for-line close to the source. Drop the `.phone`/`.phone-screen` frame rules; the root class takes over the full-bleed sizing (`min-height: 100dvh`) they provided. The two logo path `fill` colors must also go through a class (`.splash-logo-body`/`.splash-logo-accent`) rather than a `fill="#..."` attribute, for the same reason. Create `app/(public)/SplashScreen.tsx` porting the mockup's markup into JSX 1:1 (including the inline logo SVG's path data, `role="img"`, and `aria-labelledby`), wiring in the navigation and tap-to-skip behaviour the test requires. The tagline/journey-pill copy are fixed English string constants in the component file, not i18n keys — see "Always English" above.
 
-- [ ] **Step 5: Wire the page**
+- [x] **Step 6: Wire the page behind the launch gate**
 
-Create `app/(public)/page.tsx` as a Server Component that reads the locale and the `next` search parameter and renders `LandingScreen`, passing `changeLocale` as `onChooseLocale`.
+Modify `app/page.tsx` so it stays a Server Component but branches on the launch flag:
 
-- [ ] **Step 6: Run the tests and watch them pass**
+```tsx
+import { ComingSoon } from "@/components/landing/ComingSoon";
+import { SplashScreen } from "@/app/(public)/SplashScreen";
 
-Run: `npx vitest run "app/(public)/LandingScreen.test.tsx"`
-Expected: PASS.
-
-- [ ] **Step 7: Check both languages at 200% text scale**
-
-Open `/` in the browser, switch to Hindi, and set the browser's font scale to 200%. Confirm no clipped or overlapping text and that no button label truncates. Fix by letting labels wrap, never by shrinking the type.
-
-- [ ] **Step 8: Add the accessibility check and commit**
-
-Append to `tests/e2e/auth.spec.ts`:
-
-```ts
-test("the landing page has no accessibility violations in either language", async ({ page }) => {
-  for (const locale of ["en", "hi"]) {
-    await page.context().addCookies([{ name: "mr_locale", value: locale, url: "http://localhost:3000" }]);
-    await page.goto("/");
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations, `locale ${locale}`).toEqual([]);
+export default async function Home({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  if (process.env.APP_LAUNCHED !== "true") {
+    return <ComingSoon />;
   }
-});
+  const { next } = await searchParams;
+  return <SplashScreen next={next ?? null} />;
+}
 ```
 
+`SplashScreen` redirects to `/welcome` (carrying `next` through as its own query param). The waitlist keeps rendering at `/` for every visitor until `APP_LAUNCHED` is flipped in the Vercel env — this session does not touch that flag.
+
+- [x] **Step 7: Run the tests and watch them pass**
+
+Run: `npx vitest run "app/(public)/SplashScreen.test.tsx" "tests/guards/tokens.test.ts" "tests/guards/no-raw-values.test.ts"`
+Expected: PASS. Also run the full suite once (`npx vitest run`) to confirm the retheme didn't break an existing screen's behavioural assertions.
+
+- [x] **Step 8: Visual check, both motion states**
+
+Set `APP_LAUNCHED=true` locally (`.env.local`, do not commit it). Open `/`: confirm the sequence matches the mockup's timing, holds for the 3-second pause, then hands off to `/welcome` — and that tapping the screen at any point skips straight there instead. Then enable OS-level reduced motion and reload: confirm it settles instantly, still holds, and still hands off. Separately, load `/` with `APP_LAUNCHED` unset: confirm the waitlist looks pixel-identical to before this session.
+
+- [x] **Step 9: Commit**
+
 ```bash
-git add "app/(public)" i18n tests/e2e
-git commit -m "feat(landing): add language-first landing screen from designer markup"
+git add app/\(public\) app/layout.tsx app/page.tsx styles tests/guards/tokens.test.ts
+git commit -m "feat(splash): add animated splash screen, retheme tokens to Design-updated.md palette"
+```
+
+---
+
+## Session 14B: Language select
+
+**Gate A — status:** satisfied 2026-09-12. Asset delivered as `Screens/1. Language Select.dc.html` — a Claude Design canvas artboard (two selectable cards, Hindi and English, plus a Continue button disabled until one is picked). This is narrower than what the plan originally specified for "Landing screen" (language choice *plus* sign-up/sign-in buttons in one screen): the delivered asset is language selection only, with a single Continue action. It does not bundle sign-up/sign-in — those already exist as their own built screens (Session 12), so Continue leads there directly; nothing further is blocked on a missing asset.
+
+**Goal:** Let her pick a language before anything else. Selecting a card is only a visual highlight; pressing Continue is what actually commits the locale (via the existing `changeLocale` server action) and advances — matching the asset's own `continueTapped` handler being the one place real action was wired in, not `selectHindi`/`selectEnglish`.
+
+**Routing changes this session makes:** in `lib/domain/routing.ts`, `/welcome` is added to `PUBLIC_PATHS`, and the unauthenticated redirect target (previously `` `/?next=${...}` ``) now points at `/welcome`, carrying `next` the same way. `lib/domain/routing.test.ts` and `proxy.test.ts` both have assertions on the old `/` target that move to `/welcome`. Session 14's `SplashScreen` redirect target is `/welcome`, not `/`.
+
+**Files:**
+- Create: `app/(public)/welcome/page.tsx`, `app/(public)/welcome/LanguageSelect.tsx` + test, `styles/welcome.css`
+- Modify: `lib/domain/routing.ts`, `lib/domain/routing.test.ts`, `proxy.test.ts`
+
+- [x] **Step 1: Write the failing LanguageSelect test (behaviour only, no layout assertions)**
+
+Create `app/(public)/welcome/LanguageSelect.test.tsx`. Cover: both cards render, each labelled in its own script plus an English gloss; Continue starts disabled; selecting a card enables Continue and marks that card `aria-pressed` (and only that one); selecting a card alone does **not** call `onChooseLocale` or navigate — only pressing Continue does, and it does both, in that order (commit the locale, then `router.push`); a `next` param is carried through onto `/signup`'s own `next` query param. Mock `next/navigation`'s `useRouter` the same way `SplashScreen.test.tsx` does.
+
+- [x] **Step 2: Run it and watch it fail**
+
+Run: `npx vitest run "app/(public)/welcome/LanguageSelect.test.tsx"`
+Expected: FAIL — module not found.
+
+- [x] **Step 3: Port the canvas artboard into LanguageSelect and wire the routing table**
+
+Create `app/(public)/welcome/LanguageSelect.tsx` and `styles/welcome.css`, porting the artboard's layout/spacing/behaviour (colors and fonts through the shared tokens, as usual — the copy itself is fixed English constants, not i18n keys; see "Always English" under Session 14). Create `app/(public)/welcome/page.tsx` as a Server Component reading the `next` search parameter and rendering `LanguageSelect`, passing `changeLocale` (from `@/app/actions/locale`) as `onChooseLocale`. Make the routing changes described above (`routing.ts`, `routing.test.ts`, `proxy.test.ts`), and point Session 14's `SplashScreen` redirect at `/welcome`.
+
+- [x] **Step 4: Run the tests and watch them pass**
+
+Run: `npx vitest run "app/(public)/welcome/LanguageSelect.test.tsx" "lib/domain/routing.test.ts" "proxy.test.ts"`
+Expected: PASS. Also run the full suite once (`npx vitest run`) to confirm the routing-table change didn't break an existing funnel assertion.
+
+- [x] **Step 5: Check both languages at 200% text scale** — this screen's own chrome is fixed English (see "Always English" under Session 14), so no check needed here. `/signup`/`/signin` render in whichever language was picked, but per Rochak (2026-09-12) those screens are being redone in the upcoming onboarding-flow session — deferred there rather than checked against their current, soon-to-be-replaced markup.
+
+Open `/welcome` in the browser, pick Hindi, continue to `/signup`, and set the browser's font scale to 200%. Confirm no clipped or overlapping text and that no label truncates. Fix by letting labels wrap, never by shrinking the type.
+
+- [x] **Step 6: Commit**
+
+```bash
+git add "app/(public)/welcome" "app/(public)/SplashScreen.tsx" lib/domain proxy.test.ts styles/welcome.css
+git commit -m "feat(welcome): add language select screen, route the unauthenticated funnel through it"
 ```
 
 ---

@@ -1,6 +1,7 @@
 # Coming-soon page
 
-The `/` route follows `Important/Design.md`: sand surfaces, terracotta action,
+The `/` route follows `Important/Design.md` (layered with `Important/Design-updated.md` for
+color/typography/motion — see `Important/Implementation.md`'s design-reference note): sand surfaces, terracotta action,
 sage details, Poppins/Hind, original logos and reduced-motion support. The
 single-screen composition prioritizes name-and-email signup, with a smaller logo scene
 on short phones. Large text and very short viewports can scroll for accessibility.

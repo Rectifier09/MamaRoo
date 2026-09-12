@@ -63,7 +63,7 @@ export function CardTruncatedText({
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="text-accent-primary underline underline-offset-2"
+        className="text-text-primary underline underline-offset-2"
       >
         {showMoreLabel}
       </button>
