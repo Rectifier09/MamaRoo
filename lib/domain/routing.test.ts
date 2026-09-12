@@ -22,6 +22,12 @@ describe("resolveRedirect", () => {
     ).toBeNull();
   });
 
+  it("leaves a signed-out visitor on the welcome entry screen", () => {
+    expect(
+      resolveRedirect({ path: "/start", isAuthed: false, hasConsented: false, hasOnboarded: false }),
+    ).toBeNull();
+  });
+
   it("leaves a signed-out visitor on the sign-in page", () => {
     expect(
       resolveRedirect({ path: "/signin", isAuthed: false, hasConsented: false, hasOnboarded: false }),
@@ -58,10 +64,20 @@ describe("resolveRedirect", () => {
     ).toBe("/onboarding/profile");
   });
 
-  it("lets a consented user without a profile see the onboarding intro", () => {
+  it("lets a consented user without a profile still read a legal page", () => {
+    expect(
+      resolveRedirect({ path: "/legal/privacy", isAuthed: true, hasConsented: true, hasOnboarded: false }),
+    ).toBeNull();
+  });
+
+  // Session 15's originally-planned standalone intro carousel is superseded by
+  // the delivered mockups' single pre-auth /start screen (Welcome), so
+  // /onboarding/intro is no longer a real route -- a stale link to it should
+  // land on the actual onboarding form, not be treated as an exempt path.
+  it("sends a consented user without a profile away from the retired intro route to the onboarding form", () => {
     expect(
       resolveRedirect({ path: "/onboarding/intro", isAuthed: true, hasConsented: true, hasOnboarded: false }),
-    ).toBeNull();
+    ).toBe("/onboarding/profile");
   });
 
   it("sends a fully onboarded user away from the landing page to Today", () => {
@@ -70,6 +86,10 @@ describe("resolveRedirect", () => {
 
   it("sends a fully onboarded user away from sign-up to Today", () => {
     expect(resolveRedirect({ path: "/signup", ...authed })).toBe("/today");
+  });
+
+  it("sends a fully onboarded user away from the welcome entry screen to Today", () => {
+    expect(resolveRedirect({ path: "/start", ...authed })).toBe("/today");
   });
 
   it("sends a fully onboarded user away from the onboarding form to Today", () => {
