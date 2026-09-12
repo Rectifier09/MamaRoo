@@ -1,0 +1,63 @@
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/en.json";
+import { BottomNav } from "@/components/patterns/BottomNav";
+
+function renderNav(activePath: string) {
+  render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      <BottomNav activePath={activePath} />
+    </NextIntlClientProvider>,
+  );
+}
+
+describe("BottomNav", () => {
+  it("renders exactly the five tabs, in order", () => {
+    renderNav("/today");
+    const links = screen.getAllByRole("link");
+    expect(links.map((l) => l.getAttribute("href"))).toEqual([
+      "/today",
+      "/baby",
+      "/care",
+      "/reading",
+      "/profile",
+    ]);
+  });
+
+  it("marks the active tab for assistive technology", () => {
+    renderNav("/care");
+    expect(screen.getByRole("link", { name: /my care/i })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("signals the active tab with a weight change as well as colour", () => {
+    renderNav("/care");
+    expect(screen.getByRole("link", { name: /my care/i }).className).toContain("font-medium");
+  });
+
+  it("treats a sub-route as its parent tab", () => {
+    renderNav("/care/medicines");
+    expect(screen.getByRole("link", { name: /my care/i })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("meets the touch target on every tab", () => {
+    renderNav("/today");
+    for (const link of screen.getAllByRole("link")) {
+      expect(link.className).toContain("tap-target");
+    }
+  });
+
+  it("respects the home-indicator safe area", () => {
+    renderNav("/today");
+    expect(screen.getByRole("navigation").className).toContain("safe-bottom");
+  });
+
+  it("labels every tab in Hindi too", () => {
+    render(
+      <NextIntlClientProvider locale="hi" messages={require("@/i18n/hi.json")}>
+        <BottomNav activePath="/today" />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: "आज" })).toBeInTheDocument();
+  });
+});
