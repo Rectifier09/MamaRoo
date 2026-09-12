@@ -14,6 +14,12 @@ export default async function VerifyPage({
   const startGoogle = startGoogleSignIn.bind(null, next ?? null);
 
   return (
-    <AuthForm mode="signin" onSendOtp={sendEmailOtp} onVerifyOtp={verifyEmailOtp} onGoogle={startGoogle} />
+    <AuthForm
+      mode="signin"
+      onSendOtp={sendEmailOtp}
+      onVerifyOtp={verifyEmailOtp}
+      onGoogle={startGoogle}
+      next={next ?? null}
+    />
   );
 }

@@ -19,7 +19,13 @@ export default async function SignUpPage({
           failure to /signin, never back to /signup -- this stays here too so a
           future change or a direct link to /signup?error=... isn't silent either. */}
       {error && <p role="alert">{t("errorGoogle")}</p>}
-      <AuthForm mode="signup" onSendOtp={sendEmailOtp} onVerifyOtp={verifyEmailOtp} onGoogle={startGoogle} />
+      <AuthForm
+        mode="signup"
+        onSendOtp={sendEmailOtp}
+        onVerifyOtp={verifyEmailOtp}
+        onGoogle={startGoogle}
+        next={next ?? null}
+      />
       <p>
         <Link href={signInHref}>{t("switchToSignIn")}</Link>
       </p>

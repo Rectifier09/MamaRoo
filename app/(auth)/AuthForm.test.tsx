@@ -10,12 +10,14 @@ const sendOtp = vi.fn();
 const verifyOtp = vi.fn();
 const startGoogle = vi.fn();
 const track = vi.fn();
+const push = vi.fn();
 vi.mock("@/components/AnalyticsProvider", () => ({ track: (...args: unknown[]) => track(...args) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
-function renderForm(mode: "signup" | "signin" = "signup") {
+function renderForm(mode: "signup" | "signin" = "signup", next: string | null = null) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <AuthForm mode={mode} onSendOtp={sendOtp} onVerifyOtp={verifyOtp} onGoogle={startGoogle} />
+      <AuthForm mode={mode} onSendOtp={sendOtp} onVerifyOtp={verifyOtp} onGoogle={startGoogle} next={next} />
     </NextIntlClientProvider>,
   );
 }
@@ -25,6 +27,7 @@ beforeEach(() => {
   verifyOtp.mockReset().mockResolvedValue({ ok: true });
   startGoogle.mockReset();
   track.mockReset();
+  push.mockReset();
 });
 
 describe("AuthForm", () => {
@@ -179,7 +182,7 @@ describe("AuthForm", () => {
     expect(verifyButton).not.toBeDisabled();
   });
 
-  it("confirms she is signed in after a successful verify, without navigating anywhere", async () => {
+  it("shows a signed-in confirmation and continues into the funnel after a successful verify", async () => {
     renderForm();
     await userEvent.type(screen.getByLabelText(/email/i), "her@example.com");
     await userEvent.click(screen.getByRole("button", { name: /send/i }));
@@ -188,6 +191,27 @@ describe("AuthForm", () => {
 
     expect(await screen.findByText(/you are signed in/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/6-digit code/i)).not.toBeInTheDocument();
+    expect(push).toHaveBeenCalledWith("/today");
+  });
+
+  it("continues to the given next path after a successful verify", async () => {
+    renderForm("signup", "/settings/notifications");
+    await userEvent.type(screen.getByLabelText(/email/i), "her@example.com");
+    await userEvent.click(screen.getByRole("button", { name: /send/i }));
+    await userEvent.type(await screen.findByLabelText(/6-digit code/i), "123456");
+    await userEvent.click(screen.getByRole("button", { name: /verify/i }));
+
+    expect(push).toHaveBeenCalledWith("/settings/notifications");
+  });
+
+  it("falls back to /today when next is protocol-relative, guarding against an open redirect", async () => {
+    renderForm("signup", "//evil.example.com");
+    await userEvent.type(screen.getByLabelText(/email/i), "her@example.com");
+    await userEvent.click(screen.getByRole("button", { name: /send/i }));
+    await userEvent.type(await screen.findByLabelText(/6-digit code/i), "123456");
+    await userEvent.click(screen.getByRole("button", { name: /verify/i }));
+
+    expect(push).toHaveBeenCalledWith("/today");
   });
 
   it("captures signup_started (email_otp) when a code is sent in signup mode", async () => {
