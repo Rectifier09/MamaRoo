@@ -1,4 +1,4 @@
-const PUBLIC_PATHS = ["/", "/signin", "/signup", "/verify"];
+const PUBLIC_PATHS = ["/", "/welcome", "/signin", "/signup", "/verify"];
 const LEGAL_PREFIX = "/legal";
 const CONSENT_PATH = "/consent";
 const ONBOARDING_FORM = "/onboarding/profile";
@@ -28,7 +28,7 @@ export function resolveRedirect({ path, isAuthed, hasConsented, hasOnboarded }: 
   if (!isAuthed) {
     if (isPublic) return null;
     const next = safeNext(path);
-    return next ? `/?next=${encodeURIComponent(next)}` : "/";
+    return next ? `/welcome?next=${encodeURIComponent(next)}` : "/welcome";
   }
 
   if (!hasConsented) {

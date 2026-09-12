@@ -4,15 +4,21 @@ import { resolveRedirect } from "@/lib/domain/routing";
 const authed = { isAuthed: true, hasConsented: true, hasOnboarded: true };
 
 describe("resolveRedirect", () => {
-  it("sends a signed-out visitor away from an app route, back to the landing page", () => {
+  it("sends a signed-out visitor away from an app route, to language select", () => {
     expect(
       resolveRedirect({ path: "/today", isAuthed: false, hasConsented: false, hasOnboarded: false }),
-    ).toBe("/?next=%2Ftoday");
+    ).toBe("/welcome?next=%2Ftoday");
   });
 
-  it("leaves a signed-out visitor on the landing page", () => {
+  it("leaves a signed-out visitor on the splash screen", () => {
     expect(
       resolveRedirect({ path: "/", isAuthed: false, hasConsented: false, hasOnboarded: false }),
+    ).toBeNull();
+  });
+
+  it("leaves a signed-out visitor on the language select screen", () => {
+    expect(
+      resolveRedirect({ path: "/welcome", isAuthed: false, hasConsented: false, hasOnboarded: false }),
     ).toBeNull();
   });
 
@@ -77,12 +83,12 @@ describe("resolveRedirect", () => {
   it("preserves a deep link so a notification or shared link resumes after sign-in", () => {
     expect(
       resolveRedirect({ path: "/care/summary", isAuthed: false, hasConsented: false, hasOnboarded: false }),
-    ).toBe("/?next=%2Fcare%2Fsummary");
+    ).toBe("/welcome?next=%2Fcare%2Fsummary");
   });
 
   it("never builds a next parameter pointing at an external host", () => {
     expect(
       resolveRedirect({ path: "//evil.example.com", isAuthed: false, hasConsented: false, hasOnboarded: false }),
-    ).toBe("/");
+    ).toBe("/welcome");
   });
 });

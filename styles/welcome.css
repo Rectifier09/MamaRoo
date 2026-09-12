@@ -1,0 +1,100 @@
+/* Ported from Screens/1. Language Select.dc.html. Colours/fonts resolve
+   through the shared tokens rather than restating hex. */
+
+.welcome-screen {
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 375px;
+  margin-inline: auto;
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-blush) 100%);
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-lg);
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.welcome-subtitle {
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.welcome-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  border: 1.5px solid transparent;
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.welcome-card[data-selected="true"] {
+  border-color: var(--color-accent-primary);
+}
+@media (hover: hover) and (pointer: fine) {
+  .welcome-card:hover {
+    box-shadow: var(--shadow-2);
+  }
+}
+
+.welcome-card-native {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  color: var(--color-text-primary);
+}
+.welcome-card-gloss {
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+  color: var(--color-text-secondary);
+}
+
+.welcome-spacer {
+  flex: 1;
+}
+
+.welcome-continue {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--color-accent-primary);
+  color: var(--color-surface-raised);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-body);
+  line-height: var(--text-body-sm--line-height);
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+.welcome-continue:disabled {
+  background: var(--color-blush);
+  color: var(--color-text-secondary);
+  cursor: default;
+}
