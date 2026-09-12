@@ -11,6 +11,24 @@ describe("validateEvent", () => {
     expect(() => validateEvent("made_up_event", {})).toThrow(/unknown analytics event/i);
   });
 
+  it("accepts checkin_submitted with a tapped feeling chip", () => {
+    expect(
+      validateEvent(EVENTS.checkin_submitted, { input_method: "text", length_bucket: "short", feeling: "worried" }),
+    ).toEqual({ input_method: "text", length_bucket: "short", feeling: "worried" });
+  });
+
+  it("accepts checkin_submitted with no chip tapped, since free text is the only required input", () => {
+    expect(
+      validateEvent(EVENTS.checkin_submitted, { input_method: "voice", length_bucket: "medium", feeling: null }),
+    ).toEqual({ input_method: "voice", length_bucket: "medium", feeling: null });
+  });
+
+  it("rejects checkin_submitted with a feeling outside the declared enum", () => {
+    expect(() =>
+      validateEvent(EVENTS.checkin_submitted, { input_method: "text", length_bucket: "short", feeling: "sad" }),
+    ).toThrow(/rejected/i);
+  });
+
   it("rejects any key the event did not declare", () => {
     expect(() => validateEvent(EVENTS.vital_logged, { kind: "weight", note: "fine" })).toThrow(
       /rejected/i,
@@ -29,6 +47,7 @@ describe("validateEvent", () => {
     expect(() => validateEvent(EVENTS.checkin_submitted, {
       input_method: "text",
       length_bucket: "short",
+      feeling: null,
       [key]: value,
     })).toThrow(/rejected/i);
   });

@@ -54,7 +54,14 @@ export interface EventProperties {
   // the funnel, so the schema tracks the real domain type instead.
   onboarding_completed: { date_mode: DueDateMethod; optional_fields_filled: number };
   tab_viewed: { tab: "today" | "baby" | "care" | "reading" | "profile" };
-  checkin_submitted: { input_method: "text" | "voice"; length_bucket: "short" | "medium" | "long" };
+  // feeling is the optional quick-select chip she tapped on Today (Session
+  // 18.2), never the text itself -- kept nullable because free text stays
+  // the only required field.
+  checkin_submitted: {
+    input_method: "text" | "voice";
+    length_bucket: "short" | "medium" | "long";
+    feeling: "good" | "new" | "worried" | null;
+  };
   triage_result_shown: { severity: "general" | "contact_clinic" | "urgent" | "no_match" };
   kick_session_started: { week: number };
   kick_session_completed: { week: number; kicks: number; minutes: number };
