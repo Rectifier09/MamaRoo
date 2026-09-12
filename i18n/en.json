@@ -24,7 +24,8 @@
     "baby": "My Baby",
     "care": "My Care",
     "reading": "Reading",
-    "profile": "Profile"
+    "profile": "Profile",
+    "label": "Main navigation"
   },
   "disclaimer": {
     "reviewedGuidance": "From reviewed guidance, not a diagnosis.",

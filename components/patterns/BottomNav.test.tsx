@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/en.json";
+import hi from "@/i18n/hi.json";
 import { BottomNav } from "@/components/patterns/BottomNav";
 
 function renderNav(activePath: string) {
@@ -54,7 +55,7 @@ describe("BottomNav", () => {
 
   it("labels every tab in Hindi too", () => {
     render(
-      <NextIntlClientProvider locale="hi" messages={require("@/i18n/hi.json")}>
+      <NextIntlClientProvider locale="hi" messages={hi}>
         <BottomNav activePath="/today" />
       </NextIntlClientProvider>,
     );
