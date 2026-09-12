@@ -187,7 +187,23 @@
         "headline": "This is still waiting for you",
         "primary": "Take it now"
       }
-    }
+    },
+    "listen": {
+      "backLabel": "Back to Today",
+      "eyebrow": "Quick listen",
+      "videoTab": "Video",
+      "audioTab": "Audio",
+      "listenLabel": "Listen",
+      "textLabel": "Text version",
+      "playLabel": "Play",
+      "pauseLabel": "Pause",
+      "playingCaption": "Playing right here, so you keep your place on Today.",
+      "readAlong": "Read along",
+      "switchBackNote": "You can switch back to listening any time, even on a slow connection.",
+      "notFoundTitle": "We couldn't find that",
+      "notFoundBody": "This may have been removed or the link may be old."
+    },
+    "backToToday": "Back to Today"
   },
   "mealPlan": {
     "title": "Your meal plan for today",
