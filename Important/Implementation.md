@@ -7285,7 +7285,15 @@ git commit -m "feat(onboarding): add intake form with derived due date, per-fiel
 
 ## Session 17: App shell, bottom navigation, offline state, view transitions
 
-**Gate A — request before starting:** ask for the bottom navigation's designer markup including the five icons and the active state. Stop until it arrives.
+**Gate A — status:** resolved 2026-09-12 without a designer asset. No bottom-navigation markup exists yet in `Screens/MamaRoo` (checked: the Today mockup and its scrap screenshots only show scrollable page content, no nav bar). Rochak confirmed the five tabs (Today, Baby, Care, Reading, Profile) and said the active-state styling should be left blank/placeholder for now, to be restyled per screen in later sessions. `BottomNav` below ships with generic Phosphor icons and a minimal colour+weight active state on that basis.
+
+**Delivered scope (revision):**
+- `middleware.ts` does not exist in this codebase; this Next.js version renamed it to `proxy.ts` (see its own header comment). The `x-pathname` header is set there instead.
+- Added one i18n key not in the original plan, `nav.label` (en/hi), for the `<nav>` element's `aria-label` — the plan's file list already covered `i18n/en.json` and `i18n/hi.json` for this session.
+- The Hindi `BottomNav` test as written in Step 4 uses `require("@/i18n/hi.json")`, which fails under this project's Vite/ESM test setup; changed to a static `import hi from "@/i18n/hi.json"` instead. Same assertion, no behaviour change.
+- Added `proxy.test.ts` coverage for the new `x-pathname` header (not in the original file list, but proxy.ts's own existing tests live there).
+
+**Original gate text (superseded by the note above):** ask for the bottom navigation's designer markup including the five icons and the active state. Stop until it arrives.
 
 **Goal:** The persistent frame every app screen renders inside: five tabs, safe areas, the chat bubble slot, the offline banner, and view transitions.
 
@@ -7301,13 +7309,13 @@ git commit -m "feat(onboarding): add intake form with derived due date, per-fiel
 **Interfaces:**
 - Produces: `BottomNav({ activePath })`, `OfflineBanner()`, `useOnline(): boolean`, the `(app)` layout.
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing useOnline test**
+- [x] **Step 2: Write the failing useOnline test**
 
 Create `lib/pwa/useOnline.test.ts` asserting: it returns `true` when `navigator.onLine` is true; `false` when false; it flips on the `offline` and `online` window events; and it returns `true` when `navigator.onLine` is `undefined`, because an unknown state must not lock the app into a read-only mode.
 
-- [ ] **Step 3: Implement useOnline**
+- [x] **Step 3: Implement useOnline**
 
 ```ts
 "use client";
@@ -7333,7 +7341,7 @@ export function useOnline(): boolean {
 }
 ```
 
-- [ ] **Step 4: Write the failing BottomNav test**
+- [x] **Step 4: Write the failing BottomNav test**
 
 ```tsx
 import { describe, expect, it } from "vitest";
@@ -7401,15 +7409,15 @@ describe("BottomNav", () => {
 });
 ```
 
-- [ ] **Step 5: Run it, watch it fail, implement from the designer's markup**
+- [x] **Step 5: Run it, watch it fail, implement from the designer's markup**
 
 Five `Link`s, each with an `Icon` at `size="nav"` and a label. Active detection is `activePath === href || activePath.startsWith(href + "/")`. Expected: PASS.
 
-- [ ] **Step 6: Write and implement OfflineBanner**
+- [x] **Step 6: Write and implement OfflineBanner**
 
 Test: it renders nothing when online; when offline it renders a `role="status"` with the `common.offline` message and an icon. Then implement.
 
-- [ ] **Step 7: Build the app layout**
+- [x] **Step 7: Build the app layout**
 
 Create `app/(app)/layout.tsx`:
 
@@ -7438,7 +7446,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
 Set `x-pathname` in `middleware.ts` by adding `response.headers.set("x-pathname", request.nextUrl.pathname)` before returning, so the layout knows the active tab without a client component.
 
-- [ ] **Step 8: Add view transitions**
+- [x] **Step 8: Add view transitions**
 
 In `styles/globals.css`:
 
@@ -7453,11 +7461,11 @@ In `styles/globals.css`:
 
 Enable the Next.js view-transitions behaviour in `next.config.ts` if the installed version exposes a flag for it; otherwise rely on the browser default for cross-document transitions. **Verify on a real mid-range Android device before relying on it**, per design document §3 — note the result in the commit message.
 
-- [ ] **Step 9: Create the chat bubble placeholder**
+- [x] **Step 9: Create the chat bubble placeholder**
 
 `app/(app)/ChatBubbleSlot.tsx` renders nothing in this session and is replaced in Session 29. It exists now so the layout's bottom spacing is settled once.
 
-- [ ] **Step 10: Verify and commit**
+- [x] **Step 10: Verify and commit**
 
 ```bash
 git add "app/(app)" components/patterns lib/pwa middleware.ts styles i18n
