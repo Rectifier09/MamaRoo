@@ -21,4 +21,32 @@ describe("parseEnv", () => {
   it("rejects a Supabase URL that is not a URL", () => {
     expect(() => parseEnv({ ...valid, NEXT_PUBLIC_SUPABASE_URL: "not-a-url" })).toThrow();
   });
+
+  it("accepts an environment with no PostHog configuration at all", () => {
+    expect(() => parseEnv(valid)).not.toThrow();
+  });
+
+  it("accepts a fully-configured PostHog project", () => {
+    const withPosthog = parseEnv({
+      ...valid,
+      NEXT_PUBLIC_POSTHOG_KEY: "phc_test",
+      NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
+    });
+    expect(withPosthog.NEXT_PUBLIC_POSTHOG_KEY).toBe("phc_test");
+  });
+
+  it("rejects a PostHog host that is not a URL", () => {
+    expect(() =>
+      parseEnv({ ...valid, NEXT_PUBLIC_POSTHOG_KEY: "phc_test", NEXT_PUBLIC_POSTHOG_HOST: "not-a-url" }),
+    ).toThrow(/NEXT_PUBLIC_POSTHOG_HOST/);
+  });
+
+  // .env.example leaves these two commented out (# NEXT_PUBLIC_POSTHOG_KEY=), but
+  // an uncommented, blank line ("NEXT_PUBLIC_POSTHOG_KEY=") is an easy slip and
+  // must not crash the server the same way a genuinely malformed value should.
+  it("treats an empty-string PostHog key and host as unset, not invalid", () => {
+    const result = parseEnv({ ...valid, NEXT_PUBLIC_POSTHOG_KEY: "", NEXT_PUBLIC_POSTHOG_HOST: "" });
+    expect(result.NEXT_PUBLIC_POSTHOG_KEY).toBeUndefined();
+    expect(result.NEXT_PUBLIC_POSTHOG_HOST).toBeUndefined();
+  });
 });
