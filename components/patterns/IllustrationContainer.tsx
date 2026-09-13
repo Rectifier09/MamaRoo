@@ -38,7 +38,16 @@ export function IllustrationContainer({
           path: lottieUrl,
         });
         destroy = () => animation.destroy();
-        setAnimated(true);
+        // A bad/missing lottieUrl (e.g. a stage illustration not sourced yet)
+        // doesn't make loadAnimation throw -- it fetches the JSON
+        // asynchronously and lottie-web reports success or failure through
+        // these events instead. Flipping `animated` unconditionally right
+        // after the call (the previous behaviour here) would hide the static
+        // <img> the instant a 404'ing path was requested, leaving a blank
+        // space rather than the fallback image this component exists to
+        // guarantee. Only a real render flips it now.
+        animation.addEventListener("data_failed", () => setAnimated(false));
+        animation.addEventListener("DOMLoaded", () => setAnimated(true));
       } catch {
         setAnimated(false); // static fallback stays visible
       }
