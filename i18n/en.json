@@ -393,7 +393,11 @@
     "timeline": {
       "empty": "Nothing logged yet. Your baby's milestones will start appearing here.",
       "viewLabel": "Timeline view",
-      "view": { "day": "Day", "week": "Week", "month": "Month" },
+      "view": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      },
       "showAll": "Show all {count}",
       "close": "Close"
     },
@@ -472,6 +476,86 @@
       "dateRequired": "Choose a date and time.",
       "dateInvalid": "Enter a valid date and time.",
       "tooFarOut": "Choose a date within the next two years."
+    }
+  },
+  "care": {
+    "heading": "Taking care, together",
+    "hub": {
+      "medicineLabel": "Medicines",
+      "medicinePrompt": "Add your first medicine here",
+      "appointmentLabel": "Appointments",
+      "appointmentPrompt": "Add your next appointment here",
+      "reportLabel": "Reports",
+      "reportPrompt": "Add your first report here",
+      "adviceLabel": "Doctor's advice",
+      "advicePrompt": "Your doctor's advice will appear here",
+      "questionsLabel": "Suggested questions",
+      "questionsPrompt": "Add a question for your next visit",
+      "questionsReady": "{count, plural, one {# question} other {# questions}} ready for your next visit",
+      "notesLabel": "Personal notes",
+      "notesPrompt": "Add your first note here",
+      "summaryTitle": "Doctor visit summary",
+      "summaryLine": "See everything ready for your next visit.",
+      "summaryCta": "View summary"
+    },
+    "medicines": {
+      "title": "Medicines",
+      "trackerTitle": "Iron and calcium",
+      "otherMedicines": "Your other medicines",
+      "emptyState": "Add your first medicine here",
+      "addMedicine": "Add medicine",
+      "addSheetTitle": "Add medicine",
+      "addSheetSubtitle": "Add the details, or attach a photo of the prescription.",
+      "editSheetTitle": "Edit medicine",
+      "nameLabel": "Name",
+      "namePlaceholder": "For example, Vitamin D3",
+      "doseLabel": "Dose",
+      "dosePlaceholder": "For example, 1 tablet",
+      "timeLabel": "Time",
+      "addTime": "Add another time",
+      "removeTime": "Remove this time",
+      "instructionsLabel": "Doctor's instructions, if any",
+      "instructionsPlaceholder": "For example, take after food",
+      "reminderLabel": "Remind me",
+      "photoLabel": "Prescription photo, optional",
+      "saveButton": "Save medicine",
+      "takenLabel": "Taken",
+      "skipLabel": "Skipped",
+      "skippedBadge": "Skipped for today",
+      "takenBadge": "Taken",
+      "rescheduleLabel": "Reschedule",
+      "rescheduleTitle": "Reschedule {name}",
+      "rescheduleSubtitle": "Pick a new time, without losing your place.",
+      "rescheduleMorning": "Morning, 8:00 AM",
+      "rescheduleAfternoon": "Afternoon, 1:00 PM",
+      "rescheduleEvening": "Evening, 6:00 PM",
+      "rescheduleNight": "Night, 9:00 PM",
+      "stopMedicine": "Stop medicine",
+      "deactivateConfirmTitle": "Stop this medicine?",
+      "deactivateConfirmBody": "You can always add it again later.",
+      "deactivateConfirm": "Yes, stop it",
+      "deactivateCancel": "Keep it",
+      "offline": "You are offline. You can look at your medicines, and save once you are back.",
+      "errors": {
+        "nameRequired": "Enter the medicine's name.",
+        "timeRequired": "Add at least one time.",
+        "tooManyTimes": "Add up to 6 times a day.",
+        "timeInvalid": "Enter a valid time.",
+        "endBeforeStart": "The end date can't come before the start date.",
+        "daysOfWeekInvalid": "Choose valid days of the week."
+      },
+      "warnings": {
+        "duplicateName": "You already have an active medicine with this name. That's fine if it's a second dose."
+      },
+      "adherence": {
+        "title": "Adherence",
+        "summary": "{taken} of {expected} doses taken",
+        "stateTaken": "Taken",
+        "stateSkipped": "Skipped",
+        "stateUnlogged": "Not logged",
+        "stateNone": "Nothing scheduled",
+        "cellLabel": "{date}, {state}"
+      }
     }
   }
 }
