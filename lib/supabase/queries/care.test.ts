@@ -53,7 +53,7 @@ describe("getCareHubData", () => {
     responses.set("medicine_logs", { data: medicineLogs, error: null });
     responses.set("appointments", { data: nextAppointment, error: null });
     responses.set("reports", { data: latestReport, error: null });
-    responses.set("doctor_advice", { data: latestAdvice, error: null });
+    responses.set("doctor_advice_updates", { data: latestAdvice, error: null });
     responses.set("question_marks", { data: null, error: null, count: 3 });
     responses.set("personal_notes", { data: latestNote, error: null });
 
@@ -80,7 +80,7 @@ describe("getCareHubData", () => {
     responses.set("medicine_logs", { data: [], error: null });
     responses.set("appointments", { data: null, error: null });
     responses.set("reports", { data: null, error: null });
-    responses.set("doctor_advice", { data: null, error: null });
+    responses.set("doctor_advice_updates", { data: null, error: null });
     responses.set("question_marks", { data: null, error: null, count: 0 });
     responses.set("personal_notes", { data: null, error: null });
 

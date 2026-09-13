@@ -593,5 +593,43 @@
       "delete": "Your note couldn't be deleted. Try again.",
       "voice": "We couldn't hear that. You can still type."
     }
+  },
+  "advice": {
+    "title": "My doctor's advice",
+    "empty": "Add what your doctor told you here.",
+    "addAdvice": "Add what doctor said",
+    "addSheetTitle": "Add what doctor said",
+    "editSheetTitle": "Your doctor's advice",
+    "typeLabel": "Type",
+    "types": {
+      "medicine": "Medicine",
+      "test": "Test",
+      "scan": "Scan",
+      "appointment": "Appointment",
+      "diet": "Diet",
+      "exercise": "Exercise or rest",
+      "question": "Follow up question",
+      "other": "Other"
+    },
+    "bodyLabel": "What did the doctor say",
+    "placeholder": "For example, continue the iron tablets daily",
+    "doctorLabel": "Doctor, optional",
+    "doctorPlaceholder": "For example, Dr. Priya Sharma",
+    "unnamedDoctor": "Your doctor",
+    "confirmedStatus": "Confirmed, this is now a reminder",
+    "unconfirmedStatus": "Waiting for your confirmation",
+    "voiceButton": "Add by voice",
+    "listening": "Listening, speak now",
+    "save": "Save",
+    "saveUpdate": "Save update",
+    "cancel": "Cancel",
+    "offline": "You're offline right now. Reconnect to save this.",
+    "errors": {
+      "empty": "Write a few words before saving.",
+      "tooLong": "Keep this to 4,000 characters or fewer.",
+      "invalid": "Check what you wrote and try again.",
+      "save": "This couldn't be saved. Try again.",
+      "voice": "We couldn't hear that. You can still type."
+    }
   }
 }

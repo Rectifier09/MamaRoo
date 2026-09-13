@@ -70,9 +70,7 @@ describe("RLS on the care tables", () => {
   it("refuses a doctor advice insert carrying another user's user_id", async () => {
     const { error } = await bob.client.from("doctor_advice").insert({
       user_id: alice.userId,
-      recorded_on: "2026-09-11",
-      body: "test",
-      input_method: "text",
+      type: "medicine",
     });
     expect(error).not.toBeNull();
   });
@@ -134,9 +132,7 @@ describe("RLS on the care tables", () => {
     const { error } = await bob.client.from("doctor_advice").insert({
       user_id: bob.userId,
       appointment_id: aliceAppointment.data!.id,
-      recorded_on: "2026-09-11",
-      body: "test",
-      input_method: "text",
+      type: "medicine",
     });
     expect(error).not.toBeNull();
   });
@@ -217,6 +213,77 @@ describe("RLS on the care tables", () => {
       size_bytes: 30_000_000,
     });
     expect(error).not.toBeNull();
+  });
+
+  it("refuses a doctor advice entry with a type outside the eight design categories", async () => {
+    const { error } = await alice.client
+      .from("doctor_advice")
+      .insert({ user_id: alice.userId, type: "not_a_real_type" });
+    expect(error).not.toBeNull();
+  });
+
+  it("returns nothing when another user reads her advice updates", async () => {
+    const { data } = await bob.client.from("doctor_advice_updates").select("*");
+    expect(data).toEqual([]);
+  });
+
+  it("refuses an advice update insert carrying another user's user_id", async () => {
+    const advice = await alice.client
+      .from("doctor_advice")
+      .insert({ user_id: alice.userId, type: "medicine" })
+      .select("id")
+      .single();
+    const { error } = await bob.client.from("doctor_advice_updates").insert({
+      user_id: alice.userId,
+      advice_id: advice.data!.id,
+      body: "test",
+      input_method: "text",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses to append an update to another user's advice thread", async () => {
+    const aliceAdvice = await alice.client
+      .from("doctor_advice")
+      .insert({ user_id: alice.userId, type: "diet" })
+      .select("id")
+      .single();
+    const { error } = await bob.client.from("doctor_advice_updates").insert({
+      user_id: bob.userId, // his own row, so RLS passes
+      advice_id: aliceAdvice.data!.id, // her advice thread
+      body: "test",
+      input_method: "text",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses to edit or delete an advice update -- history is append-only", async () => {
+    const advice = await alice.client
+      .from("doctor_advice")
+      .insert({ user_id: alice.userId, type: "exercise" })
+      .select("id")
+      .single();
+    const update = await alice.client
+      .from("doctor_advice_updates")
+      .insert({ user_id: alice.userId, advice_id: advice.data!.id, body: "Take short walks", input_method: "text" })
+      .select("id")
+      .single();
+
+    const edited = await alice.client
+      .from("doctor_advice_updates")
+      .update({ body: "hijacked" })
+      .eq("id", update.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(edited.data).toBeNull();
+
+    const deleted = await alice.client
+      .from("doctor_advice_updates")
+      .delete()
+      .eq("id", update.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(deleted.data).toBeNull();
   });
 
   it("returns nothing when another user reads her personal notes", async () => {
