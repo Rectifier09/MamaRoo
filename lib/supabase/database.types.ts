@@ -79,6 +79,65 @@ export type Database = {
         }
         Relationships: []
       }
+      baby_name_favorites: {
+        Row: {
+          baby_name_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          baby_name_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          baby_name_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "baby_name_favorites_baby_name_id_fkey"
+            columns: ["baby_name_id"]
+            isOneToOne: false
+            referencedRelation: "baby_names"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      baby_names: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          meaning_en: string
+          meaning_hi: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          meaning_en: string
+          meaning_hi: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          meaning_en?: string
+          meaning_hi?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           answer_kind: string | null
@@ -598,7 +657,7 @@ export type Database = {
       }
       pregnancies: {
         Row: {
-          baby_name: string | null
+          baby_name: string[]
           created_at: string
           edd: string
           edd_source: string
@@ -613,7 +672,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          baby_name?: string | null
+          baby_name?: string[]
           created_at?: string
           edd: string
           edd_source: string
@@ -628,7 +687,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          baby_name?: string | null
+          baby_name?: string[]
           created_at?: string
           edd?: string
           edd_source?: string
@@ -978,6 +1037,7 @@ export type Database = {
         }[]
       }
       tables_without_rls: { Args: never; Returns: string[] }
+      valid_baby_names: { Args: { names: string[] }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
