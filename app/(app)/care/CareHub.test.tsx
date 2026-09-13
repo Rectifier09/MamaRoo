@@ -11,6 +11,7 @@ function renderHub(overrides: Partial<CareHubProps> = {}) {
     reportText: null,
     adviceText: null,
     questionsCount: 0,
+    notesText: null,
     ...overrides,
   };
   render(
@@ -34,6 +35,11 @@ describe("CareHub", () => {
   it("shows real content once a section has some", () => {
     renderHub({ medicineText: "Folic acid, today at 9:00 PM" });
     expect(screen.getByText("Folic acid, today at 9:00 PM")).toBeInTheDocument();
+  });
+
+  it("shows the latest note's preview once one exists", () => {
+    renderHub({ notesText: "Felt the first kick today" });
+    expect(screen.getByText("Felt the first kick today")).toBeInTheDocument();
   });
 
   it("shows a pluralised count of ready questions", () => {

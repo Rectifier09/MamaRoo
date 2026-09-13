@@ -7,6 +7,7 @@ export type MedicineLogRow = Tables["medicine_logs"]["Row"];
 export type AppointmentRow = Tables["appointments"]["Row"];
 export type ReportRow = Tables["reports"]["Row"];
 export type DoctorAdviceRow = Tables["doctor_advice"]["Row"];
+export type PersonalNoteRow = Tables["personal_notes"]["Row"];
 
 export interface CareHubData {
   medicines: MedicineRow[];
@@ -15,20 +16,20 @@ export interface CareHubData {
   latestReport: Pick<ReportRow, "id" | "report_type" | "report_date"> | null;
   latestAdvice: Pick<DoctorAdviceRow, "id" | "body"> | null;
   markedQuestionCount: number;
+  latestNote: Pick<PersonalNoteRow, "id" | "body"> | null;
 }
 
 /**
  * One read per hub card. Every underlying table already exists from Migration 3
- * (Session 9) and 4 (Session 10) -- this session doesn't add write flows for
- * appointments/reports/advice/questions, only the hub's read-only preview of
- * whatever those tables already hold. Personal notes has no table yet (Session
- * 22A), so the hub always shows its empty prompt for that one card.
+ * (Session 9), 4 (Session 10), and personal_notes (Session 22A) -- this session
+ * doesn't add write flows for appointments/reports/advice/questions/notes, only
+ * the hub's read-only preview of whatever those tables already hold.
  */
 export async function getCareHubData(): Promise<CareHubData> {
   const supabase = await createServerSupabase();
   const today = new Date().toISOString();
 
-  const [medicines, medicineLogs, nextAppointment, latestReport, latestAdvice, markedQuestions] =
+  const [medicines, medicineLogs, nextAppointment, latestReport, latestAdvice, markedQuestions, latestNote] =
     await Promise.all([
       supabase.from("medicines").select("*").eq("is_active", true),
       supabase.from("medicine_logs").select("*"),
@@ -53,11 +54,23 @@ export async function getCareHubData(): Promise<CareHubData> {
         .limit(1)
         .maybeSingle(),
       supabase.from("question_marks").select("id", { count: "exact", head: true }),
+      supabase
+        .from("personal_notes")
+        .select("id, body")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
-  const failed = [medicines, medicineLogs, nextAppointment, latestReport, latestAdvice, markedQuestions].find(
-    (result) => result.error,
-  );
+  const failed = [
+    medicines,
+    medicineLogs,
+    nextAppointment,
+    latestReport,
+    latestAdvice,
+    markedQuestions,
+    latestNote,
+  ].find((result) => result.error);
   if (failed?.error) throw failed.error;
 
   return {
@@ -67,6 +80,7 @@ export async function getCareHubData(): Promise<CareHubData> {
     latestReport: latestReport.data,
     latestAdvice: latestAdvice.data,
     markedQuestionCount: markedQuestions.count ?? 0,
+    latestNote: latestNote.data,
   };
 }
 

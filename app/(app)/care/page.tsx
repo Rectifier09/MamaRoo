@@ -1,7 +1,8 @@
 import { CareHub } from "@/app/(app)/care/CareHub";
+import { notePreview } from "@/lib/domain/notes";
 import { getCareHubData } from "@/lib/supabase/queries/care";
 
-const ADVICE_PREVIEW_MAX_CHARS = 80;
+const CARD_PREVIEW_MAX_CHARS = 80;
 
 export default async function CarePage() {
   const data = await getCareHubData();
@@ -20,10 +21,12 @@ export default async function CarePage() {
     : null;
 
   const adviceText = data.latestAdvice
-    ? data.latestAdvice.body.length > ADVICE_PREVIEW_MAX_CHARS
-      ? `${data.latestAdvice.body.slice(0, ADVICE_PREVIEW_MAX_CHARS).trimEnd()}…`
+    ? data.latestAdvice.body.length > CARD_PREVIEW_MAX_CHARS
+      ? `${data.latestAdvice.body.slice(0, CARD_PREVIEW_MAX_CHARS).trimEnd()}…`
       : data.latestAdvice.body
     : null;
+
+  const notesText = data.latestNote ? notePreview(data.latestNote.body, CARD_PREVIEW_MAX_CHARS) : null;
 
   return (
     <CareHub
@@ -32,6 +35,7 @@ export default async function CarePage() {
       reportText={reportText}
       adviceText={adviceText}
       questionsCount={data.markedQuestionCount}
+      notesText={notesText}
     />
   );
 }

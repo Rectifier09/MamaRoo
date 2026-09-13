@@ -34,11 +34,12 @@ Unchanged goal, two additions:
 - Pin Iron & folic acid / Calcium above the rest of the list. **Built without the migration this doc originally proposed**: `isPriorityMedicine(name)` matches on the medicine's name instead of a schema column — same pinned behaviour, no migration, and no coordination needed with whichever other session is concurrently writing to the same live Supabase project.
 - Files: as originally scoped, minus the `is_priority` migration (superseded by the heuristic above). See `Important/Implementation.md`'s Session 22 "Delivered scope" note for the full list of build-time deviations.
 
-### Session 22A — Personal Notes (new)
-- Goal: reverse-chronological note cards, plain-textarea write flow with inline mic, edit-in-place, delete-with-confirmation.
-- Needs a migration: new `personal_notes` table (id, user_id, body, created_at, updated_at), same RLS shape as `doctor_advice`.
-- Files: `lib/domain/notes.ts` (preview truncation, sort) + test, `app/(app)/care/notes/page.tsx` + `NoteList.tsx` + `NoteForm.tsx` + tests, `app/actions/notes.ts`, migration file.
-- Depends on: nothing but the fixed route Session 22 already wired.
+### Session 22A — Personal Notes — **done** (2026-09-13)
+Goal: reverse-chronological note cards, plain-textarea write flow with inline mic, edit-in-place, delete-with-confirmation. Built against `Screens/04-my-care/Personal Notes.dc.html`. Migration `0010_personal_notes.sql` adds the table (same RLS shape as `doctor_advice`). Two deviations from the plan as written above, both deliberate:
+- **The screen follows the app's real full-page list/read/write pattern** (same as Letters to Baby), not the design mock's bottom-sheet layout — consistent with how Letters to Baby already diverged from its own sheet-based mock.
+- **`CareHub`'s notes card is now wired to the latest note's preview**, not left on its permanent empty prompt — completing the parity Session 22 established for every other card once the table existed (`lib/supabase/queries/care.ts`, `app/(app)/care/page.tsx`, `app/(app)/care/CareHub.tsx` all touched for this one line).
+- Files: `lib/domain/notes.ts` + test, `lib/supabase/queries/notes.ts` + test, `app/(app)/care/notes/page.tsx` + `NotesScreen.tsx` + test, `app/actions/notes.ts` + test, migration file, plus the `CareHub` wiring above.
+- Depended on: the fixed route and `CareHub` scaffold Session 22 wired (required merging PRs #22 and #23 to `main` first, since this session's worktree branched after both).
 
 ### Session 23 — Appointments — **done** (2026-09-13)
 Unchanged from the original plan. Reference-photo attach is explicitly out of scope here (see Decision 5) — revisit as a small follow-on after Session 26. See `Important/Implementation.md`'s Session 23 "Delivered scope" note for the build-time deviations (no separate title field, no "rescheduled" status, the per-appointment questions section deferred to 25A).
@@ -67,7 +68,7 @@ Unchanged from the original plan. Depends on Sessions 22, 23, 25, 25A and 26 bei
 
 ## Coordination points
 
-- **`CareHub.tsx` link wiring** is the one file every session touches conceptually. Fixed by Session 22 wiring all seven links up front — no later session needs to re-touch it.
+- **`CareHub.tsx` link wiring** is the one file every session touches conceptually. Fixed by Session 22 wiring all seven links up front — no later session needs to re-touch it *for routing*. Session 22A did touch it once more, but only because `personal_notes` was the one table that didn't exist yet at Session 22 time — its card was the sole one left on a permanent empty prompt, so 22A swapped it for a real preview (a one-line prop change plus matching query/page wiring). Advice and reports already had their tables (Migration 3) when Session 22 built the hub, so their cards are already wired live; Sessions 25 and 26 don't need to touch this file at all.
 - **Migrations**: 22, 22A, 25 and 25A each add one. Don't pre-assign filenames — run `supabase migration new` at merge time so timestamps sequence correctly regardless of landing order. Whoever merges second rebases and re-runs `db reset` locally first, per the existing local-dev flow.
 - **i18n**: each session adds to its own namespace (`care`, `notes`, `appointments`, `advice`, `questions`, `reports`, `summary`) — same convention as the rest of the plan. Conflicts only happen if two sessions land the same day.
 

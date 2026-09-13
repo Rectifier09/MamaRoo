@@ -557,5 +557,41 @@
         "cellLabel": "{date}, {state}"
       }
     }
+  },
+  "notes": {
+    "title": "Personal notes",
+    "empty": "Keep any thoughts or notes here.",
+    "addNote": "Add note",
+    "addTitle": "Add a note",
+    "editTitle": "Edit note",
+    "readTitle": "Your note",
+    "bodyLabel": "Your note",
+    "placeholder": "Write whatever is on my mind",
+    "today": "Today",
+    "backToCare": "Back to My Care",
+    "backToNotes": "Back to notes",
+    "save": "Save note",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete this note",
+    "deleteConfirmBody": "This note will be removed for good. There is no rush, take a moment if needed.",
+    "deleteCancel": "Keep it",
+    "deleteConfirm": "Delete note",
+    "savedToast": "Your note is saved.",
+    "updatedToast": "Your note is updated.",
+    "deletedToast": "Your note is deleted.",
+    "offline": "You're offline right now. Reconnect to save your note.",
+    "voiceButton": "Add note by voice",
+    "listening": "Listening, speak now",
+    "errors": {
+      "empty": "Write a few words before saving your note.",
+      "tooLong": "Keep your note to 4,000 characters or fewer.",
+      "invalid": "Check your note and try again.",
+      "save": "Your note couldn't be saved. Try again.",
+      "delete": "Your note couldn't be deleted. Try again.",
+      "voice": "We couldn't hear that. You can still type."
+    }
   }
 }
