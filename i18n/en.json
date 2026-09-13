@@ -303,5 +303,20 @@
     "termsOfUse": "Terms of Use",
     "agreeAndContinue": "Agree and continue",
     "agreeRequired": "Agree to the terms to continue"
+  },
+  "baby": {
+    "kicks": {
+      "instructions": "Tap each time you feel a kick or movement.",
+      "tapButtonLabel": "Count a kick",
+      "countOfTarget": "of {target}",
+      "elapsed": "{minutes, plural, =0 {Just started} one {# minute} other {# minutes}}",
+      "offlineError": "You're offline right now, so a tap can't be saved safely. Reconnect to keep counting.",
+      "recordError": "That tap didn't save. Try again.",
+      "finishError": "Couldn't finish the session. Try again.",
+      "finish": "Finish",
+      "doneTitle": "Nicely done",
+      "doneBody": "You counted {count, plural, one {# kick} other {# kicks}} this session.",
+      "expiredBody": "Your last count was left open too long to resume. Start a new one whenever you're ready."
+    }
   }
 }
