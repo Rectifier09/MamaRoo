@@ -9336,6 +9336,13 @@ git commit -m "feat(kicks): add resumable kick counter with derived state and ti
 
 **Scope note:** `app/actions/medicines.ts` already exists from Session 18.6 with one export, `logDose`, backing the Today Medicine Quick Action Sheet. This session adds `createMedicine`, `updateMedicine` and `deactivateMedicine` to the same file rather than creating a second one; `MedicineList`'s own dose-logging control calls the existing `logDose`, unchanged.
 
+**Delivered scope (status, 2026-09-13):** built against `Screens/04-my-care/My Care.dc.html` and `Medicines.dc.html`, per `Important/Plan-Sessions-22-27-Replan.md`. 853 unit/component tests passing. Three deviations from the plan as written here, all deliberate:
+- **The Iron/folic-acid and Calcium tracker pin uses a name-keyword heuristic (`isPriorityMedicine`), not a schema column.** The replan doc proposed a migration for this; implementing it showed the column was unnecessary — matching on the medicine's name gives the same pinned-tracker behaviour with no migration, no coordination needed with the concurrent Session 20/21 agent's writes to the same live Supabase project, and nothing for her to configure.
+- **`CareHub`'s five non-medicine preview cards (appointments, reports, advice, questions, notes) read directly from tables Migration 3/4 already created**, rather than staying hardcoded to their empty prompts. This was judged in-scope: the plan's own goal for `CareHub` is "one-line current state each," and every table except `personal_notes` (Session 22A, not yet built) already exists.
+- **Reschedule and Stop-medicine affordances were added to `MedicineList`** (a small time-chip `BottomSheet` and a confirm-in-sheet deactivate flow) even though `Medicines.dc.html`'s static mock doesn't render them explicitly — both are required by this session's own Step 6 ("deactivating asks for confirmation in a sheet") and were built to the same pattern as the rest of the screen rather than left as dead buttons.
+
+Not done: the `is_priority` migration mentioned in the replan doc was superseded by the heuristic above, so no `supabase/migrations/0009_*.sql` was created this session.
+
 **Files:**
 - Create: `lib/domain/adherence.ts` + test
 - Create: `lib/domain/medicines.ts` + test
@@ -9353,9 +9360,9 @@ git commit -m "feat(kicks): add resumable kick counter with derived state and ti
   - `validateMedicine(input): { ok: true; value } | { ok: false; errors }`
   - `addMedicine`, `updateMedicine`, `deactivateMedicine`, `logDose` server actions
 
-- [ ] **Step 1: Request the assets and stop**
+- [x] **Step 1: Request the assets and stop**
 
-- [ ] **Step 2: Write the failing expectedDoses and adherence tests**
+- [x] **Step 2: Write the failing expectedDoses and adherence tests**
 
 Create `lib/domain/adherence.test.ts`:
 
@@ -9485,29 +9492,29 @@ describe("adherenceRatio", () => {
 });
 ```
 
-- [ ] **Step 3: Run it, watch it fail, then implement `lib/domain/adherence.ts`**
+- [x] **Step 3: Run it, watch it fail, then implement `lib/domain/adherence.ts`**
 
 Use `addDays` and `diffDays` for every date step. Normalise every time to `HH:MM` before comparing, which is what makes the seconds test pass. Expected: PASS.
 
-- [ ] **Step 4: Write and implement `lib/domain/medicines.ts` validation**
+- [x] **Step 4: Write and implement `lib/domain/medicines.ts` validation**
 
 Tests to write first: a name is required and trimmed; at least one scheduled time is required; at most six times; a time must be `HH:MM`; duplicate times in one medicine are collapsed rather than rejected; `end_date` must not precede `start_date`, with a specific message; `days_of_week` values must be 1 to 7; a duplicate name for an existing active medicine produces a warning flag rather than an error, since two doses of the same drug is legitimate.
 
-- [ ] **Step 5: Write the failing AdherenceGrid component test**
+- [x] **Step 5: Write the failing AdherenceGrid component test**
 
 Assert: it renders one cell per day with an accessible label per cell naming the date and the state; a fully taken day, a partly taken day, a skipped day and an unlogged day are each distinguishable by more than colour (assert a `data-state` attribute and a visible glyph); the grid has a text summary for screen readers; and the copy for an unlogged day uses gentle language with no failure words.
 
-- [ ] **Step 6: Write the failing MedicineForm and MedicineList tests**
+- [x] **Step 6: Write the failing MedicineForm and MedicineList tests**
 
 MedicineForm: native `time` inputs; adding and removing a time row; per-field specific errors; submitting returns the created row; the duplicate-name warning renders as a note, not a blocker; Devanagari medicine names accepted; submission blocked while offline with an explanation.
 
 MedicineList: today's doses each with a log control; logging a dose shows a toast and updates optimistically; a past unlogged dose is still loggable; deactivating asks for confirmation in a `BottomSheet` and never uses a native `confirm()` dialog; an empty list shows the `EmptyState` with the medicine-specific copy from design document §5.2.
 
-- [ ] **Step 7: Implement the components, the hub and the actions**
+- [x] **Step 7: Implement the components, the hub and the actions**
 
 `CareHub` lists the six sub-sections with a one-line current state each. `app/actions/medicines.ts` holds `addMedicine`, `updateMedicine`, `deactivateMedicine` and `logDose`; `logDose` upserts on the unique triple so a double tap is idempotent.
 
-- [ ] **Step 8: Emit the analytics events and commit**
+- [x] **Step 8: Emit the analytics events and commit**
 
 Emit `medicine_added` and `medicine_dose_logged` with a `late` boolean. Never the medicine name.
 

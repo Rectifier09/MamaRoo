@@ -430,5 +430,85 @@
       "doneBody": "आपने इस सेशन में {count, plural, one {# किक} other {# किक}} गिनी।",
       "expiredBody": "आपकी पिछली गिनती बहुत देर तक खुली रह गई। जब चाहें, नई गिनती शुरू करें।"
     }
+  },
+  "care": {
+    "heading": "साथ मिलकर, देखभाल",
+    "hub": {
+      "medicineLabel": "दवाइयां",
+      "medicinePrompt": "यहां अपनी पहली दवा जोड़ें",
+      "appointmentLabel": "अपॉइंटमेंट",
+      "appointmentPrompt": "यहां अपनी अगली अपॉइंटमेंट जोड़ें",
+      "reportLabel": "रिपोर्ट",
+      "reportPrompt": "यहां अपनी पहली रिपोर्ट जोड़ें",
+      "adviceLabel": "डॉक्टर की सलाह",
+      "advicePrompt": "आपके डॉक्टर की सलाह यहां दिखाई देगी",
+      "questionsLabel": "सुझाए गए सवाल",
+      "questionsPrompt": "अपनी अगली विज़िट के लिए एक सवाल जोड़ें",
+      "questionsReady": "अगली विज़िट के लिए {count, plural, one {# सवाल} other {# सवाल}} तैयार",
+      "notesLabel": "निजी नोट्स",
+      "notesPrompt": "यहां अपना पहला नोट जोड़ें",
+      "summaryTitle": "डॉक्टर विज़िट सारांश",
+      "summaryLine": "अपनी अगली विज़िट के लिए सब कुछ तैयार देखें।",
+      "summaryCta": "सारांश देखें"
+    },
+    "medicines": {
+      "title": "दवाइयां",
+      "trackerTitle": "आयरन और कैल्शियम",
+      "otherMedicines": "आपकी अन्य दवाइयां",
+      "emptyState": "यहां अपनी पहली दवा जोड़ें",
+      "addMedicine": "दवा जोड़ें",
+      "addSheetTitle": "दवा जोड़ें",
+      "addSheetSubtitle": "विवरण जोड़ें, या पर्चे की फोटो लगाएं।",
+      "editSheetTitle": "दवा संपादित करें",
+      "nameLabel": "नाम",
+      "namePlaceholder": "उदाहरण के लिए, विटामिन D3",
+      "doseLabel": "खुराक",
+      "dosePlaceholder": "उदाहरण के लिए, 1 गोली",
+      "timeLabel": "समय",
+      "addTime": "एक और समय जोड़ें",
+      "removeTime": "यह समय हटाएं",
+      "instructionsLabel": "डॉक्टर के निर्देश, अगर कोई हों",
+      "instructionsPlaceholder": "उदाहरण के लिए, खाने के बाद लें",
+      "reminderLabel": "मुझे याद दिलाएं",
+      "photoLabel": "पर्चे की फोटो, वैकल्पिक",
+      "saveButton": "दवा सहेजें",
+      "takenLabel": "ले ली",
+      "skipLabel": "छोड़ी",
+      "skippedBadge": "आज के लिए छोड़ी",
+      "takenBadge": "ले ली",
+      "rescheduleLabel": "समय बदलें",
+      "rescheduleTitle": "{name} का समय बदलें",
+      "rescheduleSubtitle": "बिना अपनी जगह खोए, एक नया समय चुनें।",
+      "rescheduleMorning": "सुबह, 8:00 बजे",
+      "rescheduleAfternoon": "दोपहर, 1:00 बजे",
+      "rescheduleEvening": "शाम, 6:00 बजे",
+      "rescheduleNight": "रात, 9:00 बजे",
+      "stopMedicine": "दवा बंद करें",
+      "deactivateConfirmTitle": "यह दवा बंद करें?",
+      "deactivateConfirmBody": "आप इसे बाद में फिर से जोड़ सकती हैं।",
+      "deactivateConfirm": "हां, बंद करें",
+      "deactivateCancel": "रहने दें",
+      "offline": "आप ऑफ़लाइन हैं। आप अपनी दवाइयां देख सकती हैं, और वापस आने पर सहेज सकती हैं।",
+      "errors": {
+        "nameRequired": "दवा का नाम दर्ज करें।",
+        "timeRequired": "कम से कम एक समय जोड़ें।",
+        "tooManyTimes": "दिन में अधिकतम 6 समय जोड़ें।",
+        "timeInvalid": "एक मान्य समय दर्ज करें।",
+        "endBeforeStart": "अंतिम तिथि शुरुआती तिथि से पहले नहीं हो सकती।",
+        "daysOfWeekInvalid": "सप्ताह के मान्य दिन चुनें।"
+      },
+      "warnings": {
+        "duplicateName": "इस नाम की एक सक्रिय दवा आपके पास पहले से है। अगर यह दूसरी खुराक है तो यह ठीक है।"
+      },
+      "adherence": {
+        "title": "पालन",
+        "summary": "{expected} में से {taken} खुराकें ली गईं",
+        "stateTaken": "ले ली",
+        "stateSkipped": "छोड़ी",
+        "stateUnlogged": "दर्ज नहीं",
+        "stateNone": "कुछ भी निर्धारित नहीं",
+        "cellLabel": "{date}, {state}"
+      }
+    }
   }
 }
