@@ -40,8 +40,8 @@ Unchanged goal, two additions:
 - Files: `lib/domain/notes.ts` (preview truncation, sort) + test, `app/(app)/care/notes/page.tsx` + `NoteList.tsx` + `NoteForm.tsx` + tests, `app/actions/notes.ts`, migration file.
 - Depends on: nothing but the fixed route Session 22 already wired.
 
-### Session 23 — Appointments
-Unchanged from the original plan. Reference-photo attach is explicitly out of scope here (see Decision 5) — revisit as a small follow-on after Session 26.
+### Session 23 — Appointments — **done** (2026-09-13)
+Unchanged from the original plan. Reference-photo attach is explicitly out of scope here (see Decision 5) — revisit as a small follow-on after Session 26. See `Important/Implementation.md`'s Session 23 "Delivered scope" note for the build-time deviations (no separate title field, no "rescheduled" status, the per-appointment questions section deferred to 25A).
 
 ### Session 24 — Vitals and trend charts (unchanged, still blocked)
 No change to original scope. **Still cannot start** — no designer markup exists yet. Flagging so it isn't assumed "ready" just because the rest of this folder is. Does not block Session 27 (see above).

@@ -393,7 +393,11 @@
     "timeline": {
       "empty": "अभी तक कुछ भी दर्ज नहीं हुआ। आपके बच्चे के पड़ाव यहाँ दिखने लगेंगे।",
       "viewLabel": "टाइमलाइन दृश्य",
-      "view": { "day": "दिन", "week": "सप्ताह", "month": "महीना" },
+      "view": {
+        "day": "दिन",
+        "week": "सप्ताह",
+        "month": "महीना"
+      },
       "showAll": "सभी {count} दिखाएं",
       "close": "बंद करें"
     },
@@ -429,6 +433,49 @@
       "doneTitle": "बहुत बढ़िया",
       "doneBody": "आपने इस सेशन में {count, plural, one {# किक} other {# किक}} गिनी।",
       "expiredBody": "आपकी पिछली गिनती बहुत देर तक खुली रह गई। जब चाहें, नई गिनती शुरू करें।"
+    }
+  },
+  "appointments": {
+    "title": "अपॉइंटमेंट",
+    "upcomingHeading": "आने वाली",
+    "pastHeading": "पिछली",
+    "emptyState": "यहां अपनी अगली अपॉइंटमेंट जोड़ें",
+    "emptyUpcoming": "अभी कोई आने वाली अपॉइंटमेंट नहीं है।",
+    "emptyPast": "अभी कोई पिछली अपॉइंटमेंट नहीं है।",
+    "addAppointment": "अपॉइंटमेंट जोड़ें",
+    "upcomingBadge": "आने वाली",
+    "completedBadge": "पूरी हुई",
+    "cancelledBadge": "रद्द",
+    "travel": "लगभग {time} की दूरी",
+    "carryLabel": "क्या साथ ले जाएं",
+    "carryNone": "कुछ खास नहीं, बस खुद को",
+    "needsClosingPrompt": "आपकी विज़िट कैसी रही?",
+    "markCompleted": "पूरी हुई के रूप में चिह्नित करें",
+    "reschedule": "समय बदलें",
+    "showMore": "{count} और दिखाएं",
+    "addSheetTitle": "अपॉइंटमेंट जोड़ें",
+    "addSheetSubtitle": "अपनी विज़िट का विवरण जोड़ें।",
+    "editSheetTitle": "अपॉइंटमेंट संपादित करें",
+    "doctorLabel": "डॉक्टर",
+    "doctorPlaceholder": "उदाहरण के लिए, डॉ. प्रिया शर्मा",
+    "clinicLabel": "क्लिनिक या अस्पताल",
+    "clinicPlaceholder": "उदाहरण के लिए, सनराइज़ क्लिनिक",
+    "dateTimeLabel": "तारीख और समय",
+    "locationLabel": "स्थान, वैकल्पिक",
+    "locationPlaceholder": "उदाहरण के लिए, मुख्य गेट के पास",
+    "saveButton": "अपॉइंटमेंट सहेजें",
+    "offline": "आप ऑफ़लाइन हैं। आप अपनी अपॉइंटमेंट देख सकती हैं, और वापस आने पर सहेज सकती हैं।",
+    "questionsHeading": "इस विज़िट के लिए सुझाए गए सवाल",
+    "questionsEmpty": "इस विज़िट के लिए अभी कोई सवाल नहीं जोड़ा गया।",
+    "cancelThisAppointment": "अपॉइंटमेंट रद्द करें",
+    "cancelConfirmTitle": "इस अपॉइंटमेंट को रद्द करें?",
+    "cancelConfirmBody": "आप इसे बाद में फिर से जोड़ सकती हैं।",
+    "cancelConfirm": "हां, रद्द करें",
+    "cancelDismiss": "रहने दें",
+    "errors": {
+      "dateRequired": "एक तारीख और समय चुनें।",
+      "dateInvalid": "एक मान्य तारीख और समय दर्ज करें।",
+      "tooFarOut": "अगले दो साल के भीतर की तारीख चुनें।"
     }
   },
   "care": {
