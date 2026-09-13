@@ -28,6 +28,49 @@
     "profile": "Profile",
     "label": "Main navigation"
   },
+  "babyName": {
+    "backToBaby": "Back to My Baby",
+    "backToList": "Back to baby name suggestions",
+    "chosenEmpty": "No name chosen yet. Take your time.",
+    "chosenMarker": "Chosen for your baby",
+    "chosenTitle": "Your baby's name",
+    "chosenTitleTwins": "Your babies' names",
+    "customHint": "Saved privately, just for you.",
+    "customLabel": "Add a name you have in mind",
+    "customPlaceholder": "Type a name",
+    "emptyCatalog": "No suggestions are available yet. You can still add a name you have in mind.",
+    "errors": {
+      "duplicate": "That name is already in your choices.",
+      "empty": "Type a name before saving.",
+      "favorite": "That favourite did not save. Check your connection and try again.",
+      "invalid": "Check this name and try again.",
+      "save": "That name did not save. Check your connection and try again.",
+      "tooLong": "Keep each name to 60 characters or fewer.",
+      "tooManySingleton": "Choose one name for this pregnancy.",
+      "tooManyTwins": "You can choose up to two names for this pregnancy. Remove one before adding another."
+    },
+    "favoriteAdd": "Save {name} as a favourite",
+    "favoriteRemove": "Remove {name} from favourites",
+    "favoriteRemovedToast": "Removed from your favourites.",
+    "favoriteSave": "Save as favourite",
+    "favoriteSaved": "Saved as a favourite",
+    "favoriteSavedToast": "Saved to your favourites.",
+    "noResults": "No names match yet. Try another spelling.",
+    "offline": "You are offline. You can browse names and save when you are back.",
+    "openDetail": "View details for {name}",
+    "removeName": "Remove {name}",
+    "saveCustom": "Save this name",
+    "savedToast": "Baby name saved.",
+    "searchLabel": "Search names",
+    "searchPlaceholder": "Search a name or meaning",
+    "tabs": {
+      "add": "Add",
+      "find": "Find",
+      "suggestions": "Suggestions"
+    },
+    "title": "Baby name",
+    "useName": "Use {name}"
+  },
   "disclaimer": {
     "reviewedGuidance": "From reviewed guidance, not a diagnosis.",
     "userEntered": "Information entered by you, not medically verified."
@@ -305,6 +348,45 @@
     "agreeRequired": "Agree to the terms to continue"
   },
   "baby": {
+    "weekTag": "Week {week} · stage {stage} of {total}",
+    "weekTagTwins": "Week {week} · stage {stage} of {total} for each baby",
+    "timelineTitle": "Your timeline",
+    "forYou": "For your baby",
+    "bento": {
+      "nameTitle": "Baby name",
+      "namePrompt": "Choose a name for your baby",
+      "lettersTitle": "Letters to baby",
+      "lettersPrompt": "Write your first letter",
+      "kicksTitle": "Kick counter",
+      "kicksPrompt": "Start your first kick count"
+    },
+    "timeline": {
+      "empty": "Nothing logged yet. Your baby's milestones will start appearing here.",
+      "viewLabel": "Timeline view",
+      "view": { "day": "Day", "week": "Week", "month": "Month" },
+      "showAll": "Show all {count}",
+      "close": "Close"
+    },
+    "milestones": {
+      "1": "Your journey begins",
+      "1Body": "Placeholder milestone copy, pending clinical content review.",
+      "2": "Stage 2 begins",
+      "2Body": "Placeholder milestone copy, pending clinical content review.",
+      "3": "Stage 3 begins",
+      "3Body": "Placeholder milestone copy, pending clinical content review.",
+      "4": "Stage 4 begins",
+      "4Body": "Placeholder milestone copy, pending clinical content review.",
+      "5": "Stage 5 begins",
+      "5Body": "Placeholder milestone copy, pending clinical content review.",
+      "6": "Stage 6 begins",
+      "6Body": "Placeholder milestone copy, pending clinical content review.",
+      "7": "Stage 7 begins",
+      "7Body": "Placeholder milestone copy, pending clinical content review.",
+      "8": "Stage 8 begins",
+      "8Body": "Placeholder milestone copy, pending clinical content review.",
+      "9": "Stage 9 begins",
+      "9Body": "Placeholder milestone copy, pending clinical content review."
+    },
     "kicks": {
       "instructions": "Tap each time you feel a kick or movement.",
       "tapButtonLabel": "Count a kick",
