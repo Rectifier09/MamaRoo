@@ -430,5 +430,48 @@
       "doneBody": "You counted {count, plural, one {# kick} other {# kicks}} this session.",
       "expiredBody": "Your last count was left open too long to resume. Start a new one whenever you're ready."
     }
+  },
+  "appointments": {
+    "title": "Appointments",
+    "upcomingHeading": "Upcoming",
+    "pastHeading": "Past",
+    "emptyState": "Add your next appointment here",
+    "emptyUpcoming": "No upcoming appointments yet.",
+    "emptyPast": "No past appointments yet.",
+    "addAppointment": "Add appointment",
+    "upcomingBadge": "Upcoming",
+    "completedBadge": "Completed",
+    "cancelledBadge": "Cancelled",
+    "travel": "About {time} away",
+    "carryLabel": "What to carry",
+    "carryNone": "Nothing extra, just yourself",
+    "needsClosingPrompt": "How did your visit go?",
+    "markCompleted": "Mark completed",
+    "reschedule": "Reschedule",
+    "showMore": "Show {count} more",
+    "addSheetTitle": "Add appointment",
+    "addSheetSubtitle": "Add the details for your visit.",
+    "editSheetTitle": "Edit appointment",
+    "doctorLabel": "Doctor",
+    "doctorPlaceholder": "For example, Dr. Priya Sharma",
+    "clinicLabel": "Clinic or hospital",
+    "clinicPlaceholder": "For example, Sunrise Clinic",
+    "dateTimeLabel": "Date and time",
+    "locationLabel": "Location, optional",
+    "locationPlaceholder": "For example, near the main gate",
+    "saveButton": "Save appointment",
+    "offline": "You are offline. You can look at your appointments, and save once you are back.",
+    "questionsHeading": "Suggested questions for this visit",
+    "questionsEmpty": "No questions added yet for this visit.",
+    "cancelThisAppointment": "Cancel appointment",
+    "cancelConfirmTitle": "Cancel this appointment?",
+    "cancelConfirmBody": "You can always add it again later.",
+    "cancelConfirm": "Yes, cancel it",
+    "cancelDismiss": "Keep it",
+    "errors": {
+      "dateRequired": "Choose a date and time.",
+      "dateInvalid": "Enter a valid date and time.",
+      "tooFarOut": "Choose a date within the next two years."
+    }
   }
 }

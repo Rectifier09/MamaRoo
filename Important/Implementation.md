@@ -9524,6 +9524,14 @@ git commit -m "feat(care): add medicines with per-dose logging and a visual adhe
 
 **Goal:** Upcoming and past appointments, created and edited by her, feeding both the Today reminders and the Doctor Visit Summary.
 
+**Delivered scope (status, 2026-09-13):** built against `Screens/04-my-care/Appointments.dc.html`, per `Important/Plan-Sessions-22-27-Replan.md`. 844 unit/component tests passing (full suite; this session adds 47). Deliberate deviations from the plan as written here:
+- **No separate "title" field.** The design has no title input at all -- only doctor, clinic, date/time and an optional location. `title` still exists as a required database column (read by Today's reminder line and, later, the Visit Summary), so `validateAppointment` derives it: her doctor's name, or a generic fallback if even that's blank.
+- **No "rescheduled" status.** The design's mock data includes one as a fourth status value, but the real `appointments.status` check constraint only allows `upcoming`/`completed`/`cancelled`. "Reschedule" is implemented as editing and re-saving the date/time (status stays `upcoming`), not a distinct status.
+- **`splitAppointments` buckets a needsClosing appointment into `past`** (its date has passed), exactly as this session's own interface says -- but `AppointmentList` pulls it back out to render as a prompt card grouped with Upcoming, matching the design's placement. Bucketing and display grouping are deliberately different concerns.
+- **The design's per-appointment "Suggested questions for this visit" section is not built.** It has no backing table -- it isn't the seeded/marked `suggested_questions` catalog, and there is no per-appointment custom-question storage anywhere yet (that gap is Session 25A's territory, per the replan doc). Tapping any appointment opens one unified add/edit form instead of a separate read-only detail view with a questions list.
+- **Reference-photo attach is not built**, per the replan doc's Decision 5 -- deferred to avoid coupling this session to Session 26's (not-yet-built) upload helpers.
+- **i18n uses a new top-level `appointments` namespace**, not nested under `care`, per the parallel-build lesson already on file in memory (`mamaroo-claude-codex-parallel-build`): a shared parent key merges across sessions worse than sibling top-level keys.
+
 **Files:**
 - Create: `lib/domain/appointments.ts` + test
 - Create: `app/(app)/care/appointments/page.tsx`, `AppointmentList.tsx`, `AppointmentForm.tsx` + tests
@@ -9533,9 +9541,9 @@ git commit -m "feat(care): add medicines with per-dose logging and a visual adhe
 **Interfaces:**
 - Produces: `splitAppointments({ appointments, now }): { upcoming, past }`; `validateAppointment(input)`; `addAppointment`, `updateAppointment`, `cancelAppointment`, `completeAppointment` actions.
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing appointments domain test**
+- [x] **Step 2: Write the failing appointments domain test**
 
 Create `lib/domain/appointments.test.ts` covering:
 - upcoming and past split on `now`, not on stored status alone
@@ -9545,17 +9553,17 @@ Create `lib/domain/appointments.test.ts` covering:
 - two appointments at the identical moment both appear, in a stable order
 - `validateAppointment` requires a title and a date and time, rejects a date more than two years out with a bounded message, accepts an appointment in the past (she may be recording one she already attended), trims text fields, and accepts Devanagari in every text field
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
-- [ ] **Step 4: Write the failing component tests**
+- [x] **Step 4: Write the failing component tests**
 
 AppointmentList: upcoming section first; a `needsClosing` appointment offers "Did this happen?" with complete and cancel actions; empty state per section with specific copy; past list uses the show-more pattern beyond 15; each row links to edit.
 
 AppointmentForm: native `datetime-local` input; doctor and clinic default from her profile but are editable; specific errors per field; offline blocks submission with an explanation.
 
-- [ ] **Step 5: Implement from the designer's markup, add the actions, emit `appointment_added` with `days_ahead` only**
+- [x] **Step 5: Implement from the designer's markup, add the actions, emit `appointment_added` with `days_ahead` only**
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/domain/appointments.ts "app/(app)/care/appointments" app/actions/appointments.ts i18n
