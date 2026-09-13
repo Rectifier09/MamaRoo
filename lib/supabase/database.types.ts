@@ -458,6 +458,30 @@ export type Database = {
           },
         ]
       }
+      custom_questions: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_marked: boolean
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_marked?: boolean
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_marked?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       doctor_advice: {
         Row: {
           appointment_id: string | null

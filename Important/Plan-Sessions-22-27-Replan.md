@@ -53,12 +53,12 @@ No change to original scope. **Still cannot start** — no designer markup exist
 - Files: `lib/domain/advice.ts` + test, `app/(app)/care/advice/page.tsx`, `AdviceList.tsx`, `AdviceForm.tsx` + tests, `app/actions/advice.ts`, migration file.
 - Depends on: nothing beyond Session 22's fixed route.
 
-### Session 25A — Suggested Questions (new, split from the original combined session)
-- Goal: seeded week-mapped questions (unchanged from the original Session 25 goal) plus her own custom questions added via the composer row, both markable and both carried into the Visit Summary.
-- **Gate B carries over unchanged:** still need the week-mapped seeded questions content in both languages before this can ship its seeded half.
-- Needs a migration: new `custom_questions` table (id, user_id, body, created_at, is_marked or reuse a marks-style table), RLS scoped to the owning user.
-- Files: `lib/domain/questions.ts` + test (extend `selectQuestions` to merge seeded + custom), `app/(app)/care/questions/page.tsx`, `SuggestedQuestions.tsx` + test, `app/actions/questions.ts`, migration file.
-- Depends on: nothing beyond Session 22's fixed route. Sequence after Session 25 only for reviewer sanity (same screen family) — no technical dependency.
+### Session 25A — Suggested Questions — **done** (2026-09-13)
+Goal: seeded week-mapped questions (unchanged from the original Session 25 goal) plus her own custom questions added via the composer row, both markable and both carried into the Visit Summary. Built against `Screens/04-my-care/Suggested Questions.dc.html`. Migration `0012_custom_questions.sql` adds the table, per Decision 3, with `is_marked` as a plain column rather than a join table (a custom question is already single-owner, unlike shared `suggested_questions`). Two deviations from the plan as written above, both deliberate:
+- **Gate B's real bilingual content never arrived** — shipped against the existing placeholder seed row in `supabase/seed/content.placeholder.sql` instead of waiting, same "build fully, note the gap" treatment as Session 18's `symptom_rules` Gate B. Swapping in real content later is a content-only change, not a migration.
+- **Edit and remove controls only appear on custom questions, never on seeded ones** — the design mock renders every row identically, but `suggested_questions` is shared, admin-owned content with no update/delete policy for users; only the checkbox to mark it is real for a seeded row.
+- Files: `lib/domain/questions.ts` + test, `lib/supabase/queries/questions.ts` + test, `app/(app)/care/questions/page.tsx` + `SuggestedQuestions.tsx` + test, `app/actions/questions.ts`, migration file, plus `lib/supabase/queries/care.ts`'s marked-question count (now sums `question_marks` and `custom_questions.is_marked` together, mirroring Session 22A's CareHub-wiring pattern).
+- Depended on: nothing beyond Session 22's fixed route.
 
 ### Session 26 — Reports: capture, upload, view
 Unchanged goal and files. Extend Step 4's test list (from the original plan) to cover the unclear-photo retake prompt and the "looks similar to one already added" prompt — both are pre-save UX states, no schema change.

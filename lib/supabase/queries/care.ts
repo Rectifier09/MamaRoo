@@ -33,38 +33,51 @@ export async function getCareHubData(): Promise<CareHubData> {
   const supabase = await createServerSupabase();
   const today = new Date().toISOString();
 
-  const [medicines, medicineLogs, nextAppointment, latestReport, latestAdvice, markedQuestions, latestNote] =
-    await Promise.all([
-      supabase.from("medicines").select("*").eq("is_active", true),
-      supabase.from("medicine_logs").select("*"),
-      supabase
-        .from("appointments")
-        .select("id, title, doctor_name, scheduled_at")
-        .eq("status", "upcoming")
-        .gte("scheduled_at", today)
-        .order("scheduled_at", { ascending: true })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("reports")
-        .select("id, report_type, report_date")
-        .order("report_date", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("doctor_advice_updates")
-        .select("id, body")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase.from("question_marks").select("id", { count: "exact", head: true }),
-      supabase
-        .from("personal_notes")
-        .select("id, body")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
+  const [
+    medicines,
+    medicineLogs,
+    nextAppointment,
+    latestReport,
+    latestAdvice,
+    markedSuggestedQuestions,
+    markedCustomQuestions,
+    latestNote,
+  ] = await Promise.all([
+    supabase.from("medicines").select("*").eq("is_active", true),
+    supabase.from("medicine_logs").select("*"),
+    supabase
+      .from("appointments")
+      .select("id, title, doctor_name, scheduled_at")
+      .eq("status", "upcoming")
+      .gte("scheduled_at", today)
+      .order("scheduled_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("reports")
+      .select("id, report_type, report_date")
+      .order("report_date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("doctor_advice_updates")
+      .select("id, body")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("question_marks").select("id", { count: "exact", head: true }),
+    // Session 25A: her own questions are marked with `custom_questions.is_marked`
+    // rather than a `question_marks` row (that join table only makes sense for
+    // shared, admin-owned `suggested_questions`) -- the hub's "ready for your
+    // next visit" count has to add both sources together.
+    supabase.from("custom_questions").select("id", { count: "exact", head: true }).eq("is_marked", true),
+    supabase
+      .from("personal_notes")
+      .select("id, body")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const failed = [
     medicines,
@@ -72,7 +85,8 @@ export async function getCareHubData(): Promise<CareHubData> {
     nextAppointment,
     latestReport,
     latestAdvice,
-    markedQuestions,
+    markedSuggestedQuestions,
+    markedCustomQuestions,
     latestNote,
   ].find((result) => result.error);
   if (failed?.error) throw failed.error;
@@ -83,7 +97,7 @@ export async function getCareHubData(): Promise<CareHubData> {
     nextAppointment: nextAppointment.data,
     latestReport: latestReport.data,
     latestAdvice: latestAdvice.data,
-    markedQuestionCount: markedQuestions.count ?? 0,
+    markedQuestionCount: (markedSuggestedQuestions.count ?? 0) + (markedCustomQuestions.count ?? 0),
     latestNote: latestNote.data,
   };
 }

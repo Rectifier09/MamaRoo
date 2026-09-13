@@ -55,6 +55,7 @@ describe("getCareHubData", () => {
     responses.set("reports", { data: latestReport, error: null });
     responses.set("doctor_advice_updates", { data: latestAdvice, error: null });
     responses.set("question_marks", { data: null, error: null, count: 3 });
+    responses.set("custom_questions", { data: null, error: null, count: 2 });
     responses.set("personal_notes", { data: latestNote, error: null });
 
     await expect(getCareHubData()).resolves.toEqual({
@@ -63,7 +64,7 @@ describe("getCareHubData", () => {
       nextAppointment,
       latestReport,
       latestAdvice,
-      markedQuestionCount: 3,
+      markedQuestionCount: 5,
       latestNote,
     });
 
@@ -82,6 +83,7 @@ describe("getCareHubData", () => {
     responses.set("reports", { data: null, error: null });
     responses.set("doctor_advice_updates", { data: null, error: null });
     responses.set("question_marks", { data: null, error: null, count: 0 });
+    responses.set("custom_questions", { data: null, error: null, count: 0 });
     responses.set("personal_notes", { data: null, error: null });
 
     const result = await getCareHubData();
