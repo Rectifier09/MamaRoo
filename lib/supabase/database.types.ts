@@ -461,31 +461,28 @@ export type Database = {
       doctor_advice: {
         Row: {
           appointment_id: string | null
-          body: string
           created_at: string
           id: string
-          input_method: string
-          recorded_on: string
+          is_reminder: boolean
+          type: string
           updated_at: string
           user_id: string
         }
         Insert: {
           appointment_id?: string | null
-          body: string
           created_at?: string
           id?: string
-          input_method: string
-          recorded_on: string
+          is_reminder?: boolean
+          type: string
           updated_at?: string
           user_id: string
         }
         Update: {
           appointment_id?: string | null
-          body?: string
           created_at?: string
           id?: string
-          input_method?: string
-          recorded_on?: string
+          is_reminder?: boolean
+          type?: string
           updated_at?: string
           user_id?: string
         }
@@ -495,6 +492,44 @@ export type Database = {
             columns: ["appointment_id", "user_id"]
             isOneToOne: false
             referencedRelation: "appointments"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      doctor_advice_updates: {
+        Row: {
+          advice_id: string
+          body: string
+          created_at: string
+          doctor_name: string | null
+          id: string
+          input_method: string
+          user_id: string
+        }
+        Insert: {
+          advice_id: string
+          body: string
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          input_method: string
+          user_id: string
+        }
+        Update: {
+          advice_id?: string
+          body?: string
+          created_at?: string
+          doctor_name?: string | null
+          id?: string
+          input_method?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_advice_updates_owned_by_same_user"
+            columns: ["advice_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "doctor_advice"
             referencedColumns: ["id", "user_id"]
           },
         ]

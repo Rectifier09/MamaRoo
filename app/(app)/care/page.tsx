@@ -20,11 +20,7 @@ export default async function CarePage() {
     ? `${data.latestReport.report_type}, added ${data.latestReport.report_date}`
     : null;
 
-  const adviceText = data.latestAdvice
-    ? data.latestAdvice.body.length > CARD_PREVIEW_MAX_CHARS
-      ? `${data.latestAdvice.body.slice(0, CARD_PREVIEW_MAX_CHARS).trimEnd()}…`
-      : data.latestAdvice.body
-    : null;
+  const adviceText = data.latestAdvice ? notePreview(data.latestAdvice.body, CARD_PREVIEW_MAX_CHARS) : null;
 
   const notesText = data.latestNote ? notePreview(data.latestNote.body, CARD_PREVIEW_MAX_CHARS) : null;
 
