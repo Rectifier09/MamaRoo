@@ -678,5 +678,36 @@
       "save": "This couldn't be saved. Try again.",
       "uploadFailed": "The file didn't upload. Try again."
     }
+  },
+  "questions": {
+    "title": "Questions for my doctor",
+    "appointmentWith": "For my visit with {name}, on {date}",
+    "appointmentDateOnly": "For my visit on {date}",
+    "noAppointment": "I don't have a visit linked yet. This list still works, and will link itself once I add an appointment.",
+    "empty": "Add a question whenever one comes to mind",
+    "bodyLabel": "Question",
+    "addPlaceholder": "Add my own question",
+    "addAria": "Add question",
+    "markAria": "Mark to bring to my next visit",
+    "unmarkAria": "Unmark",
+    "editAria": "Edit question",
+    "removeAria": "Remove question",
+    "saveEdit": "Save",
+    "cancel": "Cancel",
+    "voiceButton": "Use voice input",
+    "listening": "Listening",
+    "listeningLabel": "Listening, speak now",
+    "backToCare": "Back to My Care",
+    "removedToast": "Question removed",
+    "offline": "You're offline right now. Reconnect to save this.",
+    "errors": {
+      "empty": "Write a few words before saving.",
+      "tooLong": "Keep this to 500 characters or fewer.",
+      "invalid": "Check what you wrote and try again.",
+      "save": "This couldn't be saved. Try again.",
+      "remove": "This couldn't be removed. Try again.",
+      "mark": "This couldn't be updated. Try again.",
+      "voice": "We couldn't hear that. You can still type."
+    }
   }
 }

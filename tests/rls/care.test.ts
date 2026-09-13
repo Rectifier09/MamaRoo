@@ -325,4 +325,73 @@ describe("RLS on the care tables", () => {
     const deleted = await bob.client.from("personal_notes").delete().eq("id", note.data!.id).select("id").maybeSingle();
     expect(deleted.data).toBeNull();
   });
+
+  it("returns nothing when another user reads her custom questions", async () => {
+    const { data } = await bob.client.from("custom_questions").select("*");
+    expect(data).toEqual([]);
+  });
+
+  it("refuses a custom question insert carrying another user's user_id", async () => {
+    const { error } = await bob.client.from("custom_questions").insert({
+      user_id: alice.userId,
+      body: "test",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses an empty custom question", async () => {
+    const { error } = await alice.client.from("custom_questions").insert({
+      user_id: alice.userId,
+      body: "   ",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses another user's update or delete of a custom question", async () => {
+    const question = await alice.client
+      .from("custom_questions")
+      .insert({ user_id: alice.userId, body: "Is this normal?" })
+      .select("id")
+      .single();
+
+    const updated = await bob.client
+      .from("custom_questions")
+      .update({ body: "hijacked" })
+      .eq("id", question.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(updated.data).toBeNull();
+
+    const deleted = await bob.client
+      .from("custom_questions")
+      .delete()
+      .eq("id", question.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(deleted.data).toBeNull();
+  });
+
+  it("lets her mark her own custom question without touching another user's row", async () => {
+    const question = await alice.client
+      .from("custom_questions")
+      .insert({ user_id: alice.userId, body: "Should I switch positions?" })
+      .select("id")
+      .single();
+
+    const marked = await alice.client
+      .from("custom_questions")
+      .update({ is_marked: true })
+      .eq("id", question.data!.id)
+      .select("is_marked")
+      .single();
+    expect(marked.data?.is_marked).toBe(true);
+
+    const bobsAttempt = await bob.client
+      .from("custom_questions")
+      .update({ is_marked: true })
+      .eq("id", question.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(bobsAttempt.data).toBeNull();
+  });
 });
