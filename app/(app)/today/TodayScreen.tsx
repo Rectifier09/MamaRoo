@@ -80,6 +80,7 @@ export function TodayScreen({
   clinicName,
 }: TodayScreenProps) {
   const t = useTranslations("today");
+  const tNav = useTranslations("nav");
   const [checkinResult, setCheckinResult] = useState<
     (Pick<TriageResultProps, "severity" | "guidance"> & { feeling: Feeling | null }) | null
   >(null);
@@ -118,6 +119,12 @@ export function TodayScreen({
 
   return (
     <div className="flex flex-col gap-lg py-screen">
+      {/* The design's greeting reads as the screen's title visually, but it's a
+          <p>, not a heading -- axe's page-has-heading-one rule caught the gap
+          (tests/e2e/today.spec.ts). A visually-hidden <h1> fixes it for screen
+          readers without changing anything sighted users see, same sr-only
+          pattern as Button.tsx and Skeleton.tsx. */}
+      <h1 className="sr-only">{tNav("today")}</h1>
       <div className="flex flex-col items-center gap-sm">
         <div className="flex justify-center gap-sm">
           {Array.from({ length: babyCount }, (_, i) => (

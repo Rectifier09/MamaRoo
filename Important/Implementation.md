@@ -7956,7 +7956,7 @@ git commit -m "feat(analytics): add consent-gated PostHog analytics with a typed
 - The weekly-reflection card on the closing state stays permanently off (`showWeeklyReflection: false`) rather than conditional — its copy depends on adherence data that doesn't exist until Session 22, and showing it early would claim something about her adherence this page can't verify. Revisit when Session 22 ships.
 - 18.7's four edge-state illustrations without delivered art (`offline`, `missed_task`, `save_failed`, `pending_reminder`) still render placeholder SVGs, per Sub-Gate A below — real assets remain outstanding from the product owner.
 
-One step did not ship: **18.8 Step 4** (`tests/e2e/today.spec.ts`) was never written — left unchecked below, not done.
+**18.8 Step 4 follow-up (2026-09-13):** `tests/e2e/today.spec.ts` was written and verified against the live Supabase project (admin-creates a confirmed user, signs her in with a password, and injects the real cookies `@supabase/ssr`'s own `setSession()` would leave in a browser — the same no-Docker/no-Inbucket workaround `tests/rls/helpers.ts` already uses, extended to e2e for the first time). All three assertions pass: the correct week renders for a known LMP, twins render two illustrations, and axe reports no violations in English or Hindi. Writing this test surfaced one genuine, pre-existing accessibility gap it was designed to catch: `TodayScreen` had no `<h1>` anywhere (every other screen in this session has one). Fixed with a visually-hidden `<h1>` (`nav.today`, the `sr-only` pattern already used by `Button.tsx`/`Skeleton.tsx`) rather than changing the visible design.
 
 **Goal:** The calm screen. Greeting with her week, the stage illustration (single or twins), reminders, recommended reading, the feeling box with quick-select chips, and four satellite screens reachable from it: Meal Plan, Quick Listen, Recent Activity and the Medicine Quick Action Sheet. Plus the six-state edge takeover for offline, missed, returning, overdue, save-failed and pending-reminder moments. Deliberately uncluttered, with exactly one high-emphasis element on the main screen.
 
@@ -8964,7 +8964,7 @@ Create `app/(app)/today/TodayScreen.test.tsx`. Assert:
 
 Expected: PASS. The illustration's alt text comes from a translation key taking the week (and, for twins, a plural form) as parameters, so Hindi gets a natural sentence rather than a template.
 
-- [ ] **Step 4: Add the e2e Today spec**
+- [x] **Step 4: Add the e2e Today spec**
 
 Create `tests/e2e/today.spec.ts`: after onboarding, `/today` shows the correct week for a known LMP, twins render two illustrations when `pregnancy_flags` includes `twins`, and the page has no axe violations in both languages.
 
