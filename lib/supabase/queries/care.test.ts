@@ -48,12 +48,14 @@ describe("getCareHubData", () => {
     const nextAppointment = { id: "appt-1", title: "Checkup", doctor_name: "Dr Rao", scheduled_at: "2026-10-01" };
     const latestReport = { id: "report-1", report_type: "ultrasound", report_date: "2026-09-10" };
     const latestAdvice = { id: "advice-1", body: "Rest more" };
+    const latestNote = { id: "note-1", body: "Felt the first kick today" };
     responses.set("medicines", { data: medicines, error: null });
     responses.set("medicine_logs", { data: medicineLogs, error: null });
     responses.set("appointments", { data: nextAppointment, error: null });
     responses.set("reports", { data: latestReport, error: null });
     responses.set("doctor_advice", { data: latestAdvice, error: null });
     responses.set("question_marks", { data: null, error: null, count: 3 });
+    responses.set("personal_notes", { data: latestNote, error: null });
 
     await expect(getCareHubData()).resolves.toEqual({
       medicines,
@@ -62,6 +64,7 @@ describe("getCareHubData", () => {
       latestReport,
       latestAdvice,
       markedQuestionCount: 3,
+      latestNote,
     });
 
     expect(calls).toEqual(
@@ -79,12 +82,14 @@ describe("getCareHubData", () => {
     responses.set("reports", { data: null, error: null });
     responses.set("doctor_advice", { data: null, error: null });
     responses.set("question_marks", { data: null, error: null, count: 0 });
+    responses.set("personal_notes", { data: null, error: null });
 
     const result = await getCareHubData();
     expect(result.nextAppointment).toBeNull();
     expect(result.latestReport).toBeNull();
     expect(result.latestAdvice).toBeNull();
     expect(result.markedQuestionCount).toBe(0);
+    expect(result.latestNote).toBeNull();
   });
 
   it("throws a query error instead of returning partial hub data", async () => {

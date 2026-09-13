@@ -218,4 +218,44 @@ describe("RLS on the care tables", () => {
     });
     expect(error).not.toBeNull();
   });
+
+  it("returns nothing when another user reads her personal notes", async () => {
+    const { data } = await bob.client.from("personal_notes").select("*");
+    expect(data).toEqual([]);
+  });
+
+  it("refuses a personal note insert carrying another user's user_id", async () => {
+    const { error } = await bob.client.from("personal_notes").insert({
+      user_id: alice.userId,
+      body: "test",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses an empty personal note", async () => {
+    const { error } = await alice.client.from("personal_notes").insert({
+      user_id: alice.userId,
+      body: "   ",
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses another user's update or delete of a personal note", async () => {
+    const note = await alice.client
+      .from("personal_notes")
+      .insert({ user_id: alice.userId, body: "Felt the first kick today" })
+      .select("id")
+      .single();
+
+    const updated = await bob.client
+      .from("personal_notes")
+      .update({ body: "hijacked" })
+      .eq("id", note.data!.id)
+      .select("id")
+      .maybeSingle();
+    expect(updated.data).toBeNull();
+
+    const deleted = await bob.client.from("personal_notes").delete().eq("id", note.data!.id).select("id").maybeSingle();
+    expect(deleted.data).toBeNull();
+  });
 });

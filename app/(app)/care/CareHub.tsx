@@ -8,15 +8,24 @@ export interface CareHubProps {
   reportText: string | null;
   adviceText: string | null;
   questionsCount: number;
+  notesText: string | null;
 }
 
 /**
  * Every tile links to its fixed route up front, even before the session that
  * builds that route lands (Session 22 replan, Decision "wire once") -- so no
- * later session needs to touch this file again. Personal notes has no table
- * yet (Session 22A), so its card always shows the empty prompt.
+ * later session needs to touch this file again. The notes card was the one
+ * exception at Session 22 time (no `personal_notes` table yet); Session 22A
+ * wires its preview the same way as every other card.
  */
-export function CareHub({ medicineText, appointmentText, reportText, adviceText, questionsCount }: CareHubProps) {
+export function CareHub({
+  medicineText,
+  appointmentText,
+  reportText,
+  adviceText,
+  questionsCount,
+  notesText,
+}: CareHubProps) {
   const t = useTranslations("care");
 
   const questionsText =
@@ -93,7 +102,7 @@ export function CareHub({ medicineText, appointmentText, reportText, adviceText,
             <p className="text-caption font-semibold uppercase tracking-[0.04em] text-text-secondary">
               {t("hub.notesLabel")}
             </p>
-            <p className="text-body-sm text-text-primary">{t("hub.notesPrompt")}</p>
+            <p className="text-body-sm text-text-primary">{notesText ?? t("hub.notesPrompt")}</p>
           </div>
         </Card>
       </Link>
