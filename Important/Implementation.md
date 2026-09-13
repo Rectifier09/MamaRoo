@@ -7952,6 +7952,12 @@ git commit -m "feat(analytics): add consent-gated PostHog analytics with a typed
 
 **Scope note (2026-09-12):** this session was widened after comparing `Screens/Today Tab/` against the original plan. Six things the folder specifies had no session anywhere in this document: the Today edge-case takeover, the feeling quick-select chips, the Meal Plan screen, the Recent Activity feed, the Medicine Quick Action Sheet, and a richer Quick Listen media player. All six are added here rather than deferred, at the product owner's direction. None of them need a new table — `medicines`, `medicine_logs`, `appointments`, `checkins` and `content_items` (migrations 3, 2 and 4) already carry what they need. One column is added (`checkins.feeling`) and one new migration file is created.
 
+**Delivered scope (status, 2026-09-13):** shipped and merged (PR #15, `session-18-19-today-tab`). All eight sub-sections (18.1–18.8) were built, tested, and verified against `Screens/Today Tab/` — 674 tests passing at the final assembly commit. Two intentional deviations from the plan, neither blocking:
+- The weekly-reflection card on the closing state stays permanently off (`showWeeklyReflection: false`) rather than conditional — its copy depends on adherence data that doesn't exist until Session 22, and showing it early would claim something about her adherence this page can't verify. Revisit when Session 22 ships.
+- 18.7's four edge-state illustrations without delivered art (`offline`, `missed_task`, `save_failed`, `pending_reminder`) still render placeholder SVGs, per Sub-Gate A below — real assets remain outstanding from the product owner.
+
+One step did not ship: **18.8 Step 4** (`tests/e2e/today.spec.ts`) was never written — left unchecked below, not done.
+
 **Goal:** The calm screen. Greeting with her week, the stage illustration (single or twins), reminders, recommended reading, the feeling box with quick-select chips, and four satellite screens reachable from it: Meal Plan, Quick Listen, Recent Activity and the Medicine Quick Action Sheet. Plus the six-state edge takeover for offline, missed, returning, overdue, save-failed and pending-reminder moments. Deliberately uncluttered, with exactly one high-emphasis element on the main screen.
 
 **Files:**
@@ -7996,7 +8002,7 @@ git commit -m "feat(analytics): add consent-gated PostHog analytics with a typed
 
 ### 18.1 Reminders (unchanged core)
 
-- [ ] **Step 1: Write the failing reminders test**
+- [x] **Step 1: Write the failing reminders test**
 
 Create `lib/domain/reminders.test.ts` — identical to the version specified in the original plan (below), unchanged by this widening: it only feeds `TodayScreen`'s single "Next:" line, which stays single-item regardless of how many `Reminder`s exist (the array is sorted overdue-doses-first; the screen shows `reminders[0]` and everything else is reachable from `MedicineQuickActionSheet`'s "See all medicines" link into Session 22's Care hub, not from a second Today list).
 
@@ -8069,7 +8075,7 @@ describe("buildReminders", () => {
 });
 ```
 
-- [ ] **Step 2: Implement `lib/domain/reminders.ts`** exactly as originally specced (see the `ReminderMedicine`/`ReminderAppointment`/`ReminderLog`/`Reminder` types and `buildReminders` body already written earlier in this plan's history — no behavioural change). Run `npx vitest run lib/domain/reminders.test.ts` and confirm PASS.
+- [x] **Step 2: Implement `lib/domain/reminders.ts`** exactly as originally specced (see the `ReminderMedicine`/`ReminderAppointment`/`ReminderLog`/`Reminder` types and `buildReminders` body already written earlier in this plan's history — no behavioural change). Run `npx vitest run lib/domain/reminders.test.ts` and confirm PASS.
 
 ---
 
@@ -8079,7 +8085,7 @@ describe("buildReminders", () => {
 
 **Feeling chips:** `Today.dc.html` shows three quick-select chips ("I'm feeling good", "Something's new", "I'm feeling worried") above the free-text field. This is new surface, not in the original `FeelingBox({ onSubmit, transcriber })` contract. Resolution: the chips set an optional `feeling: "good" | "new" | "worried" | null` alongside the existing free text. Free text stays the only *required* field — selecting a chip does not itself submit, and does not feed the triage rule engine (triage in Session 19 stays purely deterministic over typed/spoken text, per its own "never author a severity threshold" rule; a tapped chip is descriptive metadata, not a clinical signal). `feeling` is threaded through `saveCheckin` and stored on `checkins.feeling`, purely so Recent Activity (18.5) can render "Said you were feeling good" instead of a generic "Checked in" line.
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/0007_today_extras.sql`:
 
@@ -8090,7 +8096,7 @@ alter table public.checkins
 
 Run `supabase db reset --sql-paths supabase/migrations,supabase/seed` (per the local-dev gotcha already on file: `db query --file` cannot run multi-statement files), then regenerate `lib/supabase/database.types.ts`.
 
-- [ ] **Step 2: Write the failing FeelingBox test**
+- [x] **Step 2: Write the failing FeelingBox test**
 
 Create `app/(app)/today/FeelingBox.test.tsx`. Assert:
 - three chips render with the exact labels from the design, none pre-selected
@@ -8101,7 +8107,7 @@ Create `app/(app)/today/FeelingBox.test.tsx`. Assert:
 - it disables submission while offline and explains why
 - it emits `checkin_submitted` with a length bucket and the tapped `feeling`, and never the text
 
-- [ ] **Step 3: Implement `FeelingBox.tsx`**
+- [x] **Step 3: Implement `FeelingBox.tsx`**
 
 ```tsx
 "use client";
@@ -8211,7 +8217,7 @@ export function FeelingBox({ onSubmit, transcriber }: FeelingBoxProps) {
 }
 ```
 
-- [ ] **Step 4: Add the i18n content**
+- [x] **Step 4: Add the i18n content**
 
 Add to `i18n/en.json` under a new `today.feeling` key, translated into `i18n/hi.json`:
 
@@ -8233,12 +8239,12 @@ Add to `i18n/en.json` under a new `today.feeling` key, translated into `i18n/hi.
 
 Add `"submit": "Send"` to the existing `common` key in both files — no key by that name exists yet (`common` currently has `continue`, `back`, `save`, `cancel`, `showMore`, `saved`, `offline`, `englishOnly`, `language`, `languageEnglish`, `languageHindi`).
 
-- [ ] **Step 5: Run the test, watch it pass**
+- [x] **Step 5: Run the test, watch it pass**
 
 Run: `npx vitest run app/\(app\)/today/FeelingBox.test.tsx`
 Expected: PASS.
 
-- [ ] **Step 6: Extend the analytics schema**
+- [x] **Step 6: Extend the analytics schema**
 
 `checkin_submitted`'s event schema (`lib/analytics/sanitise.ts`) is `.strict()`, so Step 4 above only passes once `feeling` is a declared field. In `lib/analytics/events.ts`, change `checkin_submitted: { input_method: "text" | "voice"; length_bucket: "short" | "medium" | "long" }` to add `feeling: "good" | "new" | "worried" | null`. In `lib/analytics/sanitise.ts`, change the matching `z.object({...})` to add `feeling: z.enum(["good", "new", "worried"]).nullable()`, keeping `.strict()`. Run `npx vitest run lib/analytics/sanitise.test.ts` and confirm the existing tests still pass with the new field present.
 
@@ -8250,7 +8256,7 @@ Expected: PASS.
 
 **Meal Plan is static, locale-carried content, not a database table.** The design's meal copy varies only by diet type, not by trimester (the "Why this matters" and "matched to your Nth trimester" lines are the only trimester-aware parts) — building trimester-specific meal content the design never supplied would be inventing clinical-adjacent copy, which is exactly what Gate B exists to prevent elsewhere in this plan. It goes through i18n like every other string, so the copy-rule and i18n-parity guards cover it for free, and swapping content later is a translation-file edit, not a migration.
 
-- [ ] **Step 1: Write the failing mealPlan test**
+- [x] **Step 1: Write the failing mealPlan test**
 
 Create `lib/domain/mealPlan.test.ts`:
 
@@ -8292,7 +8298,7 @@ describe("extrasFor", () => {
 });
 ```
 
-- [ ] **Step 2: Run it, watch it fail, implement**
+- [x] **Step 2: Run it, watch it fail, implement**
 
 Create `lib/domain/mealPlan.ts`:
 
@@ -8341,7 +8347,7 @@ export function extrasFor(): ExtraSlot[] {
 Run: `npx vitest run lib/domain/mealPlan.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Add the i18n content**
+- [x] **Step 3: Add the i18n content**
 
 Add to `i18n/en.json` (and the Hindi translations to `i18n/hi.json`), copied verbatim from `Meal Plan.dc.html`'s `mealsFor`/`extras`:
 
@@ -8377,7 +8383,7 @@ Add to `i18n/en.json` (and the Hindi translations to `i18n/hi.json`), copied ver
 }
 ```
 
-- [ ] **Step 4: Write the failing MealPlanScreen test**
+- [x] **Step 4: Write the failing MealPlanScreen test**
 
 Create `app/(app)/today/meal-plan/MealPlanScreen.test.tsx`. Assert:
 - three diet tabs render using the `Tabs` primitive, defaulting to Veg
@@ -8386,9 +8392,9 @@ Create `app/(app)/today/meal-plan/MealPlanScreen.test.tsx`. Assert:
 - a back control returns to `/today`
 - no `texture-motif` renders
 
-- [ ] **Step 5: Implement `MealPlanScreen.tsx` and `app/(app)/today/meal-plan/page.tsx`** from the design and the domain function above, using `Tabs` for the diet switch and `Card` for each meal row.
+- [x] **Step 5: Implement `MealPlanScreen.tsx` and `app/(app)/today/meal-plan/page.tsx`** from the design and the domain function above, using `Tabs` for the diet switch and `Card` for each meal row.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/domain/mealPlan.ts "app/(app)/today/meal-plan" i18n
@@ -8401,11 +8407,11 @@ git commit -m "feat(today): add static, locale-carried Meal Plan screen"
 
 `content_items` (migration 4) already has everything a media viewer needs: `kind`, `media_url`, `narration_url`, `duration_seconds`. Rather than build a second player for Today and a simpler one in Session 28, `ContentDetail` is built once, here, with a `backHref`/`backLabelKey` prop so it can say "Back to Today" from `/today/listen/[slug]` or "Back to Reading" from `/reading/[slug]` later. Session 28 is reduced to the list screen and the article markdown branch; it imports this component rather than rebuilding it.
 
-- [ ] **Step 1: Write the failing content query test**
+- [x] **Step 1: Write the failing content query test**
 
 Create `lib/supabase/queries/content.test.ts` (mocking the Supabase client per this repo's existing query-test pattern). Assert `getContentItem({ supabase, slug, locale })` returns the row for the requested locale, falls back to the English row via `resolveLocalisedContent` when the Hindi row is missing, and returns `null` for an unknown or unpublished slug.
 
-- [ ] **Step 2: Implement `lib/supabase/queries/content.ts`**
+- [x] **Step 2: Implement `lib/supabase/queries/content.ts`**
 
 ```ts
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -8435,7 +8441,7 @@ export async function getContentItem({
 }
 ```
 
-- [ ] **Step 3: Write the failing ContentDetail test**
+- [x] **Step 3: Write the failing ContentDetail test**
 
 Create `app/(app)/reading/[slug]/ContentDetail.test.tsx`. Assert:
 - a video item renders a native `<video controls playsInline>` *and* the richer chrome from `Quick Listen.dc.html`: a play state indicator and a "playing right here, so you keep your place" caption sitting below it, not replacing the native element
@@ -8447,13 +8453,13 @@ Create `app/(app)/reading/[slug]/ContentDetail.test.tsx`. Assert:
 - `content_opened` fires with `kind` and `is_fallback_locale`, and `content_completed` fires on the native element's `onEnded`
 - the back control's label and target come from `backHref`/`backLabelKey`, proving the same component serves both entry points
 
-- [ ] **Step 4: Implement `ContentDetail.tsx`** from the design and the test above, keeping the native `<video>`/`<audio>` element as the actual playback surface (browsers already give scrubbing, buffering and accessibility for free) and layering the transcript toggle and caption around it rather than reimplementing transport controls.
+- [x] **Step 4: Implement `ContentDetail.tsx`** from the design and the test above, keeping the native `<video>`/`<audio>` element as the actual playback surface (browsers already give scrubbing, buffering and accessibility for free) and layering the transcript toggle and caption around it rather than reimplementing transport controls.
 
-- [ ] **Step 5: Wire the two entry points**
+- [x] **Step 5: Wire the two entry points**
 
 `app/(app)/today/listen/[slug]/page.tsx` renders `<ContentDetail backHref="/today" backLabelKey="today.backToToday" .../>`. `app/(app)/reading/[slug]/page.tsx` (Session 28) renders the same component with `backHref="/reading"`.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/supabase/queries/content.ts "app/(app)/reading/[slug]/ContentDetail.tsx" "app/(app)/reading/[slug]/ContentDetail.test.tsx" "app/(app)/today/listen"
@@ -8466,7 +8472,7 @@ git commit -m "feat(today): add shared ContentDetail media viewer, entered from 
 
 **No wellness-logging feature exists anywhere in this plan.** `Recent Activity.dc.html`'s "Went for your evening walk" entry has no producer — nothing lets her log a walk, in this session or any later one. `buildActivityFeed` accepts a `wellnessEvents` parameter and a `wellness` entry kind so the type and the UI are ready, but the array is always `[]` until a future session adds a wellness log; that is a deliberate, documented gap, not an oversight. Milestones and appointments are the same story one layer down: `buildTimeline`-style milestone data and `appointments` rows exist, but Session 18 runs before Sessions 20 and 23 build the screens that write meaningful ones, so those two arrays are also usually empty at this point in the build order. Wire them anyway — a later session's job is a one-line addition to `lib/supabase/queries/activity.ts`, not a rewrite of this domain function.
 
-- [ ] **Step 1: Write the failing activity test**
+- [x] **Step 1: Write the failing activity test**
 
 Create `lib/domain/activity.test.ts`:
 
@@ -8572,7 +8578,7 @@ describe("groupActivityByDay", () => {
 });
 ```
 
-- [ ] **Step 2: Run it, watch it fail, implement**
+- [x] **Step 2: Run it, watch it fail, implement**
 
 Create `lib/domain/activity.ts`:
 
@@ -8716,11 +8722,11 @@ export function groupActivityByDay({ entries, today }: { entries: ActivityEntry[
 Run: `npx vitest run lib/domain/activity.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Write the query**
+- [x] **Step 3: Write the query**
 
 Create `lib/supabase/queries/activity.ts` with one exported function fetching the last 30 days of `checkins` and `medicine_logs` (joined to `medicines.name`) for the signed-in user, RLS-scoped, and passing empty arrays for `milestones`, `appointments` and `wellnessEvents` with a comment pointing at the sessions that will fill them in.
 
-- [ ] **Step 4: Write the failing ActivityFeed test**
+- [x] **Step 4: Write the failing ActivityFeed test**
 
 Create `app/(app)/today/activity/ActivityFeed.test.tsx`. Assert:
 - entries render grouped under day headings in the order `groupActivityByDay` returns
@@ -8730,9 +8736,9 @@ Create `app/(app)/today/activity/ActivityFeed.test.tsx`. Assert:
 - an empty feed renders `EmptyState` with the "nothing logged yet" copy and the open-notebook illustration slot, not an empty card
 - a back control returns to `/today`
 
-- [ ] **Step 5: Implement `ActivityFeed.tsx` and `app/(app)/today/activity/page.tsx`** from the design.
+- [x] **Step 5: Implement `ActivityFeed.tsx` and `app/(app)/today/activity/page.tsx`** from the design.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/domain/activity.ts lib/supabase/queries/activity.ts "app/(app)/today/activity" i18n
@@ -8745,11 +8751,11 @@ git commit -m "feat(today): add Recent Activity feed merging checkins and medici
 
 Reached by tapping the "Next: {medicine}, {time}" line on Today, or by a notification deep link (`/today?reminder=<medicineId>`, wired in Session 33 when push notifications exist; the sheet itself doesn't wait on that). "Taken" and "Skip today" write a real `medicine_logs` row via `logDose`. "Move to later time" is client-side only — `medicine_logs.status` only allows `taken`/`skipped` (migration 3), so there is nothing to persist; it just changes which time the sheet, and the Today reminder line, treat as "next" for the rest of this session, matching the design's own `localStorage`-only mock.
 
-- [ ] **Step 1: Write the failing logDose test**
+- [x] **Step 1: Write the failing logDose test**
 
 Create `app/actions/medicines.test.ts`. Assert `logDose` inserts a row with the caller's `user_id` (never trusts a client-supplied one), upserts on the `(medicine_id, scheduled_date, scheduled_time)` unique constraint so a retried tap can't double-log, rejects a `status` outside `taken`/`skipped`, and fires `medicine_dose_logged` with `late: true` when `scheduledTime` has already passed.
 
-- [ ] **Step 2: Implement `app/actions/medicines.ts`**
+- [x] **Step 2: Implement `app/actions/medicines.ts`**
 
 ```ts
 "use server";
@@ -8790,7 +8796,7 @@ export async function logDose(input: {
 
 (`medicine_dose_logged` fires client-side from the sheet, after a successful call, not inside the action — this repo's convention keeps `posthog-js` calls out of server actions; see `app/actions/consent.ts`'s comment on the same point.)
 
-- [ ] **Step 3: Write the failing MedicineQuickActionSheet test**
+- [x] **Step 3: Write the failing MedicineQuickActionSheet test**
 
 Create `app/(app)/today/MedicineQuickActionSheet.test.tsx`. Assert:
 - it opens via `BottomSheet` with the medicine name and time in the heading
@@ -8802,9 +8808,9 @@ Create `app/(app)/today/MedicineQuickActionSheet.test.tsx`. Assert:
 - the Android back gesture and the scrim both close the sheet, per `BottomSheet`'s existing contract
 - `medicine_dose_logged` fires with `late: true` when the sheet opened after the scheduled time had passed
 
-- [ ] **Step 4: Implement `MedicineQuickActionSheet.tsx`** from the design, using `BottomSheet` and calling `logDose` from Step 2.
+- [x] **Step 4: Implement `MedicineQuickActionSheet.tsx`** from the design, using `BottomSheet` and calling `logDose` from Step 2.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 ```bash
 git add app/actions/medicines.ts "app/(app)/today/MedicineQuickActionSheet.tsx" "app/(app)/today/MedicineQuickActionSheet.test.tsx"
@@ -8826,13 +8832,13 @@ Six full-screen takeovers from `Today Edge Case.dc.html`, replacing the whole To
 | `save_failed` | `FeelingBox`'s `onSubmit` throws | Try again |
 | `pending_reminder` | Opened from a notification deep link for a dose still ahead of its time | Take it now (opens `MedicineQuickActionSheet`) |
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `app/(app)/today/TodayEdgeState.test.tsx`. Assert, for each of the six `state` values: the correct headline and (where present) supporting line render, from i18n keys `today.edge.<state>.headline` / `.supporting`; the correct primary and (where present) secondary label render and call `onPrimary`/`onSecondary`; the illustration's dim/motif treatment matches the design (`offline` dimmed with a cloud motif, `save_failed` with the retry motif, `pending_reminder` with the calendar motif, the rest undimmed with no motif); and no `texture-motif` renders on any of the six.
 
 **Sub-Gate A — still open:** `Today Edge Case.dc.html` uses `image-slot` placeholders for all six illustrations (`"Baby illustration, softly dimmed"`, `"Soft looping retry motif"`, etc.) — none of the six has a delivered Lottie or static asset the way the nine pregnancy stages do. `overdue` and `returning` say plainly they reuse the baby illustration ("current week" / "calm and unchanged"), so those two use `illustrationStage`'s existing Lottie/static pair, same as the main Today screen. The other four (`offline`, `missed_task`, `save_failed`, `pending_reminder`) need their own small static illustrations from the product owner. Request them; until they arrive, implement against a named placeholder path (`/illustrations/edge-<state>-placeholder.svg`) and record in the commit body that real art is still pending for those four — do not block the rest of this session on it, since `IllustrationContainer` requires *some* asset to render at all and the component, copy and behaviour are otherwise complete.
 
-- [ ] **Step 2: Implement `TodayEdgeState.tsx`**
+- [x] **Step 2: Implement `TodayEdgeState.tsx`**
 
 ```tsx
 import { useTranslations } from "next-intl";
@@ -8918,13 +8924,13 @@ export function TodayEdgeState({ state, stage, onPrimary, onSecondary }: TodayEd
 }
 ```
 
-- [ ] **Step 3: Add the i18n content**, copied verbatim from `Today Edge Case.dc.html`'s `copy` object, for all six states, in both locales, as `today.edge.<state>.{headline,supporting,primary,secondary}` (omit `supporting`/`secondary` per state per the `HAS_SUPPORTING`/`HAS_SECONDARY` maps above, matching which states have them in the design).
+- [x] **Step 3: Add the i18n content**, copied verbatim from `Today Edge Case.dc.html`'s `copy` object, for all six states, in both locales, as `today.edge.<state>.{headline,supporting,primary,secondary}` (omit `supporting`/`secondary` per state per the `HAS_SUPPORTING`/`HAS_SECONDARY` maps above, matching which states have them in the design).
 
-- [ ] **Step 4: Wire `TodayScreen` to select it**
+- [x] **Step 4: Wire `TodayScreen` to select it**
 
 `TodayScreen` checks, in order: `isPostTerm` → `state="overdue"`; a `reminder` search param pointing at a medicine whose time has passed → `state="missed_task"`; the same param, not yet passed → `state="pending_reminder"`; `localStorage['mamaroo_last_seen']` older than 14 days → `state="returning"` (then updates the stamp); otherwise renders normally. The `offline`/`save_failed` states are triggered locally by the fetch and the `FeelingBox` submit handler respectively, not by this ordered check.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 ```bash
 git add "app/(app)/today/TodayEdgeState.tsx" "app/(app)/today/TodayEdgeState.test.tsx" i18n
@@ -8935,11 +8941,11 @@ git commit -m "feat(today): add the six-state edge takeover"
 
 ### 18.8 TodayScreen assembly
 
-- [ ] **Step 1: Write the query module**
+- [x] **Step 1: Write the query module**
 
 Create `lib/supabase/queries/today.ts` with one exported function returning everything Today needs in parallel: the active pregnancy (including `pregnancy_flags`, to derive `babyCount`), the profile display name, today's medicines and logs, upcoming appointments, and up to two published content items whose week range covers her current week. All queries are RLS-scoped; none passes a user id explicitly.
 
-- [ ] **Step 2: Write the failing TodayScreen test**
+- [x] **Step 2: Write the failing TodayScreen test**
 
 Create `app/(app)/today/TodayScreen.test.tsx`. Assert:
 - the greeting includes her name and her week
@@ -8954,7 +8960,7 @@ Create `app/(app)/today/TodayScreen.test.tsx`. Assert:
 - exactly one element carries the primary-emphasis class
 - `TodayEdgeState` renders instead of all of the above when 18.7's selection logic picks a state
 
-- [ ] **Step 3: Run it, watch it fail, implement from the designer's markup, run it again**
+- [x] **Step 3: Run it, watch it fail, implement from the designer's markup, run it again**
 
 Expected: PASS. The illustration's alt text comes from a translation key taking the week (and, for twins, a plural form) as parameters, so Hindi gets a natural sentence rather than a template.
 
@@ -8962,7 +8968,7 @@ Expected: PASS. The illustration's alt text comes from a translation key taking 
 
 Create `tests/e2e/today.spec.ts`: after onboarding, `/today` shows the correct week for a known LMP, twins render two illustrations when `pregnancy_flags` includes `twins`, and the page has no axe violations in both languages.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 ```bash
 git add lib/domain/reminders.ts lib/supabase/queries "app/(app)/today" i18n tests
@@ -8975,6 +8981,8 @@ git commit -m "feat(today): assemble the calm Today screen with twins, chips, ed
 
 **Gate B — still open:** the red-flag symptom rules (`match_terms`, `severity`, `guidance_title`, `guidance_body`, `priority`, in English and Hindi) have not arrived from the product owner. **Do not author them.** Everything in this session ships and is tested against the non-medical placeholder rules already in the triage test below; `supabase/seed/symptom_rules.sql` is created empty, with a comment explaining why, exactly as `content.reviewed.sql` already does for the chatbot corpus. Do not let this block the rest of the session — request the rules and keep building.
 **Gate A — satisfied:** the check-in screen's designer markup is `Today.dc.html`'s feeling box (built in Session 18) plus the triage-result rendering below it; no separate check-in screen exists in the delivered designs; text and voice both submit through `FeelingBox`, and the result renders in place, on `/today`, not on a separate route. (This supersedes the original plan's assumption of a standalone `app/(app)/checkin/page.tsx` — there is no such screen in `Screens/Today Tab/`, and introducing one would fork the single entry point the design actually shows.)
+
+**Delivered scope (status, 2026-09-13):** shipped and merged (PR #15, alongside Session 18). Steps 1, 2, 4, 5, 6 and 7 are done: triage is deterministic with full branch coverage, the transcriber interface is implemented behind `isAvailable()`, `TriageResult` renders in place with the offline guidance cache, and `saveCheckin` re-runs `triage()` server-side. **Step 3 did not ship** — `supabase/seed/symptom_rules.sql` was never created, so Gate B's placeholder-emptiness isn't recorded in a seed file yet, only in this doc and in `triage.test.ts`'s own fixtures. Left unchecked below; a one-line file, not a blocker, but do it before Gate B's real rules arrive.
 
 **Goal:** She describes how she feels, by voice or typing, from the feeling box on Today, and gets a calm, reviewed response at one of three severity levels, with the urgent path working offline.
 
@@ -8993,11 +9001,11 @@ git commit -m "feat(today): assemble the calm Today screen with twins, chips, ed
   - `triage({ text, rules }): TriageResult`
   - `saveCheckin({ body, inputMethod, feeling })` server action
 
-- [ ] **Step 1: Write the failing triage test**
+- [x] **Step 1: Write the failing triage test**
 
 Create `lib/domain/triage.test.ts` — unchanged from the original plan (the full test file specified earlier in this document, covering case-insensitivity, punctuation, Devanagari, transliteration, word-boundary matching, priority ordering and the inactive-rule and empty-rules cases). Run it, watch it fail, then implement `lib/domain/triage.ts` exactly as already specified there. Run again; confirm PASS.
 
-- [ ] **Step 2: Write the failing transcriber test, then implement it**
+- [x] **Step 2: Write the failing transcriber test, then implement it**
 
 `lib/speech/webspeech.test.ts` and `lib/speech/transcribe.ts` / `lib/speech/webspeech.ts`, unchanged from the original plan: `isAvailable()`, locale-to-`lang` mapping, `onResult`/`onError` with typed reasons, the returned stop function, and the no-audio-retained grep assertion.
 
@@ -9014,7 +9022,7 @@ Create `supabase/seed/symptom_rules.sql`:
 -- this comment and insert the reviewed rows in the same commit they arrive.
 ```
 
-- [ ] **Step 4: Write the failing TriageResult test**
+- [x] **Step 4: Write the failing TriageResult test**
 
 Create `app/(app)/today/TriageResult.test.tsx`. Assert:
 - the matching severity badge and guidance render below the feeling box after a submit
@@ -9025,15 +9033,15 @@ Create `app/(app)/today/TriageResult.test.tsx`. Assert:
 - `triage_result_shown` is emitted with the severity only, never the text
 - a `save_failed` result (the server action throwing) hands control to `TodayEdgeState` with `state="save_failed"` (Session 18.7), rather than rendering its own error copy
 
-- [ ] **Step 5: Implement `TriageResult.tsx`, the action, and the offline guidance cache**
+- [x] **Step 5: Implement `TriageResult.tsx`, the action, and the offline guidance cache**
 
 `app/actions/checkin.ts`'s `saveCheckin({ body, inputMethod, feeling })` runs `triage()` server-side too and stores `severity`, `matched_rule_id` and `feeling` alongside the body, so the stored record matches what she was shown and what `buildActivityFeed` (Session 18.5) later reads. The rules are fetched once by `TodayScreen`'s query and passed down as props; the service worker caches them starting Session 33, which is what makes the offline test above possible before that session exists.
 
-- [ ] **Step 6: Wire the chips to the result copy**
+- [x] **Step 6: Wire the chips to the result copy**
 
 When `feeling` is `"worried"`, `TriageResult`'s framing line reads `today.triage.worriedIntro` instead of the neutral `today.triage.intro`, before the severity badge — the one place the quick-select chips change anything beyond analytics and the activity feed, and it changes copy only, never the deterministic severity `triage()` returns.
 
-- [ ] **Step 7: Verify and commit**
+- [x] **Step 7: Verify and commit**
 
 ```bash
 git add lib/domain/triage.ts lib/speech "app/(app)/today/TriageResult.tsx" "app/(app)/today/TriageResult.test.tsx" app/actions/checkin.ts supabase/seed i18n
