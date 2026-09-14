@@ -437,6 +437,7 @@
   },
   "appointments": {
     "title": "Appointments",
+    "backLabel": "Back to Care",
     "upcomingHeading": "Upcoming",
     "pastHeading": "Past",
     "emptyState": "Add your next appointment here",
@@ -480,6 +481,7 @@
   },
   "vitals": {
     "title": "Vitals",
+    "backLabel": "Back to Care",
     "tabWeight": "Weight",
     "tabBp": "Blood pressure",
     "addReading": "Add reading",
@@ -540,6 +542,7 @@
     },
     "medicines": {
       "title": "Medicines",
+      "backLabel": "Back to Care",
       "trackerTitle": "Iron and calcium",
       "otherMedicines": "Your other medicines",
       "emptyState": "Add your first medicine here",
@@ -636,6 +639,7 @@
   },
   "advice": {
     "title": "My doctor's advice",
+    "backLabel": "Back to Care",
     "empty": "Add what your doctor told you here.",
     "addAdvice": "Add what doctor said",
     "addSheetTitle": "Add what doctor said",
@@ -674,6 +678,7 @@
   },
   "reports": {
     "title": "Reports and scans",
+    "backLabel": "Back to Care",
     "subtitle": "Stored exactly as you add them. This version doesn't read what's inside.",
     "empty": "Add your first report here.",
     "addReport": "Add report",
@@ -891,6 +896,7 @@
   "me": {
     "contractions": {
       "title": "Contraction timer",
+      "backLabel": "Back to Me",
       "intro": "Time and record contractions here, whenever it feels useful.",
       "readyLabel": "Ready when you are",
       "timingLabel": "Timing this contraction",
@@ -909,6 +915,7 @@
     },
     "prep": {
       "title": "Pregnancy preparation",
+      "backLabel": "Back to Me",
       "categoryMe": "For me",
       "categoryBaby": "For baby",
       "categoryDocs": "Documents",
@@ -955,6 +962,7 @@
   },
   "mePersonal": {
     "title": "Personal info",
+    "backLabel": "Back to Me",
     "details": "Your details",
     "name": "Name",
     "namePlaceholder": "What should we call you?",
@@ -987,6 +995,7 @@
   },
   "mePregnancy": {
     "title": "Pregnancy info",
+    "backLabel": "Back to Me",
     "week": "Week {week}",
     "dueDate": "Due date",
     "dueDateHint": "Changing this will not affect anything you have already added.",
@@ -1046,6 +1055,7 @@
   },
   "meNotifications": {
     "title": "Notifications",
+    "backLabel": "Back to Me",
     "reminders": "Reminders",
     "medicine": "Medicine reminders",
     "appointments": "Appointment reminders",
@@ -1070,6 +1080,7 @@
   },
   "mePrivacy": {
     "title": "Privacy and data",
+    "backLabel": "Back to Me",
     "consentsTitle": "What you've agreed to",
     "consentTerms": "Terms of service",
     "consentPrivacyPolicy": "Privacy policy",

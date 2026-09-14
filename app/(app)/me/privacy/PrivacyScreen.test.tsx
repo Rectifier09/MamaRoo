@@ -43,6 +43,12 @@ beforeEach(() => {
 });
 
 describe("PrivacyScreen — consent review", () => {
+  it("has a back link to Me", () => {
+    renderScreen();
+    expect(screen.getByRole("link", { name: en.mePrivacy.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("shows terms and privacy as granted with no withdraw control", () => {
     renderScreen();
     const grantedDates = screen.getAllByText(/Agreed on/);

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { BottomSheet } from "@/components/ui/BottomSheet";
+import { BackButton } from "@/components/patterns/BackButton";
 import { SectionHeader } from "@/components/patterns/SectionHeader";
 import { confirmationWordMatches, DELETE_ACCOUNT_CONFIRMATION_WORD } from "@/lib/domain/privacy";
 import { PRODUCT_NAME, type Locale } from "@/lib/config";
@@ -142,6 +143,8 @@ export function PrivacyScreen({
 
   return (
     <div className="flex flex-col gap-lg py-lg">
+      <BackButton href="/me" label={t("backLabel")} />
+
       <div className="flex flex-col gap-sm">
         <SectionHeader>{t("consentsTitle")}</SectionHeader>
         <div className="flex flex-col gap-sm rounded-lg bg-surface-raised p-md shadow-1">

@@ -42,6 +42,16 @@ function makeFile(): File {
 }
 
 describe("ReportsScreen", () => {
+  it("has a back link to Care", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ReportsScreen initialReports={[]} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: en.reports.backLabel })).toHaveAttribute("href", "/care");
+  });
+
+
   it("shows the empty state and an add action when there are no reports", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

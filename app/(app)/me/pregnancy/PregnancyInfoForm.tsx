@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/components/AnalyticsProvider";
+import { BackButton } from "@/components/patterns/BackButton";
 import { ErrorBanner } from "@/components/patterns/ErrorBanner";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -135,7 +136,10 @@ export function PregnancyInfoForm({ initial, today, onSave }: PregnancyInfoFormP
   return (
     <form className="mx-auto flex w-full max-w-[680px] flex-col gap-lg py-screen" onSubmit={(event) => void handleSubmit(event)} noValidate>
       <div className="flex items-baseline justify-between gap-md">
-        <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+        <div className="flex items-center gap-md">
+          <BackButton href="/me" label={t("backLabel")} />
+          <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+        </div>
         {week !== null && (
           <span className="shrink-0 rounded-full bg-peach px-md py-xs text-body-sm font-semibold text-text-primary">
             {t("week", { week })}

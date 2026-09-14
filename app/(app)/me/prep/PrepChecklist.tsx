@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { track } from "@/components/AnalyticsProvider";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { BackButton } from "@/components/patterns/BackButton";
 import { ErrorBanner } from "@/components/patterns/ErrorBanner";
 import { ProgressRing } from "@/components/patterns/ProgressRing";
 import { SectionHeader } from "@/components/patterns/SectionHeader";
@@ -170,6 +171,8 @@ export function PrepChecklist({
 
   return (
     <div className="flex flex-col gap-lg py-lg">
+      <BackButton href="/me" label={t("backLabel")} />
+
       <div className="flex justify-center">
         <ProgressRing fraction={result.overall.fraction} label={t("progressLabel", { done: result.overall.done, total: result.overall.total })} />
       </div>

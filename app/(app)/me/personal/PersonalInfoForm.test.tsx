@@ -44,6 +44,12 @@ afterEach(() => {
 });
 
 describe("PersonalInfoForm", () => {
+  it("has a back link to Me", () => {
+    renderForm();
+    expect(screen.getByRole("link", { name: en.mePersonal.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("prefills onboarding values and expresses birth_year as age", () => {
     renderForm();
     expect(screen.getByLabelText("Name")).toHaveValue("Aarti");

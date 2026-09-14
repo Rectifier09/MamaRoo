@@ -24,6 +24,16 @@ const existing: AdviceRecord = {
 };
 
 describe("AdviceScreen", () => {
+  it("has a back link to Care", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <AdviceScreen initialAdvice={[]} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("link", { name: en.advice.backLabel })).toHaveAttribute("href", "/care");
+  });
+
+
   it("shows the empty state and an add action when there is no advice yet", () => {
     render(
       <NextIntlClientProvider locale="en" messages={en}>

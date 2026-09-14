@@ -46,6 +46,12 @@ afterEach(() => {
 });
 
 describe("PregnancyInfoForm", () => {
+  it("has a back link to Me", () => {
+    renderForm();
+    expect(screen.getByRole("link", { name: en.mePregnancy.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("prefills the existing pregnancy and profile values", () => {
     renderForm();
     expect(screen.getByLabelText("Due date")).toHaveValue("2026-12-12");

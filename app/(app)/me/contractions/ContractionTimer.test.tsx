@@ -35,6 +35,12 @@ afterEach(() => {
 });
 
 describe("ContractionTimer", () => {
+  it("has a back link to Me", () => {
+    renderTimer();
+    expect(screen.getByRole("link", { name: en.me.contractions.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("starting then stopping produces one contraction with a duration", async () => {
     const startedAt = new Date("2026-11-20T02:00:00.000Z").toISOString();
     const onStartContraction = vi.fn().mockResolvedValue({ ok: true, contraction: { id: "c1", startedAt, durationSeconds: null } });
