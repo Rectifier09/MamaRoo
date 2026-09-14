@@ -28,7 +28,7 @@ function queryFor(table: string) {
 
 vi.mock("@/lib/supabase/server", () => ({ createServerSupabase }));
 
-import { getBabyNamesData } from "@/lib/supabase/queries/babyNames";
+import { getBabyNamesData, getFavoriteBabyNames } from "@/lib/supabase/queries/babyNames";
 
 beforeEach(() => {
   calls.length = 0;
@@ -68,5 +68,52 @@ describe("getBabyNamesData", () => {
   it("throws instead of returning partial data", async () => {
     responses.set("pregnancies", { data: null, error: new Error("query failed") });
     await expect(getBabyNamesData({ locale: "en" })).rejects.toThrow("query failed");
+  });
+});
+
+describe("getFavoriteBabyNames", () => {
+  it("resolves the joined catalog row for each favorite, most recent first", async () => {
+    responses.set("baby_name_favorites", {
+      data: [
+        { baby_names: { id: "n1", name: "Aditi", meaning_en: "Boundless", meaning_hi: "असीम" } },
+        { baby_names: { id: "n2", name: "Tara", meaning_en: "Star", meaning_hi: "तारा" } },
+      ],
+      error: null,
+    });
+
+    await expect(getFavoriteBabyNames({ locale: "en" })).resolves.toEqual([
+      { id: "n1", name: "Aditi", meaning: "Boundless" },
+      { id: "n2", name: "Tara", meaning: "Star" },
+    ]);
+
+    expect(calls).toEqual(expect.arrayContaining([
+      { table: "baby_name_favorites", method: "order", args: ["created_at", { ascending: false }] },
+      { table: "baby_name_favorites", method: "limit", args: [3] },
+    ]));
+  });
+
+  it("selects the Hindi meaning without changing the name", async () => {
+    responses.set("baby_name_favorites", {
+      data: [{ baby_names: { id: "n1", name: "Aditi", meaning_en: "Boundless", meaning_hi: "असीम" } }],
+      error: null,
+    });
+    const result = await getFavoriteBabyNames({ locale: "hi" });
+    expect(result).toEqual([{ id: "n1", name: "Aditi", meaning: "असीम" }]);
+  });
+
+  it("respects a caller-supplied limit instead of the default", async () => {
+    responses.set("baby_name_favorites", { data: [], error: null });
+    await getFavoriteBabyNames({ locale: "en", limit: 5 });
+    expect(calls).toContainEqual({ table: "baby_name_favorites", method: "limit", args: [5] });
+  });
+
+  it("returns an empty list rather than throwing when nothing is favorited", async () => {
+    responses.set("baby_name_favorites", { data: [], error: null });
+    await expect(getFavoriteBabyNames({ locale: "en" })).resolves.toEqual([]);
+  });
+
+  it("throws instead of returning partial data", async () => {
+    responses.set("baby_name_favorites", { data: null, error: new Error("query failed") });
+    await expect(getFavoriteBabyNames({ locale: "en" })).rejects.toThrow("query failed");
   });
 });

@@ -15,6 +15,7 @@ const baseProps: BabyScreenProps = {
   sensitiveMode: false,
   timelineEntries: [],
   showKicksCard: false,
+  favoriteNames: [],
 };
 
 function renderScreen(overrides: Partial<BabyScreenProps> = {}) {
@@ -35,6 +36,31 @@ const event = (id: string): TimelineEntry => ({
 });
 
 describe("BabyScreen", () => {
+  it("shows the generic name prompt when nothing is favorited yet", () => {
+    renderScreen();
+    expect(screen.getByText(en.baby.bento.namePrompt)).toBeInTheDocument();
+  });
+
+  it("shows favorited names in the name card instead of the generic prompt", () => {
+    renderScreen({
+      favoriteNames: [
+        { id: "n1", name: "Aditi", meaning: "Boundless" },
+        { id: "n2", name: "Tara", meaning: "Star" },
+      ],
+    });
+    expect(screen.getByText("Aditi, Tara")).toBeInTheDocument();
+    expect(screen.queryByText(en.baby.bento.namePrompt)).not.toBeInTheDocument();
+  });
+
+  it("still links the name card to /baby/name so she can favorite more", () => {
+    renderScreen({ favoriteNames: [{ id: "n1", name: "Aditi", meaning: "Boundless" }] });
+    expect(screen.getByRole("link", { name: new RegExp(en.baby.bento.nameTitle) })).toHaveAttribute(
+      "href",
+      "/baby/name",
+    );
+  });
+
+
   it("renders one illustration with week-specific alt text for a singleton", () => {
     renderScreen();
     const illustrations = screen.getAllByRole("img");

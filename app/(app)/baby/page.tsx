@@ -1,9 +1,11 @@
 import { BabyScreen } from "@/app/(app)/baby/BabyScreen";
+import { getLocale } from "@/i18n/locale";
 import { buildTimeline, type TimelineEventInput, type TimelineMilestoneInput } from "@/lib/domain/timeline";
 import { todayInAppZone } from "@/lib/domain/dates";
 import { pregnancyProgress } from "@/lib/domain/pregnancy";
 import { illustrationStage, STAGE_BOUNDARIES, TOTAL_STAGES } from "@/lib/domain/stages";
 import { getBabyData } from "@/lib/supabase/queries/baby";
+import { getFavoriteBabyNames } from "@/lib/supabase/queries/babyNames";
 
 /** One milestone per illustration stage boundary -- see lib/domain/stages.ts,
  * the single source of truth this list must always match. */
@@ -17,7 +19,8 @@ const KICKS_MIN_WEEK = 28;
 
 export default async function BabyPage() {
   const today = todayInAppZone();
-  const data = await getBabyData();
+  const locale = await getLocale();
+  const [data, favoriteNames] = await Promise.all([getBabyData(), getFavoriteBabyNames({ locale })]);
 
   const progress = data.pregnancy ? pregnancyProgress({ edd: data.pregnancy.edd, today }) : null;
   const week = progress?.week ?? 0;
@@ -68,6 +71,7 @@ export default async function BabyPage() {
       sensitiveMode={sensitiveMode}
       timelineEntries={timelineEntries}
       showKicksCard={week >= KICKS_MIN_WEEK}
+      favoriteNames={favoriteNames}
     />
   );
 }
