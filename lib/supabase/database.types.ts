@@ -971,6 +971,7 @@ export type Database = {
           id: string
           is_first_pregnancy: boolean | null
           locale: string
+          mobile_number: string | null
           notification_privacy: string
           onboarding_completed_at: string | null
           pre_pregnancy_weight_kg: number | null
@@ -989,6 +990,7 @@ export type Database = {
           id: string
           is_first_pregnancy?: boolean | null
           locale?: string
+          mobile_number?: string | null
           notification_privacy?: string
           onboarding_completed_at?: string | null
           pre_pregnancy_weight_kg?: number | null
@@ -1007,6 +1009,7 @@ export type Database = {
           id?: string
           is_first_pregnancy?: boolean | null
           locale?: string
+          mobile_number?: string | null
           notification_privacy?: string
           onboarding_completed_at?: string | null
           pre_pregnancy_weight_kg?: number | null

@@ -85,6 +85,9 @@ export const EVENT_SCHEMAS = {
     category: z.enum(["me", "baby", "docs"]),
     done: z.boolean(),
   }).strict(),
+  [EVENTS.settings_saved]: z.object({
+    section: z.enum(["personal", "pregnancy", "notifications"]),
+  }).strict(),
   [EVENTS.install_prompt_accepted]: z.object({
     platform: z.enum(["android", "ios", "other"]),
   }).strict(),
