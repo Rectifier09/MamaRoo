@@ -9597,6 +9597,8 @@ git commit -m "feat(care): add appointments with a close-the-loop prompt for pas
 
 **Gate A — request before starting:** ask for the vitals entry and chart designer markup. Stop until it arrives.
 
+**Delivered scope (status, 2026-09-14):** built without designer markup — Gate A above was never satisfied, no design file for this screen exists anywhere in `Screens/`. Product owner instruction was to build it anyway, taking inspiration from the app's existing design system and screen conventions rather than continuing to wait, same call already made for Session 21 (kicks). `plausibility()`'s physically-impossible bounds mirror the database's own CHECK constraints exactly (weight 25–250kg, BP systolic 50–300 / diastolic 30–200, diastolic-below-systolic — `supabase/migrations/0004_care.sql`, already in place from Migration 3). One addition beyond the plausibility test in this plan: a "clinically notable but plausible" `warnKey` branch for blood pressure only, at the standard public gestational-hypertension screening threshold (≥140 systolic or ≥90 diastolic) — a heuristic for a non-blocking note, never a diagnosis, treated exactly like Session 30's 5-1-1 pattern. Weight carries no such note (a single reading has no meaningful "notable" threshold without a personal baseline and gestational week, which this session doesn't invent). No normal-range band is drawn on the chart — the interface makes it optional, and a shaded "normal" zone would be exactly the kind of clinical-looking assertion this product avoids without reviewed content behind it; a one-line addition later if the product owner wants it. `CareHub` was missing its vitals card entirely (the original plan assumed Session 22 would wire all seven hub links up front; only six existed) — added here as an eighth `getCareHubData` source, same pattern as Session 22A's notes-card addition. The Doctor Visit Summary (Session 27) needed no changes at all: `buildSummary` already queried the `vitals` table and was rendering "Nothing added yet" until real rows existed, exactly as that session's own delivered-scope note says. `d3-scale` added per this plan's own Step 5 instruction, `@types/d3-scale` as a dev dependency. No live browser/device walkthrough was done — verified via the full test suite (1412 tests, all green), `tsc --noEmit`, `eslint`, and a real production `next build`, same verification depth as Sessions 21 and 30's own unmarked-up builds.
+
 **Goal:** Weight and blood-pressure logging with trend charts that follow the data-visualisation rules in design document §2, and that never interpret a reading clinically.
 
 **Files:**
@@ -9612,9 +9614,9 @@ git commit -m "feat(care): add appointments with a close-the-loop prompt for pas
   - `plausibility({ kind, value1, value2 }): { ok: true } | { ok: false; field: string; messageKey: string } | { ok: true; warnKey: string }`
   - `TrendChart({ series, seriesLabels, normalBand?, ariaSummary })`
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing vitals domain test**
+- [x] **Step 2: Write the failing vitals domain test**
 
 Cover: series built in ascending date order regardless of input order; two readings on one day both retained; an empty series returns an empty point list and a safe domain; the domain is padded so a flat line is not drawn on the axis; blood pressure produces two values per point.
 
@@ -9652,9 +9654,9 @@ describe("plausibility", () => {
 
 The accept-and-note case is the one that matters clinically: the bounds in the database reject impossible numbers, and nothing in the product may refuse to record a real high reading. A woman with genuinely high blood pressure must be able to save it.
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
-- [ ] **Step 4: Write the failing TrendChart test**
+- [x] **Step 4: Write the failing TrendChart test**
 
 Assert:
 - renders one path per series
@@ -9667,7 +9669,7 @@ Assert:
 - with no points, an `EmptyState` renders instead of an empty axis
 - the chart uses only `chart-*` tokens (assert no `accent-primary` class appears)
 
-- [ ] **Step 5: Implement the chart as inline SVG, with `d3-scale` for the scales**
+- [x] **Step 5: Implement the chart as inline SVG, with `d3-scale` for the scales**
 
 ```bash
 npm i d3-scale
@@ -9677,11 +9679,11 @@ No charting library: one would bring its own colours, its own accessibility beha
 
 Own the rest: the SVG markup, the `chart-*` tokens, the series line styles and marker shapes, the end-of-line labels, the focus order, and the accessible text summary.
 
-- [ ] **Step 6: Write and implement the screen and form tests**
+- [x] **Step 6: Write and implement the screen and form tests**
 
 VitalsScreen: a tab for weight and one for blood pressure; the chart plus a reverse-chronological list; empty states per tab; the disclaimer banner present on the screen. VitalForm: native `number` inputs with `inputMode="decimal"`; blood pressure takes two fields; plausibility warnings render as notes and still allow saving; errors block saving; offline blocks saving with an explanation.
 
-- [ ] **Step 7: Emit `vital_logged` with the kind only, then verify and commit**
+- [x] **Step 7: Emit `vital_logged` with the kind only, then verify and commit**
 
 ```bash
 git add lib/domain/vitals.ts components/charts "app/(app)/care/vitals" app/actions/vitals.ts i18n

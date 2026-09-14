@@ -8,6 +8,7 @@ function renderHub(overrides: Partial<CareHubProps> = {}) {
   const props: CareHubProps = {
     medicineText: null,
     appointmentText: null,
+    vitalsText: null,
     reportText: null,
     adviceText: null,
     questionsCount: 0,
@@ -26,6 +27,7 @@ describe("CareHub", () => {
     renderHub();
     expect(screen.getByText(en.care.hub.medicinePrompt)).toBeInTheDocument();
     expect(screen.getByText(en.care.hub.appointmentPrompt)).toBeInTheDocument();
+    expect(screen.getByText(en.care.hub.vitalsPrompt)).toBeInTheDocument();
     expect(screen.getByText(en.care.hub.reportPrompt)).toBeInTheDocument();
     expect(screen.getByText(en.care.hub.advicePrompt)).toBeInTheDocument();
     expect(screen.getByText(en.care.hub.questionsPrompt)).toBeInTheDocument();
@@ -56,6 +58,10 @@ describe("CareHub", () => {
     expect(screen.getByRole("link", { name: new RegExp(en.care.hub.appointmentLabel) })).toHaveAttribute(
       "href",
       "/care/appointments",
+    );
+    expect(screen.getByRole("link", { name: new RegExp(en.care.hub.vitalsLabel) })).toHaveAttribute(
+      "href",
+      "/care/vitals",
     );
     expect(screen.getByRole("link", { name: new RegExp(en.care.hub.reportLabel) })).toHaveAttribute(
       "href",

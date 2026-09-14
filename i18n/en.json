@@ -478,6 +478,44 @@
       "tooFarOut": "Choose a date within the next two years."
     }
   },
+  "vitals": {
+    "title": "Vitals",
+    "tabWeight": "Weight",
+    "tabBp": "Blood pressure",
+    "addReading": "Add reading",
+    "addSheetTitle": "Add a reading",
+    "dateLabel": "Date",
+    "weightLabel": "Weight, in kg",
+    "systolicLabel": "Systolic, the first number",
+    "diastolicLabel": "Diastolic, the second number",
+    "saveButton": "Save reading",
+    "offline": "You are offline. You can look at your vitals, and save once you are back.",
+    "notes": {
+      "bpNotable": "This reading is on the higher side. It has been saved, and you may want to mention it at your next visit."
+    },
+    "errors": {
+      "weightRange": "Enter a weight between 25 and 250 kg.",
+      "systolicRange": "Enter a systolic reading between 50 and 300.",
+      "diastolicRange": "Enter a diastolic reading between 30 and 200.",
+      "diastolicBelowSystolic": "The second number should be lower than the first number.",
+      "bpBothRequired": "Enter both numbers for a blood pressure reading."
+    },
+    "list": {
+      "weightRow": "{value} kg",
+      "bpRow": "{systolic}/{diastolic} mmHg"
+    },
+    "chart": {
+      "seriesWeight": "Weight",
+      "seriesSystolic": "Systolic",
+      "seriesDiastolic": "Diastolic",
+      "emptyWeight": "Log your first weight reading",
+      "emptyBp": "Log your first blood pressure reading",
+      "summaryWeightSingle": "One weight reading logged, {value} kilograms.",
+      "summaryWeight": "Weight trend across {count} readings, from {first} to {last} kilograms.",
+      "summaryBpSingle": "One blood pressure reading logged, {systolic} over {diastolic}.",
+      "summaryBp": "Blood pressure trend across {count} readings, from {firstSys} over {firstDia} to {lastSys} over {lastDia}."
+    }
+  },
   "care": {
     "heading": "Taking care, together",
     "hub": {
@@ -485,6 +523,8 @@
       "medicinePrompt": "Add your first medicine here",
       "appointmentLabel": "Appointments",
       "appointmentPrompt": "Add your next appointment here",
+      "vitalsLabel": "Vitals",
+      "vitalsPrompt": "Log your weight or blood pressure here",
       "reportLabel": "Reports",
       "reportPrompt": "Add your first report here",
       "adviceLabel": "Doctor's advice",

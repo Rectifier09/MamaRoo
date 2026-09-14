@@ -8,11 +8,13 @@ export type AppointmentRow = Tables["appointments"]["Row"];
 export type ReportRow = Tables["reports"]["Row"];
 export type PersonalNoteRow = Tables["personal_notes"]["Row"];
 export type AdviceUpdateRow = Tables["doctor_advice_updates"]["Row"];
+export type VitalRow = Tables["vitals"]["Row"];
 
 export interface CareHubData {
   medicines: MedicineRow[];
   medicineLogs: MedicineLogRow[];
   nextAppointment: Pick<AppointmentRow, "id" | "title" | "doctor_name" | "scheduled_at"> | null;
+  latestVital: Pick<VitalRow, "id" | "kind" | "value_1" | "value_2" | "measured_on"> | null;
   latestReport: Pick<ReportRow, "id" | "report_type" | "report_date"> | null;
   latestAdvice: Pick<AdviceUpdateRow, "id" | "body"> | null;
   markedQuestionCount: number;
@@ -37,6 +39,7 @@ export async function getCareHubData(): Promise<CareHubData> {
     medicines,
     medicineLogs,
     nextAppointment,
+    latestVital,
     latestReport,
     latestAdvice,
     markedSuggestedQuestions,
@@ -51,6 +54,12 @@ export async function getCareHubData(): Promise<CareHubData> {
       .eq("status", "upcoming")
       .gte("scheduled_at", today)
       .order("scheduled_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("vitals")
+      .select("id, kind, value_1, value_2, measured_on")
+      .order("measured_on", { ascending: false })
       .limit(1)
       .maybeSingle(),
     supabase
@@ -83,6 +92,7 @@ export async function getCareHubData(): Promise<CareHubData> {
     medicines,
     medicineLogs,
     nextAppointment,
+    latestVital,
     latestReport,
     latestAdvice,
     markedSuggestedQuestions,
@@ -95,6 +105,7 @@ export async function getCareHubData(): Promise<CareHubData> {
     medicines: medicines.data ?? [],
     medicineLogs: medicineLogs.data ?? [],
     nextAppointment: nextAppointment.data,
+    latestVital: latestVital.data,
     latestReport: latestReport.data,
     latestAdvice: latestAdvice.data,
     markedQuestionCount: (markedSuggestedQuestions.count ?? 0) + (markedCustomQuestions.count ?? 0),
