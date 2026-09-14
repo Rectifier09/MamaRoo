@@ -7,6 +7,7 @@ import { IllustrationContainer } from "@/components/patterns/IllustrationContain
 import { StageProgress } from "@/components/patterns/StageProgress";
 import { Card } from "@/components/ui/Card";
 import { Timeline } from "@/app/(app)/baby/Timeline";
+import type { BabyNameOption } from "@/lib/domain/babyNames";
 import { TOTAL_STAGES } from "@/lib/domain/stages";
 import type { TimelineEntry } from "@/lib/domain/timeline";
 import { cn } from "@/lib/cn";
@@ -22,6 +23,10 @@ export interface BabyScreenProps {
   sensitiveMode: boolean;
   timelineEntries: TimelineEntry[];
   showKicksCard: boolean;
+  /** Most-recently-favorited first, already capped by the caller -- the card
+   * only has room for a couple of names before it needs truncating, and that
+   * truncation is a query concern (LIMIT), not a display one. */
+  favoriteNames: BabyNameOption[];
 }
 
 export function BabyScreen({
@@ -33,6 +38,7 @@ export function BabyScreen({
   sensitiveMode,
   timelineEntries,
   showKicksCard,
+  favoriteNames,
 }: BabyScreenProps) {
   const t = useTranslations("baby");
   const tNav = useTranslations("nav");
@@ -100,7 +106,14 @@ export function BabyScreen({
               <p className="text-caption font-semibold uppercase tracking-[0.04em] text-text-secondary">
                 {t("bento.nameTitle")}
               </p>
-              <p className="text-body-sm text-text-primary">{t("bento.namePrompt")}</p>
+              {favoriteNames.length > 0 ? (
+                <>
+                  <p className="text-body-sm text-text-primary">{favoriteNames.map((n) => n.name).join(", ")}</p>
+                  <p className="text-caption text-text-secondary">{t("bento.nameSeeMore")}</p>
+                </>
+              ) : (
+                <p className="text-body-sm text-text-primary">{t("bento.namePrompt")}</p>
+              )}
             </Card>
           </Link>
 

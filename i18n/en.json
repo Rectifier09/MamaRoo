@@ -385,6 +385,7 @@
     "bento": {
       "nameTitle": "Baby name",
       "namePrompt": "Choose a name for your baby",
+      "nameSeeMore": "See more names",
       "lettersTitle": "Letters to baby",
       "lettersPrompt": "Write your first letter",
       "kicksTitle": "Kick counter",
