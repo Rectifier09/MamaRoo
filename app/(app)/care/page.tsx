@@ -16,6 +16,12 @@ export default async function CarePage() {
     ? `${data.nextAppointment.doctor_name ?? data.nextAppointment.title} on ${data.nextAppointment.scheduled_at.slice(0, 10)}`
     : null;
 
+  const vitalsText = data.latestVital
+    ? data.latestVital.kind === "weight"
+      ? `${data.latestVital.value_1} kg on ${data.latestVital.measured_on}`
+      : `${data.latestVital.value_1}/${data.latestVital.value_2} mmHg on ${data.latestVital.measured_on}`
+    : null;
+
   const reportText = data.latestReport
     ? `${data.latestReport.report_type}, added ${data.latestReport.report_date}`
     : null;
@@ -28,6 +34,7 @@ export default async function CarePage() {
     <CareHub
       medicineText={medicineText}
       appointmentText={appointmentText}
+      vitalsText={vitalsText}
       reportText={reportText}
       adviceText={adviceText}
       questionsCount={data.markedQuestionCount}

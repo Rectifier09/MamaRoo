@@ -46,12 +46,14 @@ describe("getCareHubData", () => {
     const medicines = [{ id: "medicine-1" }];
     const medicineLogs = [{ id: "log-1" }];
     const nextAppointment = { id: "appt-1", title: "Checkup", doctor_name: "Dr Rao", scheduled_at: "2026-10-01" };
+    const latestVital = { id: "vital-1", kind: "weight", value_1: 62.5, value_2: null, measured_on: "2026-09-12" };
     const latestReport = { id: "report-1", report_type: "ultrasound", report_date: "2026-09-10" };
     const latestAdvice = { id: "advice-1", body: "Rest more" };
     const latestNote = { id: "note-1", body: "Felt the first kick today" };
     responses.set("medicines", { data: medicines, error: null });
     responses.set("medicine_logs", { data: medicineLogs, error: null });
     responses.set("appointments", { data: nextAppointment, error: null });
+    responses.set("vitals", { data: latestVital, error: null });
     responses.set("reports", { data: latestReport, error: null });
     responses.set("doctor_advice_updates", { data: latestAdvice, error: null });
     responses.set("question_marks", { data: null, error: null, count: 3 });
@@ -62,6 +64,7 @@ describe("getCareHubData", () => {
       medicines,
       medicineLogs,
       nextAppointment,
+      latestVital,
       latestReport,
       latestAdvice,
       markedQuestionCount: 5,

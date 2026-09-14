@@ -2,7 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Read the spec alongside this plan — this plan argues from the spec and does not restate it.
 
-**Goal:** Build MamaRoo Phase 1 — a bilingual, installable pregnancy-companion PWA for middle-income Indian women, also shipped to Google Play via a Trusted Web Activity — covering daily guidance (Today), baby development (My Baby), care records (My Care), a content library (Reading), personal tools (Profile), a retrieval-only chatbot, and a printable Doctor Visit Summary.
+**Goal:** Build MamaRoo Phase 1 — a bilingual, installable pregnancy-companion PWA for middle-income Indian women, also shipped to Google Play via a Trusted Web Activity — covering daily guidance (Today), baby development (My Baby), care records (My Care), a content library (Reading), personal tools (Profile), and a printable Doctor Visit Summary.
+
+**2026-09-14: the retrieval-only chatbot (Session 29) moved to Phase 2**, per product-owner decision — it stays gate-blocked on a reviewed medical content corpus (Gate B) and a Gemini API key/tier decision (Gate C), neither of which has arrived, and Session 24 (Vitals) and the PWA/TWA wave (33–34) are the priority instead. The full Session 29 spec is left in place, unrenumbered, in its original position in the Screens section below — see the status note at its header. `ChatBubbleSlot` continues to render nothing until it is eventually built.
 
 **Architecture:** One Next.js App Router repo. Supabase is the entire backend (Postgres + Auth + Storage + RLS); there is no separate API service. All calculation lives in `lib/domain/` as pure functions with no I/O, so it is testable without a database or browser. Screens fetch, pass data to domain functions, and render. Exactly one server route (`app/api/chat`) holds a secret. A thin Bubblewrap TWA wraps the same web build for Play.
 
@@ -235,7 +237,7 @@ Every screen session from 18 onward ends with one extra step: **emit that screen
 | 26 | Reports: capture, upload, view | A |
 | 27 | Doctor Visit Summary and print | A |
 | 28 | Reading list and detail | A |
-| 29 | Chatbot: guardrails, retrieval, provider, panel | A + B + C |
+| 29 | ~~Chatbot: guardrails, retrieval, provider, panel~~ — **moved to Phase 2, 2026-09-14** | A + B + C |
 | 30 | Contraction timer | A |
 | 31 | Pregnancy preparation checklist | A |
 | 32 | Settings: language, details, consent review, export, deletion | A |
@@ -268,7 +270,7 @@ One agent per lane. Lanes merge at the end of each wave; nothing in wave N+1 sta
 | 4 | S12 auth → S13 consent and legal | S17 app shell and navigation | `middleware.ts` — S12 creates it, S17 adds the `x-pathname` header. Lane A lands first, Lane B rebases |
 | 5 | S14 landing → S15 intro → S16 onboarding form | S17A analytics foundation | `app/layout.tsx` |
 | 6 | S18 Today → S19 check-in → S20 My Baby → S21 kicks | S22 care hub → S23 appointments → S24 vitals → S25 advice → S26 reports | `i18n/*.json` (see the namespace rule) |
-| 7 | S28 reading, S30 contractions, S31 prep checklist | S27 Visit Summary (needs 22–26 merged), S29 chatbot (needs S19 merged) | `i18n/*.json` |
+| 7 | S28 reading, S30 contractions, S31 prep checklist | S27 Visit Summary (needs 22–26 merged) | `i18n/*.json` |
 | 8 | **One agent, sequential.** S32 settings → S33 PWA → S34 TWA → S35 accessibility sweep | — | These read the whole app; parallelising them buys nothing and risks everything |
 
 Wave 6's split is not arbitrary: it mirrors the ownership grouping in design document §5.4, where Today and My Baby share the illustration container and My Care's sub-screens share state. That grouping exists so two builders do not collide.
@@ -323,7 +325,7 @@ Do not pass the whole plan and expect a session to be found in it.
 
 ## Dependency allowlist
 
-Runtime: `next`, `react`, `react-dom`, `@supabase/supabase-js`, `@supabase/ssr`, `next-intl`, `zod`, `@phosphor-icons/react`, `lottie-web`, `react-markdown`, `posthog-js`, `d3-scale`, `serwist`, `@serwist/next`, `server-only`, and the Google Gemini SDK (**verify the current package name against Google's documentation at Session 29; do not write one from memory**).
+Runtime: `next`, `react`, `react-dom`, `@supabase/supabase-js`, `@supabase/ssr`, `next-intl`, `zod`, `@phosphor-icons/react`, `lottie-web`, `react-markdown`, `posthog-js`, `d3-scale`, `serwist`, `@serwist/next`, `server-only`. The Google Gemini SDK is a **Phase 2 dependency**, added only when Session 29 (chatbot) is built (**verify the current package name against Google's documentation at that point; do not write one from memory**) — not installed as part of Phase 1.
 
 Development: `typescript`, `tailwindcss`, `vitest`, `@vitejs/plugin-react`, `jsdom`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `@playwright/test`, `@axe-core/playwright`, `prettier`, `eslint` and the Next.js config, `supabase`, `@bubblewrap/cli`.
 
@@ -9058,6 +9060,14 @@ git commit -m "feat(checkin): add deterministic triage, voice input behind an in
 
 **Open question carried from Session 18.2:** Today already renders two baby circles for a twin pregnancy (`pregnancy_flags` contains `"twins"`), derived, not stored. `pregnancies.baby_name` is still a single field. Before implementing `BabyNameField` here, resolve how a twin pregnancy names two babies — likely `baby_name text[]` rather than `baby_name text` — and update `app/actions/baby.ts`'s `updateBabyName` accordingly. Ask the product owner rather than guessing the UI for entering two names.
 
+**Split 2026-09-13:** `Important/Plan-Sessions-20-21-Replan.md` splits baby-name editing out of this session into its own **Session 20A**, and adds a net-new **Session 20B** (Letters to Baby) that isn't in the original plan at all. The open question above is resolved there: `baby_name` migrates to `text[]`.
+
+**Delivered scope, Session 20 (status, 2026-09-13):** built against `Screens/03-my-baby/My Baby Home.dc.html` and `Timeline.dc.html`. Stage math corrected to the spec's **nine** stages — the design file itself hardcoded eight, ruled the outlier and fixed rather than followed. `buildTimeline` was extended beyond this session's original single-list spec to serve the design's Day/Week/Month segmented toggle (three density modes plus view-mode state). **Baby name editing is not built here** — carved out to Session 20A below; this session only wires the bento link to a fixed `/baby/name` path. The nine stage illustrations Gate A asked for never arrived — shipped with placeholder static SVGs for all nine stages instead (`public/illustrations/README.md`), and fixed a real bug found along the way: a 404ing illustration path was hiding the static fallback entirely instead of falling back to it. The design's stat card / weekly fun-fact card was deliberately not built — no seeded per-week content exists for it yet, the same gap Today's own weekly-reflection card already has.
+
+**Delivered scope, Session 20A — Baby Name (status, 2026-09-13, PR #20):** name discovery at `/baby/name` — bilingual suggestions with meanings, search, custom-name entry, detail view, favourite toggles — twin-aware. Migration 0008 converts `pregnancies.baby_name` from `text` to `text[]` (data-preserving, per-element validated, singleton/twin cardinality constraints), and adds a bilingual read-only `baby_names` catalog plus an owner-scoped `baby_name_favorites` table. The eight starter catalog rows are an intentionally small functional seed, not the design canvas's illustrative sample list — real curated name content is a content-only follow-up, not a blocker.
+
+**Delivered scope, Session 20B — Letters to Baby (status, 2026-09-13):** net-new, not in the original plan — built against `Screens/03-my-baby/Letters To Baby.dc.html`. List / write / read states, week-labeled entries, edit-in-place (overwrites on save, no version history, matching the design's own intent), fully suppressed in sensitive-moment mode including the empty state's CTA. New `letters` table (migration 0009). Patrick Hand added via `next/font/google`, bound to a new `--font-letter` token used only by the letter body — the one deliberate non-system font in the app. The design's sample letters are illustrative placeholders; no seed content ships, since letters are always user-authored.
+
 **Goal:** Her baby's current stage, her position across the nine stages, an editable baby name, and the merged timeline: system week milestones interleaved with her own logged events.
 
 **Files:**
@@ -9073,9 +9083,9 @@ git commit -m "feat(checkin): add deterministic triage, voice input behind an in
   - `buildTimeline({ events, currentWeek, milestones, locale }): TimelineEntry[]`
   - `updateBabyName(name)` server action
 
-- [ ] **Step 1: Request the assets and stop**
+- [x] **Step 1: Request the assets and stop**
 
-- [ ] **Step 2: Write the failing timeline test**
+- [x] **Step 2: Write the failing timeline test**
 
 Create `lib/domain/timeline.test.ts`:
 
@@ -9150,14 +9160,14 @@ describe("buildTimeline", () => {
 });
 ```
 
-- [ ] **Step 3: Run it, watch it fail, then implement**
+- [x] **Step 3: Run it, watch it fail, then implement**
 
 Create `lib/domain/timeline.ts`. Milestones carry a translation key, never copy. Each milestone is dated by adding `week * 7` days to the LMP, deriving the LMP from the EDD when it is not stored. The merge is a single stable sort on `occurredAt` descending.
 
 Run: `npx vitest run lib/domain/timeline.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Write the failing BabyScreen test**
+- [x] **Step 4: Write the failing BabyScreen test**
 
 Assert:
 - the illustration for the current stage renders with week-specific alt text
@@ -9170,15 +9180,15 @@ Assert:
 - **no field anywhere offers the baby's sex** — `queryByLabelText(/sex|gender|boy|girl/i)` is null
 - no `texture-motif` renders on this screen
 
-- [ ] **Step 5: Write the failing BabyNameField test**
+- [ ] **Step 5: Write the failing BabyNameField test** — superseded; `BabyNameField` was never built to this one-input spec. Built instead as the full name-discovery feature described in the Session 20A delivered-scope note above.
 
 Assert: it shows the current name; it saves on blur and shows a toast; it accepts Devanagari; it accepts being cleared back to empty; it trims whitespace; it rejects a name longer than 60 characters with a bounded message; and it blocks saving while offline with an explanation.
 
-- [ ] **Step 6: Implement both from the designer's markup, plus the action**
+- [ ] **Step 6: Implement both from the designer's markup, plus the action** — the `BabyScreen` half is done (folded into Step 3/4 above); the `BabyNameField` half shipped as Session 20A instead.
 
 `app/actions/baby.ts` updates `pregnancies.baby_name` for the active pregnancy, returning a field error rather than throwing on a validation failure.
 
-- [ ] **Step 7: Verify and commit**
+- [x] **Step 7: Verify and commit**
 
 ```bash
 git add lib/domain/timeline.ts "app/(app)/baby" app/actions/baby.ts lib/supabase/queries/baby.ts i18n
@@ -9190,6 +9200,8 @@ git commit -m "feat(baby): add stage illustration, nine-stage progress and merge
 ## Session 21: Kick counter
 
 **Gate A — request before starting:** ask for the kick counter's designer markup. Stop until it arrives.
+
+**Delivered scope (status, 2026-09-13):** shipped and merged. **Built without designer markup** — Gate A above was never satisfied, no design file for this screen exists anywhere in `Screens/`, unlike Sessions 20/20A/20B which all had one. Structure and behaviour follow this plan's spec exactly and reuse the existing design system (`Button`, `tap-target`); a real visual pass may still be needed once markup exists. No migration — `kick_sessions`/`kick_events` already existed from Session 8.
 
 **Goal:** A large, forgiving tap target that counts kicks toward a target of ten, survives being abandoned, and writes a timeline entry when finished.
 
@@ -9205,9 +9217,9 @@ git commit -m "feat(baby): add stage illustration, nine-stage progress and merge
   - `shouldAutoClose({ startedAt, now }): boolean`
   - `startKickSession()`, `recordKick(sessionId, tapId)`, `finishKickSession(sessionId)` server actions. **`tapId` is generated by the client and reused across a retry** — if the action generated it, a retry would produce a new id and the deduplication would do nothing, which is the entire point of the column
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing kicks test**
+- [x] **Step 2: Write the failing kicks test**
 
 Create `lib/domain/kicks.test.ts`:
 
@@ -9291,12 +9303,12 @@ describe("shouldAutoClose", () => {
 });
 ```
 
-- [ ] **Step 3: Run it, watch it fail, then implement `lib/domain/kicks.ts`**
+- [x] **Step 3: Run it, watch it fail, then implement `lib/domain/kicks.ts`**
 
 Run: `npx vitest run lib/domain/kicks.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Write the failing KickCounter test**
+- [x] **Step 4: Write the failing KickCounter test**
 
 Assert:
 - the tap area is a single large button with an accessible name and a `tap-target` class
@@ -9311,7 +9323,7 @@ Assert:
 - **while offline, tapping is refused** with a plain explanation, and `offline_write_blocked` is emitted with `feature: "kick"`. It is not accepted locally and queued: without a durable queue, closing the PWA would silently discard her count, and a lost kick count is the worst possible outcome on a screen she may be using to decide whether to go to hospital. Durable offline capture is a Phase 2 item
 - a light haptic fires on a tap where the Vibration API exists, and nothing breaks where it does not
 
-- [ ] **Step 5: Implement the counter and the actions**
+- [x] **Step 5: Implement the counter and the actions**
 
 **Each tap inserts one `kick_events` row carrying a `tap_id` generated by the client with `crypto.randomUUID()`.** The unique `(session_id, tap_id)` constraint is what makes the write safe to retry: if the response is lost but the insert committed, retrying the same `tap_id` conflicts and changes nothing, so the count cannot drift upward. A duplicate-key error on a retry is therefore treated as success, not as a failure.
 
@@ -9319,7 +9331,7 @@ There is no debounce and no local array. One tap, one insert, and the rendered c
 
 `finishKickSession` sets `ended_at` and inserts one `timeline_events` row of type `kick_session`.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/domain/kicks.ts "app/(app)/baby/kicks" app/actions/kicks.ts i18n
@@ -9342,6 +9354,8 @@ git commit -m "feat(kicks): add resumable kick counter with derived state and ti
 - **Reschedule and Stop-medicine affordances were added to `MedicineList`** (a small time-chip `BottomSheet` and a confirm-in-sheet deactivate flow) even though `Medicines.dc.html`'s static mock doesn't render them explicitly — both are required by this session's own Step 6 ("deactivating asks for confirmation in a sheet") and were built to the same pattern as the rest of the screen rather than left as dead buttons.
 
 Not done: the `is_priority` migration mentioned in the replan doc was superseded by the heuristic above, so no `supabase/migrations/0009_*.sql` was created this session.
+
+**Delivered scope, Session 22A — Personal Notes (status, 2026-09-13):** net-new, not in the original plan — added per the replan doc against `Screens/04-my-care/Personal Notes.dc.html`. Migration `0010_personal_notes.sql`, same RLS shape as `doctor_advice`. Reverse-chronological note cards, voice input via the existing `Transcriber` abstraction, edit-in-place, delete with a confirmation sheet. The screen follows the app's real full-page list/read/write pattern (same as Letters to Baby), not the design mock's bottom-sheet layout — a deliberate, repeated deviation at this point in the build. Also completes `CareHub`'s "one-line current state" parity: the notes card now shows the latest note's preview instead of a permanent empty prompt, the one card Session 22 itself couldn't wire since the table didn't exist yet.
 
 **Files:**
 - Create: `lib/domain/adherence.ts` + test
@@ -9583,6 +9597,8 @@ git commit -m "feat(care): add appointments with a close-the-loop prompt for pas
 
 **Gate A — request before starting:** ask for the vitals entry and chart designer markup. Stop until it arrives.
 
+**Delivered scope (status, 2026-09-14):** built without designer markup — Gate A above was never satisfied, no design file for this screen exists anywhere in `Screens/`. Product owner instruction was to build it anyway, taking inspiration from the app's existing design system and screen conventions rather than continuing to wait, same call already made for Session 21 (kicks). `plausibility()`'s physically-impossible bounds mirror the database's own CHECK constraints exactly (weight 25–250kg, BP systolic 50–300 / diastolic 30–200, diastolic-below-systolic — `supabase/migrations/0004_care.sql`, already in place from Migration 3). One addition beyond the plausibility test in this plan: a "clinically notable but plausible" `warnKey` branch for blood pressure only, at the standard public gestational-hypertension screening threshold (≥140 systolic or ≥90 diastolic) — a heuristic for a non-blocking note, never a diagnosis, treated exactly like Session 30's 5-1-1 pattern. Weight carries no such note (a single reading has no meaningful "notable" threshold without a personal baseline and gestational week, which this session doesn't invent). No normal-range band is drawn on the chart — the interface makes it optional, and a shaded "normal" zone would be exactly the kind of clinical-looking assertion this product avoids without reviewed content behind it; a one-line addition later if the product owner wants it. `CareHub` was missing its vitals card entirely (the original plan assumed Session 22 would wire all seven hub links up front; only six existed) — added here as an eighth `getCareHubData` source, same pattern as Session 22A's notes-card addition. The Doctor Visit Summary (Session 27) needed no changes at all: `buildSummary` already queried the `vitals` table and was rendering "Nothing added yet" until real rows existed, exactly as that session's own delivered-scope note says. `d3-scale` added per this plan's own Step 5 instruction, `@types/d3-scale` as a dev dependency. No live browser/device walkthrough was done — verified via the full test suite (1412 tests, all green), `tsc --noEmit`, `eslint`, and a real production `next build`, same verification depth as Sessions 21 and 30's own unmarked-up builds.
+
 **Goal:** Weight and blood-pressure logging with trend charts that follow the data-visualisation rules in design document §2, and that never interpret a reading clinically.
 
 **Files:**
@@ -9598,9 +9614,9 @@ git commit -m "feat(care): add appointments with a close-the-loop prompt for pas
   - `plausibility({ kind, value1, value2 }): { ok: true } | { ok: false; field: string; messageKey: string } | { ok: true; warnKey: string }`
   - `TrendChart({ series, seriesLabels, normalBand?, ariaSummary })`
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing vitals domain test**
+- [x] **Step 2: Write the failing vitals domain test**
 
 Cover: series built in ascending date order regardless of input order; two readings on one day both retained; an empty series returns an empty point list and a safe domain; the domain is padded so a flat line is not drawn on the axis; blood pressure produces two values per point.
 
@@ -9638,9 +9654,9 @@ describe("plausibility", () => {
 
 The accept-and-note case is the one that matters clinically: the bounds in the database reject impossible numbers, and nothing in the product may refuse to record a real high reading. A woman with genuinely high blood pressure must be able to save it.
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
-- [ ] **Step 4: Write the failing TrendChart test**
+- [x] **Step 4: Write the failing TrendChart test**
 
 Assert:
 - renders one path per series
@@ -9653,7 +9669,7 @@ Assert:
 - with no points, an `EmptyState` renders instead of an empty axis
 - the chart uses only `chart-*` tokens (assert no `accent-primary` class appears)
 
-- [ ] **Step 5: Implement the chart as inline SVG, with `d3-scale` for the scales**
+- [x] **Step 5: Implement the chart as inline SVG, with `d3-scale` for the scales**
 
 ```bash
 npm i d3-scale
@@ -9663,11 +9679,11 @@ No charting library: one would bring its own colours, its own accessibility beha
 
 Own the rest: the SVG markup, the `chart-*` tokens, the series line styles and marker shapes, the end-of-line labels, the focus order, and the accessible text summary.
 
-- [ ] **Step 6: Write and implement the screen and form tests**
+- [x] **Step 6: Write and implement the screen and form tests**
 
 VitalsScreen: a tab for weight and one for blood pressure; the chart plus a reverse-chronological list; empty states per tab; the disclaimer banner present on the screen. VitalForm: native `number` inputs with `inputMode="decimal"`; blood pressure takes two fields; plausibility warnings render as notes and still allow saving; errors block saving; offline blocks saving with an explanation.
 
-- [ ] **Step 7: Emit `vital_logged` with the kind only, then verify and commit**
+- [x] **Step 7: Emit `vital_logged` with the kind only, then verify and commit**
 
 ```bash
 git add lib/domain/vitals.ts components/charts "app/(app)/care/vitals" app/actions/vitals.ts i18n
@@ -9679,6 +9695,8 @@ git commit -m "feat(care): add weight and blood pressure logging with accessible
 ## Session 25: Doctor advice and suggested questions
 
 **Split 2026-09-13:** `Important/Plan-Sessions-22-27-Replan.md` splits this combined session into **Session 25** (Doctor's Advice, shipped as PR #25) and **Session 25A** (Suggested Questions, shipped as PR #27). The plan below is the original, pre-split scope and is out of date for suggested questions specifically — `custom_questions` (her own questions) is a new table Decision 3 in the replan doc adds, not an insert path into `suggested_questions` as this section's original interface list implies. See the replan doc for what actually shipped and why.
+
+**Delivered scope, Session 25 — Doctor's Advice (status, 2026-09-13):** type-categorized advice entries (medicine/test/scan/appointment/diet/exercise/question/other), a confirm toggle that's the only thing turning an entry into a reminder, and edits that **append** a new update rather than overwriting past ones. Migration 0011 restructures `doctor_advice` (unused, zero rows in production at the time): drops `body`/`input_method`/`recorded_on` in favour of a new `doctor_advice_updates` child table holding every entry's text, doctor name, and timestamp, append-only by design — RLS deliberately carries no update/delete policy on it. `doctor_advice` itself becomes a thin thread header (`type` + `is_reminder`). Also fixed `CareHub`'s advice preview, which was still reading the now-removed `doctor_advice.body` column. Follows Appointments/Medicines' bottom-sheet add/edit pattern (matches the design mock directly here, unlike Notes/Letters' full-page flow).
 
 **Delivered scope, Session 25A (status, 2026-09-13):** built against `Screens/04-my-care/Suggested Questions.dc.html`, per the replan doc. Ships both halves: seeded week-mapped questions (read from `suggested_questions`, marked via the existing `question_marks` join table from Migration 3) and her own custom questions (new `custom_questions` table, migration `0012_custom_questions.sql`, `is_marked` as a plain column rather than a join table since a custom question already belongs to exactly one user). **Gate B's real bilingual content never arrived** — built and shipped against the existing placeholder seed row in `supabase/seed/content.placeholder.sql`, same treatment as Session 18's `symptom_rules` gap: swapping in real content later is a content-only change, not a migration. One deviation from the design mock: edit and remove controls only appear on her own custom questions, never on seeded ones, since `suggested_questions` is shared, admin-owned content with no update or delete policy for users — the mock shows both kinds in one visually uniform row, but only custom questions support the write path underneath. `CareHub`'s "ready for your next visit" count was also updated to add `custom_questions.is_marked` alongside `question_marks`, so a custom-question mark isn't invisible on the hub card.
 
@@ -9735,6 +9753,8 @@ git commit -m "feat(care): add doctor advice records and week-mapped suggested q
 
 **Gate A — request before starting:** ask for the reports list, the capture screen and the viewer designer markup. Stop until it arrives.
 
+**Delivered scope (status, 2026-09-13):** unchanged goal and files, per `Important/Plan-Sessions-22-27-Replan.md`. Extended past this session's original test list with two genuine pre-save UX prompts (no schema change, no stored state): an "unclear, retake?" prompt using a file-size heuristic (jsdom's canvas doesn't support real pixel analysis, and a true blur/darkness measurement isn't needed for a useful signal here), and a "looks similar to one you already added" prompt comparing a new file's exact size and mime type against already-loaded reports. No migration — `reports` and its storage bucket/policies already existed from Migration 3 (Session 9); this session only adds the read/write flows.
+
 **Goal:** She gets a report into the app from her camera or her files, labels it, and can open it later. Raw storage only; no extraction.
 
 **Files:**
@@ -9750,9 +9770,9 @@ git commit -m "feat(care): add doctor advice records and week-mapped suggested q
   - `sanitiseFilename(name): string`
   - `uploadReport(formData)`, `deleteReport(id)`, `signedReportUrl(id)` actions
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing reports domain test**
+- [x] **Step 2: Write the failing reports domain test**
 
 Create `lib/domain/reports.test.ts` covering:
 - accepts `image/jpeg`, `image/png`, `image/webp`, `application/pdf`
@@ -9765,11 +9785,11 @@ Create `lib/domain/reports.test.ts` covering:
 - `sanitiseFilename` strips path separators, strips leading dots, collapses whitespace to hyphens, preserves the extension, transliterates nothing but keeps Devanagari characters intact, and truncates a very long name to 80 characters plus the extension
 - `sanitiseFilename` never returns an empty string, falling back to a generic name
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
 The path shape matters: the storage policy written in Session 9 authorises on the first path segment, so a bug here is a security bug. The test is the contract.
 
-- [ ] **Step 4: Write the failing ReportCapture test**
+- [x] **Step 4: Write the failing ReportCapture test**
 
 Assert:
 - the file input accepts the allowed types and sets `capture="environment"` so Android opens the camera
@@ -9782,7 +9802,7 @@ Assert:
 - offline blocks capture with an explanation and emits `offline_write_blocked`
 - on success, `report_uploaded` is emitted with the mime group and a size bucket, never the filename or title
 
-- [ ] **Step 5: Implement capture, upload and the viewer**
+- [x] **Step 5: Implement capture, upload and the viewer**
 
 **The id is generated in the action, then the row and the path are written together.** `reports.storage_path` is `NOT NULL`, so the row cannot be inserted first and have its path derived from the resulting default id afterwards — that sequence cannot be executed at all. Instead:
 
@@ -9810,11 +9830,11 @@ Tests: the row is created before the upload is attempted; the persisted `storage
 
 `ReportViewer` requests a signed URL valid for five minutes, renders an image inline or a PDF in an `<object>` with a download-free fallback link, and re-requests the URL if it expires while open rather than showing a broken frame.
 
-- [ ] **Step 6: Write the failing ReportList test**
+- [x] **Step 6: Write the failing ReportList test**
 
 Assert: reverse-chronological by report date; each row shows title, type and date; an empty state with report-specific copy; show-more beyond 15; delete asks for confirmation in a sheet and states that the file is removed permanently; and the screen states plainly that reports are stored as-is with no reading of their contents in this version.
 
-- [ ] **Step 7: Verify and commit**
+- [x] **Step 7: Verify and commit**
 
 ```bash
 git add lib/domain/reports.ts "app/(app)/care/reports" app/actions/reports.ts i18n
@@ -9826,6 +9846,8 @@ git commit -m "feat(care): add report capture, private storage and expiry-safe v
 ## Session 27: Doctor Visit Summary and print
 
 **Gate A — request before starting:** ask for the Doctor Visit Summary designer markup. It is in the restrained register, so confirm explicitly that the designer knows it carries no illustration, no motion and no motif. Stop until it arrives.
+
+**Delivered scope (status, 2026-09-13, PR #29):** built against `Screens/04-my-care/Doctor Visit Summary.dc.html`. `buildSummary()` composes every section from data that already exists (medicines, appointments, doctor_advice, vitals, reports, checkins, marked questions) into one display-ready model — no raw database row reaches the component, and the model is always valid, even for a brand-new user. Deviations from this plan's original write-up, matching the real markup: an idle → generating → ready flow with a "Generate my summary" tap rather than always-rendering; three actions (View, PDF via `window.print()`, WhatsApp via the Web Share API with a `wa.me` fallback) instead of one print button; a new "Pregnancy circumstances" section returned as structured data, never baked English prose, since the document renders in Hindi too; "Open care tasks" maps to `doctor_advice` rows with `is_reminder = true`, kept alongside the original "last 5 advice entries" section. Vitals stay in the model per the original plan, rendering "Nothing added yet" until Session 24 ships — this session does not wait on Session 24. `SummaryDocument` is a real `<table>` (not a styled div stack), since `<thead>`/`<tfoot>` are the only DOM mechanism print engines repeat across pages natively. **Two gaps, flagged rather than silently skipped:** `tests/e2e/summary.spec.ts` was written but never run, and manual print-to-PDF verification on Android Chrome / iOS Safari (Step 7 below) was never done — needs a real device. Steps 6–8 below are left unchecked for that reason.
 
 **Goal:** The screen the doctor reads. One page where possible, printable, honest about its provenance.
 
@@ -9839,9 +9861,9 @@ git commit -m "feat(care): add report capture, private storage and expiry-safe v
 **Interfaces:**
 - Produces: `buildSummary({ profile, pregnancy, progress, medicines, logs, appointments, advice, vitals, reports, markedQuestions, today }): SummaryModel`
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing summary test**
+- [x] **Step 2: Write the failing summary test**
 
 Create `lib/domain/summary.test.ts` covering:
 - the header carries her name, current week and day, EDD, and doctor and clinic where known
@@ -9857,11 +9879,11 @@ Create `lib/domain/summary.test.ts` covering:
 - an entirely empty summary still produces a valid model with her header and the provenance line, not null
 - the model contains no raw database row, only display-ready values, so the component cannot accidentally render something unintended
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
 Expected: PASS. This is the highest-value test in the plan: the Visit Summary is read by a clinician, and a silently missing medicine is a real-world harm.
 
-- [ ] **Step 4: Write the failing SummaryDocument test**
+- [x] **Step 4: Write the failing SummaryDocument test**
 
 Assert:
 - every section the model provides renders, and no section renders when its list is empty
@@ -9871,7 +9893,7 @@ Assert:
 - a print button exists and calls `window.print`
 - `summary_viewed` is emitted with the week only, and `summary_printed` on print
 
-- [ ] **Step 5: Write the print stylesheet**
+- [x] **Step 5: Write the print stylesheet**
 
 Create `styles/print.css`, imported only by the summary route:
 
@@ -9932,6 +9954,14 @@ git commit -m "feat(summary): add printable Doctor Visit Summary in the restrain
 
 **Gate A — request before starting:** ask for the Reading list, the article detail and the media player designer markup. Stop until it arrives.
 
+**Split 2026-09-13:** `Important/Plan-Session-28-Replan.md` replaces this one session with three, against markup that arrived much bigger than planned (`Screens/05-guide/`) — a flat reading list was actually an 8-card bento home, a trimester picker, food safety lookup, and an FAQ/government-schemes screen. The plan below is the original, pre-split "flat list" scope and no longer describes what shipped. See the replan doc for the full comparison.
+
+**Delivered scope, Session 28 — Guide home, Trimester Overview, Topic List (status, 2026-09-13):** the navigational shell plus everything that's a filtered view of `content_items`. Migration adds `category` (the 6 bento-card topics) and `citation` (per-item; one list mixes Mayo Clinic and MamaRoo-curated sources) to `content_items`. One dynamic route (`app/(app)/guide/[topic]`) serves all 9 topic lists — 6 categories plus 3 trimester stages — matching the design's own "shared template" framing instead of 9 near-identical pages. Moved `ContentDetail.tsx` out of the stale `app/(app)/reading/` path (a Session 18.4 leftover never cleaned up when the route was renamed to `/guide`) into `components/content/`, since it's now imported from two route trees. Added the per-item citation line, which the column didn't exist to support until this commit — the article/markdown branch itself already existed from Session 18.4, contrary to this plan's assumption that Session 28 would add it.
+
+**Delivered scope, Session 28A — Food Safety Lookup (status, 2026-09-13, PR #31):** net-new, not in the original plan. A search-by-name tool with a calm safe/moderation/avoid verdict, always MamaRoo-cited, never a chatbot. New `food_safety_items` table (bilingual, read-only RLS). The medical rows are intentionally placeholder content and must be medically reviewed before production.
+
+**Delivered scope, Session 28B — Common Questions (status, 2026-09-13, PR #32):** net-new, not in the original plan. An FAQ accordion (myth-correction copy, citation on expand) and a visually separate Government schemes section, both read-only shared content — two new tables (`guide_faqs`, `guide_schemes`), distinct from Care's `suggested_questions`/`custom_questions`. Real scheme names (Pradhan Mantri Matru Vandana Yojana, Janani Suraksha Yojana) stay untranslated in both locales; only descriptions are translated. One seeded FAQ from the design mock was dropped — it named fetal sex/gender to correct a myth, which trips the PCPNDT guard with no exception for myth-correcting content — so four FAQs ship instead of the mock's five.
+
 **Goal:** The content library. Articles, videos and audios, week-relevant first, with English-only items clearly marked rather than hidden.
 
 **Scope note (2026-09-12):** `ContentDetail.tsx` and `lib/supabase/queries/content.ts`'s single-item fetch (`getContentItem`) were pulled forward into Session 18.4, so Quick Listen and this session's article/video/audio detail view are the same component, entered with a different `backHref`. This session adds the list only, plus the markdown branch inside `ContentDetail` for the `article` kind, which Session 18 didn't need.
@@ -9976,6 +10006,8 @@ git commit -m "feat(reading): add content library list and the article branch of
 ---
 
 ## Session 29: Chatbot — guardrails, retrieval, provider, panel
+
+> **Moved to Phase 2, 2026-09-14 (per product-owner decision).** This session is no longer part of the active Phase 1 build. It is left in place below, fully specified and unrenumbered (so every cross-reference to "Session 29" elsewhere in this document and in `Spec.md`'s coverage map stays valid), for whenever the product owner asks for it by name — same rule as every other Phase 2 session (see `PHASE 2 — OPTIONAL` near the end of this document). Its own gates were the reason it kept stalling: Gate B (a reviewed medical content corpus) and Gate C (a Gemini API key and tier decision) never arrived. Do not start this session until both gates are satisfied **and** the product owner explicitly asks for it — don't treat "Session 24 is done" or "the PWA wave shipped" as implicit permission.
 
 **Gate B — request before starting:** ask for the reviewed content corpus as article bodies and retrieval passages, in English at minimum. **Stop until it arrives.** The bot cannot be built against placeholder medical content.
 **Gate C — request before starting:** ask for a Google Gemini API key and confirm which tier. Record in the commit body whether it is the free tier, since the free tier may use submitted prompts to improve Google's products.
@@ -10362,6 +10394,8 @@ git commit -m "feat(chat): add retrieval-only chatbot with deterministic guardra
 
 **Gate A — request before starting:** ask for the contraction timer designer markup. Stop until it arrives.
 
+**Delivered scope (status, 2026-09-14, PR #33):** built against `Screens/06-Me/Contraction Timer.dc.html`, per `Important/Plan-Session-30-32-Replan.md`, which also lands with this session (comparing `Screens/06-Me/` against this plan's Sessions 30–32 and splitting the old Session 32 into 32/32A — see that doc and the Session 32 note below). Unchanged scope: a start/stop timer whose elapsed time and today's-contractions list are always derived fresh from stored `started_at`/`duration_seconds`, so a phone that sleeps mid-contraction stays correct. `contractionStats()` reports averages, regularity, and a 5-1-1 pattern observation — guidance, never a diagnosis, backed by a disclaimer banner. Starting and stopping both refuse outright while offline (`offline_write_blocked`) rather than queuing — same reasoning as the kick counter: a lost queued write here could cost her the timing she's using to decide whether to leave for hospital. **One route correction**: `app/(app)/me/contractions/page.tsx`, not `app/(app)/profile/contractions/...` as this plan originally specified — `BottomNav` already points at `/me`, and nothing points at `/profile`. No migration — `contraction_sessions`/`contractions` already existed from an earlier session.
+
 **Goal:** A timer that survives the screen sleeping, shows duration and interval averages, and notes the 5-1-1 pattern as guidance without ever diagnosing.
 
 **Files:**
@@ -10373,9 +10407,9 @@ git commit -m "feat(chat): add retrieval-only chatbot with deterministic guardra
 **Interfaces:**
 - Produces: `contractionStats(contractions, now): { count, averageDurationSeconds, averageIntervalSeconds, isRegular, meets511 }`
 
-- [ ] **Step 1: Request the asset and stop**
+- [x] **Step 1: Request the asset and stop**
 
-- [ ] **Step 2: Write the failing contractions test**
+- [x] **Step 2: Write the failing contractions test**
 
 Create `lib/domain/contractions.test.ts`:
 
@@ -10472,14 +10506,14 @@ describe("contractionStats", () => {
 });
 ```
 
-- [ ] **Step 3: Run it, watch it fail, then implement**
+- [x] **Step 3: Run it, watch it fail, then implement**
 
 `meets511` is a pattern observation, not a diagnosis, and the UI copy that accompanies it is product-owner content with the disclaimer banner attached. The thresholds (60 seconds, 5 minutes, 60 minutes) are named constants with a comment stating they describe the commonly-cited 5-1-1 pattern and are not a clinical decision made by this codebase.
 
 Run: `npx vitest run lib/domain/contractions.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Write the failing ContractionTimer test**
+- [x] **Step 4: Write the failing ContractionTimer test**
 
 Assert:
 - start and stop produce one contraction with a duration
@@ -10492,11 +10526,11 @@ Assert:
 - **offline refuses to start or record a contraction**, with a plain explanation, emitting `offline_write_blocked` with `feature: "contraction"`. Same reasoning as the kick counter: a queue-less "we will save it later" can discard the timings she is using to decide whether to leave for hospital. Durable offline capture is a Phase 2 item
 - `contraction_session_started` is emitted with the week only
 
-- [ ] **Step 5: Implement the timer and the actions**
+- [x] **Step 5: Implement the timer and the actions**
 
 Every render computes from `started_at` values; the component holds no accumulated counter. That single decision is what makes the screen correct after the phone sleeps, and the remount test is what keeps it that way.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 ```bash
 git add lib/domain/contractions.ts "app/(app)/profile/contractions" app/actions/contractions.ts i18n
@@ -10510,6 +10544,8 @@ git commit -m "feat(profile): add contraction timer computed from timestamps, wi
 **Gate A — request before starting:** ask for the checklist designer markup including the progress ring. Stop until it arrives.
 **Gate B — request before starting:** ask for the checklist items in both languages, by category.
 
+**Delivered scope (status, 2026-09-14, PR #35):** built against `Screens/06-Me/Pregnancy Preparation.dc.html`, per `Important/Plan-Session-30-32-Replan.md`, at `app/(app)/me/prep/...` (not `/profile/prep/...`, same route fix as Session 30). `ProgressRing` was built as originally specified even though the mockup's own artboard doesn't show one. **New beyond this plan's original scope:** a real multi-contact `emergency_contacts` table (name/phone/sort order, call-link per row) backing the mock's "transport and emergency contacts" card — Personal Info's single `emergency_contact_name/phone` pair can't hold more than one; and `pregnancies.birth_notes`, shown in the mockup but not in this plan's original text, added the same way `ProgressRing` was since it's cheap, fully specified, and a real prep need. "Documents to carry" is a static, non-editable reminder list (translated copy only, no per-user rows) per the mock's own helper text.
+
 **Goal:** Hospital bag, documents, birth prep and home checklists with per-item ticks and a visual progress ring.
 
 **Files:**
@@ -10522,23 +10558,23 @@ git commit -m "feat(profile): add contraction timer computed from timestamps, wi
 **Interfaces:**
 - Produces: `checklistProgress({ items, progress }): { byCategory: {...}[]; overall: { done, total, fraction } }`; `ProgressRing({ fraction, label })`
 
-- [ ] **Step 1: Request the content and asset, then stop**
+- [x] **Step 1: Request the content and asset, then stop**
 
-- [ ] **Step 2: Write the failing checklist domain test**
+- [x] **Step 2: Write the failing checklist domain test**
 
 Cover: items grouped by category in a fixed category order; items sorted by `sort_order` within a category; `done` counted from progress rows; a progress row for an item that no longer exists is ignored; the overall fraction is `done / total`; an empty item list returns a zero fraction rather than `NaN`; all-done returns a fraction of exactly 1; and inactive items are excluded from both the list and the total.
 
-- [ ] **Step 3: Run it, watch it fail, implement, run it again**
+- [x] **Step 3: Run it, watch it fail, implement, run it again**
 
-- [ ] **Step 4: Write and implement ProgressRing**
+- [x] **Step 4: Write and implement ProgressRing**
 
 Test: it renders an SVG with `role="progressbar"` and the correct `aria-valuenow`; a fraction of 0 and of 1 both render without a path error; a fraction outside 0 to 1 is clamped; and the visible label text is supplied, not computed from a hardcoded English string.
 
-- [ ] **Step 5: Write the failing PrepChecklist test**
+- [x] **Step 5: Write the failing PrepChecklist test**
 
 Assert: each category renders as a `SectionHeader` with its items; ticking an item persists and updates the ring; ticking is optimistic and reverts with an `ErrorBanner` on failure; an item linking to an article renders the link; an empty category renders nothing rather than an empty header; offline blocks ticking with an explanation; and `checklist_item_toggled` is emitted with the category and the new state.
 
-- [ ] **Step 6: Implement from the designer's markup, seed the items, verify and commit**
+- [x] **Step 6: Implement from the designer's markup, seed the items, verify and commit**
 
 ```bash
 git add lib/domain/checklist.ts components/patterns/ProgressRing.tsx "app/(app)/profile/prep" app/actions/checklist.ts supabase/seed
@@ -10550,6 +10586,12 @@ git commit -m "feat(profile): add pregnancy preparation checklists with a progre
 ## Session 32: Settings — language, details, consent review, export, deletion
 
 **Gate A — request before starting:** ask for the Profile hub and Settings designer markup. Stop until it arrives.
+
+**Split 2026-09-14:** `Important/Plan-Session-30-32-Replan.md` splits this session into **Session 32** (Me tab hub and everyday settings — hub, Personal Info, Pregnancy Info, Notifications) and **Session 32A** (Privacy and data — the service-role-key-scoped, sensitive half). Route corrected throughout to `app/(app)/me/...`, not `app/(app)/profile/...` (`BottomNav` already points at `/me`; nothing points at `/profile`). The plan below is the original, pre-split, pre-route-fix scope and no longer describes what shipped. See the replan doc for the full comparison and locked decisions.
+
+**Delivered scope, Session 32 — Me hub and everyday settings (status, 2026-09-14):** `app/(app)/me/page.tsx` + `MeHub.tsx` (tab landing screen), Personal Info, Pregnancy Info, Notifications — all prefilled from and editing the existing `profiles`/`pregnancies` rows captured at onboarding, never a second, separately-typed copy of a value already given. Adds only what onboarding never asked: `clinic_name`, `doctor_name`, `height_cm` (existing unused `profiles` columns) and a new `profiles.mobile_number` (migration). "Age" in the UI converts to/from the stored `birth_year`, no new column. Emergency-contact editing deliberately excluded from Personal Info even though the mockup shows one — Session 31's `emergency_contacts` table (built concurrently) owns that now. The hub wires "Privacy and data" to `/me/privacy` up front, 404ing harmlessly until 32A lands, and omits the mockup's "Support" row entirely — the replan doc flags it as an unassigned destination, not this session's call to make.
+
+**Delivered scope, Session 32A — Privacy and data (status, 2026-09-14, PR #38):** the sensitive half, built solo/sequential per this plan's own service-role-key rule. Built from `Screens/06-Me/Privacy And Data.dc.html`, with the mockup's PIN-lock card cut (logged as Phase 2 item `P2-13` — storage, recovery flow and what it gates are all undecided) and a consent-review section added that the mockup didn't show, closing a real gap against `Spec.md`'s withdrawal requirement (terms/privacy shown read-only with a note that withdrawing them means deleting the account; `optional_data_sharing`/`analytics` get a real withdraw control, and withdrawing analytics auto-opts the PostHog SDK out). **Export** is a direct JSON download exactly as originally specified (no email, per the replan's locked decision) — built from every one of the 24 user-owned tables via a new service-role-only `user_owned_tables()` SQL function backing a completeness test. **Delete pregnancy journey** (new, alongside the original `deleteAccount`) wipes checkins/kick_sessions/timeline_events and the pregnancy row, but deliberately excludes letters — every pregnancy-scoped FK in this schema is `on delete set null`, a deliberate design that letters to her baby outlive any single pregnancy record. **Delete account** is exactly the one sanctioned service-role code path this plan already specifies below (fresh re-authentication proven server-side, typed confirmation word, storage objects deleted before `admin.auth.admin.deleteUser`), verified live end-to-end against a disposable user.
 
 **Goal:** The screen that makes the product's privacy promises real: she can see what she consented to, withdraw it, take her data, and delete her account.
 
@@ -11123,6 +11165,14 @@ git commit -m "test: add exhaustive accessibility, text-scale and touch-target s
 **Why it was out of Phase 1:** the spec deliberately excludes a doctor-facing portal, and the Doctor Visit Summary stands in for it. Payments would additionally require Google Play Billing inside the TWA plus a separate web payment path and entitlement sync between them.
 
 **First moves:** none. This is a new product with its own users, its own threat model, its own regulatory surface and its own commercial model. It needs its own spec from scratch. The only thing Phase 1 did for it is the un-checked optional data-sharing consent recorded in the `consents` table, which is what makes a future opt-in honest.
+
+---
+
+## P2-14 (optional): Chatbot — guardrails, retrieval, provider, panel
+
+**Why it was out of Phase 1:** moved out 2026-09-14, per product-owner decision, prioritizing Session 24 (Vitals) and the PWA/TWA wave instead. Unlike every other Phase 2 item here, this one was already fully specified as a Phase 1 session (Gate B and Gate C both blocked it there too) — rather than duplicate that spec, it stays in place under its original heading, **Session 29**, in the Screens section above. Read it there; it needs no fresh brainstorming pass the way the rest of Phase 2 does, only its two open gates: a reviewed medical content corpus, and a Gemini API key with a tier decision.
+
+**First moves:** request Gate B and Gate C exactly as Session 29 already specifies, then follow that session's steps as written.
 
 ---
 

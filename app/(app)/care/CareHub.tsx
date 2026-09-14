@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 export interface CareHubProps {
   medicineText: string | null;
   appointmentText: string | null;
+  vitalsText: string | null;
   reportText: string | null;
   adviceText: string | null;
   questionsCount: number;
@@ -21,6 +22,7 @@ export interface CareHubProps {
 export function CareHub({
   medicineText,
   appointmentText,
+  vitalsText,
   reportText,
   adviceText,
   questionsCount,
@@ -51,6 +53,15 @@ export function CareHub({
               {t("hub.appointmentLabel")}
             </p>
             <p className="text-body-sm text-text-primary">{appointmentText ?? t("hub.appointmentPrompt")}</p>
+          </Card>
+        </Link>
+
+        <Link href="/care/vitals">
+          <Card className="flex flex-col gap-xs">
+            <p className="text-caption font-semibold uppercase tracking-[0.04em] text-text-secondary">
+              {t("hub.vitalsLabel")}
+            </p>
+            <p className="text-body-sm text-text-primary">{vitalsText ?? t("hub.vitalsPrompt")}</p>
           </Card>
         </Link>
 

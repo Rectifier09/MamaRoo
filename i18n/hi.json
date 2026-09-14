@@ -478,6 +478,44 @@
       "tooFarOut": "अगले दो साल के भीतर की तारीख चुनें।"
     }
   },
+  "vitals": {
+    "title": "वाइटल्स",
+    "tabWeight": "वज़न",
+    "tabBp": "ब्लड प्रेशर",
+    "addReading": "रीडिंग जोड़ें",
+    "addSheetTitle": "एक रीडिंग जोड़ें",
+    "dateLabel": "तारीख",
+    "weightLabel": "वज़न, किलोग्राम में",
+    "systolicLabel": "सिस्टोलिक, पहला नंबर",
+    "diastolicLabel": "डायस्टोलिक, दूसरा नंबर",
+    "saveButton": "रीडिंग सहेजें",
+    "offline": "आप ऑफ़लाइन हैं। आप अपने वाइटल्स देख सकती हैं, और वापस आने पर सहेज सकती हैं।",
+    "notes": {
+      "bpNotable": "यह रीडिंग थोड़ी अधिक है। यह सहेज ली गई है, और आप इसे अपनी अगली विज़िट में बता सकती हैं।"
+    },
+    "errors": {
+      "weightRange": "25 से 250 किलोग्राम के बीच वज़न दर्ज करें।",
+      "systolicRange": "50 से 300 के बीच सिस्टोलिक रीडिंग दर्ज करें।",
+      "diastolicRange": "30 से 200 के बीच डायस्टोलिक रीडिंग दर्ज करें।",
+      "diastolicBelowSystolic": "दूसरा नंबर पहले नंबर से कम होना चाहिए।",
+      "bpBothRequired": "ब्लड प्रेशर रीडिंग के लिए दोनों नंबर दर्ज करें।"
+    },
+    "list": {
+      "weightRow": "{value} किलोग्राम",
+      "bpRow": "{systolic}/{diastolic} mmHg"
+    },
+    "chart": {
+      "seriesWeight": "वज़न",
+      "seriesSystolic": "सिस्टोलिक",
+      "seriesDiastolic": "डायस्टोलिक",
+      "emptyWeight": "अपनी पहली वज़न रीडिंग जोड़ें",
+      "emptyBp": "अपनी पहली ब्लड प्रेशर रीडिंग जोड़ें",
+      "summaryWeightSingle": "एक वज़न रीडिंग दर्ज है, {value} किलोग्राम।",
+      "summaryWeight": "{count} रीडिंग में वज़न का रुझान, {first} से {last} किलोग्राम तक।",
+      "summaryBpSingle": "एक ब्लड प्रेशर रीडिंग दर्ज है, {systolic} बटा {diastolic}।",
+      "summaryBp": "{count} रीडिंग में ब्लड प्रेशर का रुझान, {firstSys} बटा {firstDia} से {lastSys} बटा {lastDia} तक।"
+    }
+  },
   "care": {
     "heading": "साथ मिलकर, देखभाल",
     "hub": {
@@ -485,6 +523,8 @@
       "medicinePrompt": "यहां अपनी पहली दवा जोड़ें",
       "appointmentLabel": "अपॉइंटमेंट",
       "appointmentPrompt": "यहां अपनी अगली अपॉइंटमेंट जोड़ें",
+      "vitalsLabel": "वाइटल्स",
+      "vitalsPrompt": "यहां अपना वज़न या ब्लड प्रेशर दर्ज करें",
       "reportLabel": "रिपोर्ट",
       "reportPrompt": "यहां अपनी पहली रिपोर्ट जोड़ें",
       "adviceLabel": "डॉक्टर की सलाह",
