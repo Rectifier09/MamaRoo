@@ -7,6 +7,7 @@ import { getLocale } from "@/i18n/locale";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { getCurrentConsents } from "@/lib/supabase/queries/consent";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { RouteProgressBar } from "@/components/patterns/RouteProgressBar";
 import "@/styles/tokens.css";
 import "@/styles/globals.css";
 
@@ -74,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} className={`${poppins.variable} ${hind.variable} ${mukta.variable} ${patrickHand.variable}`}>
       <body className="min-h-dvh bg-bg text-text-primary font-body">
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <RouteProgressBar />
           <AnalyticsProvider
             userId={user?.id ?? null}
             analyticsConsented={consents?.analytics.granted ?? false}
