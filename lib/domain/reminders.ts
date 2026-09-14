@@ -26,7 +26,7 @@ export interface ReminderLog {
 }
 
 export type Reminder =
-  | { kind: "dose"; refId: string; medicineName: string; scheduledTime: string; isOverdue: true }
+  | { kind: "dose"; refId: string; medicineName: string; scheduledTime: string; isOverdue: boolean }
   | { kind: "appointment"; refId: string; title: string; daysAhead: number; scheduledAt: string };
 
 /** 1 = Monday through 7 = Sunday, matching the medicines.days_of_week convention. */
@@ -53,12 +53,18 @@ function minutesOf(time: string): number {
 }
 
 /**
- * Today's outstanding items only. A dose is outstanding when its time has passed
- * and no log row exists for it. "Missed" is never stored, so a late log always works.
+ * Today's outstanding items. A dose is outstanding when it has no log row yet;
+ * "missed" is never stored, so a late log always works. Overdue doses (time
+ * already passed) always take priority -- only when none exist does the
+ * nearest not-yet-due dose today surface instead, so Today never reads as
+ * "nothing to do" for the whole morning before the first dose comes due
+ * (Session 33 follow-up). The dose copy itself ("{medicineName} at {time}")
+ * already reads fine either way -- it never claimed lateness in the first
+ * place -- so isOverdue exists for callers to key off of, not for display.
  *
  * The result is shown on Today as a single "Next: {reminders[0]}" line (see
- * Session 18.8) -- the array itself may hold more than one item, sorted overdue
- * doses first, but the screen deliberately surfaces only the most pressing one.
+ * Session 18.8) -- the array itself may hold more than one item, but the
+ * screen deliberately surfaces only the most pressing one.
  */
 export function buildReminders({
   today,
@@ -82,7 +88,8 @@ export function buildReminders({
       .map((l) => `${l.medicine_id}@${l.scheduled_time.slice(0, 5)}`),
   );
 
-  const doses: Reminder[] = [];
+  const overdueDoses: Reminder[] = [];
+  const upcomingDoses: Reminder[] = [];
   for (const medicine of medicines) {
     if (!medicine.is_active) continue;
     if (diffDays(medicine.start_date, today) < 0) continue;
@@ -91,20 +98,17 @@ export function buildReminders({
 
     for (const raw of medicine.schedule_times) {
       const time = raw.slice(0, 5);
-      if (minutesOf(time) > nowMinutes) continue;
       if (logged.has(`${medicine.id}@${time}`)) continue;
-      doses.push({
-        kind: "dose",
-        refId: medicine.id,
-        medicineName: medicine.name,
-        scheduledTime: time,
-        isOverdue: true,
-      });
+      const isOverdue = minutesOf(time) <= nowMinutes;
+      const reminder: Reminder = { kind: "dose", refId: medicine.id, medicineName: medicine.name, scheduledTime: time, isOverdue };
+      (isOverdue ? overdueDoses : upcomingDoses).push(reminder);
     }
   }
-  doses.sort((a, b) =>
-    a.kind === "dose" && b.kind === "dose" ? a.scheduledTime.localeCompare(b.scheduledTime) : 0,
-  );
+  const byTime = (a: Reminder, b: Reminder) =>
+    a.kind === "dose" && b.kind === "dose" ? a.scheduledTime.localeCompare(b.scheduledTime) : 0;
+  overdueDoses.sort(byTime);
+  upcomingDoses.sort(byTime);
+  const doses = overdueDoses.length > 0 ? overdueDoses : upcomingDoses;
 
   const next = appointments
     .filter((a) => a.status === "upcoming" && new Date(a.scheduled_at).getTime() >= now)

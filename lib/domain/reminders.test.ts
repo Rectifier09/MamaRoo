@@ -83,28 +83,56 @@ describe("buildReminders", () => {
     expect(doses[0]).toMatchObject({ refId: "m1", scheduledTime: "09:00", isOverdue: true });
   });
 
-  it("excludes a dose later today, because it is not due yet", () => {
+  it("excludes a dose later today when an overdue dose already exists", () => {
     const reminders = buildReminders({ today, now, appointments: [], medicines: [medicine], logs: [] });
     expect(reminders.some((r) => r.kind === "dose" && r.scheduledTime === "21:00")).toBe(false);
   });
 
+  // Session 33 follow-up: Today used to say "nothing due" all day until the
+  // first dose was actually late, which read as reminders simply not
+  // working. A not-yet-due dose is now shown as a fallback, but only when
+  // nothing is genuinely overdue -- overdue still takes priority (previous
+  // test), so this never buries something that actually needs attention.
+  it("includes the next upcoming dose today when nothing is overdue", () => {
+    const eveningOnly = { ...medicine, schedule_times: ["21:00"] };
+    const reminders = buildReminders({ today, now, appointments: [], medicines: [eveningOnly], logs: [] });
+    expect(reminders).toHaveLength(1);
+    expect(reminders[0]).toMatchObject({ kind: "dose", refId: "m1", scheduledTime: "21:00", isOverdue: false });
+  });
+
+  it("puts an upcoming dose before the appointment when nothing is overdue", () => {
+    const eveningOnly = { ...medicine, schedule_times: ["21:00"] };
+    const reminders = buildReminders({
+      today,
+      now,
+      appointments: [
+        { id: "a1", title: "Scan", scheduled_at: "2026-09-14T10:00:00+05:30", status: "upcoming" },
+      ],
+      medicines: [eveningOnly],
+      logs: [],
+    });
+    expect(reminders[0]).toMatchObject({ kind: "dose", isOverdue: false });
+  });
+
   it("excludes a dose already logged", () => {
+    const morningOnly = { ...medicine, schedule_times: ["09:00"] };
     const reminders = buildReminders({
       today,
       now,
       appointments: [],
-      medicines: [medicine],
+      medicines: [morningOnly],
       logs: [{ medicine_id: "m1", scheduled_date: today, scheduled_time: "09:00", status: "taken" }],
     });
     expect(reminders.filter((r) => r.kind === "dose")).toEqual([]);
   });
 
   it("treats a skipped dose as handled, not as outstanding", () => {
+    const morningOnly = { ...medicine, schedule_times: ["09:00"] };
     const reminders = buildReminders({
       today,
       now,
       appointments: [],
-      medicines: [medicine],
+      medicines: [morningOnly],
       logs: [{ medicine_id: "m1", scheduled_date: today, scheduled_time: "09:00", status: "skipped" }],
     });
     expect(reminders.filter((r) => r.kind === "dose")).toEqual([]);
