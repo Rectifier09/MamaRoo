@@ -6,6 +6,7 @@ import { addAppointment } from "@/app/actions/appointments";
 import { AppointmentForm } from "@/app/(app)/care/appointments/AppointmentForm";
 import { AppointmentList } from "@/app/(app)/care/appointments/AppointmentList";
 import { track } from "@/components/AnalyticsProvider";
+import { BackButton } from "@/components/patterns/BackButton";
 import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { EVENTS } from "@/lib/analytics/events";
@@ -54,7 +55,10 @@ export function AppointmentsScreen({
 
   return (
     <div className="flex flex-col gap-lg py-screen">
-      <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/care" label={t("backLabel")} />
+        <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      </header>
 
       <AppointmentList appointments={items} now={now} onEdit={(a) => setSheet(a)} />
 

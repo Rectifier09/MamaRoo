@@ -66,10 +66,6 @@ export async function proxy(request: NextRequest) {
     hasOnboarded,
   });
 
-  // The (app) layout is a server component reading the active tab off this
-  // header rather than a client-side usePathname() -- see Session 17.
-  response.headers.set("x-pathname", request.nextUrl.pathname);
-
   if (target) {
     const url = request.nextUrl.clone();
     const [pathname, query] = target.split("?");

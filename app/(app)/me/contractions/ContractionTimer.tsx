@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/components/AnalyticsProvider";
 import { Button } from "@/components/ui/Button";
+import { BackButton } from "@/components/patterns/BackButton";
 import { DisclaimerBanner } from "@/components/patterns/DisclaimerBanner";
 import { EVENTS } from "@/lib/analytics/events";
 import { contractionStats } from "@/lib/domain/contractions";
@@ -123,6 +124,7 @@ export function ContractionTimer({ session, week, onStartContraction, onStopCont
 
   return (
     <div className="flex flex-col gap-lg py-lg">
+      <BackButton href="/me" label={t("backLabel")} />
       <p className="text-body-sm text-text-secondary">{t("intro")}</p>
 
       <div className="flex flex-col items-center gap-md rounded-lg bg-surface-raised p-lg shadow-1">

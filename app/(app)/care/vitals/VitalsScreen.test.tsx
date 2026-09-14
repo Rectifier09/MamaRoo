@@ -32,6 +32,12 @@ function renderScreen(overrides: Partial<React.ComponentProps<typeof VitalsScree
 }
 
 describe("VitalsScreen", () => {
+  it("has a back link to Care", () => {
+    renderScreen();
+    expect(screen.getByRole("link", { name: en.vitals.backLabel })).toHaveAttribute("href", "/care");
+  });
+
+
   it("defaults to the weight tab", () => {
     renderScreen();
     expect(screen.getByRole("tab", { name: en.vitals.tabWeight })).toHaveAttribute("aria-selected", "true");

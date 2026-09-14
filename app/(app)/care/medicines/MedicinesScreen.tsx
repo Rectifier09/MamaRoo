@@ -7,6 +7,7 @@ import { AdherenceGrid } from "@/app/(app)/care/medicines/AdherenceGrid";
 import { MedicineForm } from "@/app/(app)/care/medicines/MedicineForm";
 import { MedicineList, type MedicineListItem } from "@/app/(app)/care/medicines/MedicineList";
 import { track } from "@/components/AnalyticsProvider";
+import { BackButton } from "@/components/patterns/BackButton";
 import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { EVENTS } from "@/lib/analytics/events";
@@ -48,7 +49,10 @@ export function MedicinesScreen({ today, items, cells, existingActiveNames, onSa
 
   return (
     <div className="flex flex-col gap-lg py-screen">
-      <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/care" label={t("backLabel")} />
+        <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      </header>
 
       <div className="flex flex-col gap-sm">
         <h2 className="text-h3 font-display text-text-primary">{t("adherence.title")}</h2>

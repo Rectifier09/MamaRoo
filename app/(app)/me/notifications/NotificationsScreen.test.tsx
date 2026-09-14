@@ -44,6 +44,12 @@ afterEach(() => {
 });
 
 describe("NotificationsScreen", () => {
+  it("has a back link to Me", () => {
+    renderScreen();
+    expect(screen.getByRole("link", { name: en.meNotifications.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("prefills lock-screen wording from the profile and renders accessible reminder switches", () => {
     renderScreen();
     expect(screen.getByRole("button", { name: "Show full detail" })).toHaveAttribute("aria-pressed", "true");

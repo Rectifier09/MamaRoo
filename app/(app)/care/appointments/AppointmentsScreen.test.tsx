@@ -48,6 +48,12 @@ function renderScreen(overrides: Partial<React.ComponentProps<typeof Appointment
 }
 
 describe("AppointmentsScreen", () => {
+  it("has a back link to Care", () => {
+    renderScreen();
+    expect(screen.getByRole("link", { name: en.appointments.backLabel })).toHaveAttribute("href", "/care");
+  });
+
+
   it("shows the empty state and an add action when there are no appointments", () => {
     renderScreen();
     expect(screen.getByText(en.appointments.emptyUpcoming)).toBeInTheDocument();

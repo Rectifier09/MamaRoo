@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import { track } from "@/components/AnalyticsProvider";
@@ -64,8 +65,13 @@ const TABS = [
   { href: "/me", labelKey: "me", Icon: MeIcon },
 ] as const;
 
-export function BottomNav({ activePath }: { activePath: string }) {
+export function BottomNav() {
   const t = useTranslations("nav");
+  // usePathname() (not a server-passed prop) so the active tab stays correct
+  // across client-side navigation -- the (app) layout that used to compute
+  // this server-side is cached and shared across tab switches, not re-run
+  // per navigation, so a prop sourced from it goes stale.
+  const activePath = usePathname();
 
   return (
     <nav

@@ -43,6 +43,12 @@ beforeEach(() => {
 });
 
 describe("PrepChecklist", () => {
+  it("has a back link to Me", () => {
+    renderChecklist();
+    expect(screen.getByRole("link", { name: en.me.prep.backLabel })).toHaveAttribute("href", "/me");
+  });
+
+
   it("renders each non-empty category as a heading with its items", () => {
     renderChecklist();
     expect(screen.getByRole("heading", { name: en.me.prep.categoryMe })).toBeInTheDocument();

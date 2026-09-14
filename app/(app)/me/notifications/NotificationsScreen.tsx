@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/components/AnalyticsProvider";
+import { BackButton } from "@/components/patterns/BackButton";
 import { ErrorBanner } from "@/components/patterns/ErrorBanner";
 import { Toggle } from "@/components/ui/Toggle";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -92,7 +93,10 @@ export function NotificationsScreen({
 
   return (
     <div className="mx-auto flex w-full max-w-[680px] flex-col gap-lg py-screen">
-      <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/me" label={t("backLabel")} />
+        <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+      </header>
 
       {error && (
         <ErrorBanner

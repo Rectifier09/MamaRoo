@@ -8,6 +8,7 @@ import { track } from "@/components/AnalyticsProvider";
 import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Tabs } from "@/components/ui/Tabs";
+import { BackButton } from "@/components/patterns/BackButton";
 import { DisclaimerBanner } from "@/components/patterns/DisclaimerBanner";
 import { TrendChart, type TrendChartSeriesData } from "@/components/charts/TrendChart";
 import { EVENTS } from "@/lib/analytics/events";
@@ -75,7 +76,10 @@ export function VitalsScreen({ vitals, onAdd = addVital }: VitalsScreenProps) {
 
   return (
     <div className="flex flex-col gap-lg py-screen">
-      <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/care" label={t("backLabel")} />
+        <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      </header>
 
       <Tabs
         tabs={[

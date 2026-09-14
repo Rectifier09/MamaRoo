@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdviceForm } from "@/app/(app)/care/advice/AdviceForm";
 import { AdviceList } from "@/app/(app)/care/advice/AdviceList";
+import { BackButton } from "@/components/patterns/BackButton";
 import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { sortAdviceByRecency, type AdviceRecord, type AdviceUpdateRecord } from "@/lib/domain/advice";
@@ -45,7 +46,10 @@ export function AdviceScreen({ initialAdvice }: AdviceScreenProps) {
 
   return (
     <div className="flex flex-col gap-lg py-screen">
-      <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/care" label={t("backLabel")} />
+        <h1 className="font-display text-h1 text-text-primary">{t("title")}</h1>
+      </header>
 
       <AdviceList items={items} onEdit={(advice) => setSheet(advice)} onReminderToggled={handleReminderToggled} />
 

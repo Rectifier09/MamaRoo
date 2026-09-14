@@ -51,6 +51,12 @@ function renderScreen(overrides: Partial<React.ComponentProps<typeof MedicinesSc
 }
 
 describe("MedicinesScreen", () => {
+  it("has a back link to Care", () => {
+    renderScreen();
+    expect(screen.getByRole("link", { name: en.care.medicines.backLabel })).toHaveAttribute("href", "/care");
+  });
+
+
   it("shows the empty state and an add-medicine action when there are no medicines", () => {
     renderScreen();
     expect(screen.getByText(en.care.medicines.emptyState)).toBeInTheDocument();

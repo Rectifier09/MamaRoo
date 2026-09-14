@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { track } from "@/components/AnalyticsProvider";
+import { BackButton } from "@/components/patterns/BackButton";
 import { ErrorBanner } from "@/components/patterns/ErrorBanner";
 import { LanguageSwitcher } from "@/components/patterns/LanguageSwitcher";
 import { ListRow } from "@/components/patterns/ListRow";
@@ -112,7 +113,10 @@ export function PersonalInfoForm({ initial, today, onSave, onLocaleChange }: Per
 
   return (
     <form className="mx-auto flex w-full max-w-[680px] flex-col gap-lg py-screen" onSubmit={(event) => void handleSubmit(event)} noValidate>
-      <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+      <header className="flex items-center gap-md">
+        <BackButton href="/me" label={t("backLabel")} />
+        <h1 className="font-display text-h1 font-bold text-text-primary">{t("title")}</h1>
+      </header>
 
       {generalError && (
         <ErrorBanner
