@@ -14,6 +14,7 @@ export default async function ActivityPage() {
           ? checkin.feeling
           : null,
       created_at: checkin.created_at,
+      body: checkin.body,
     })),
     medicineLogs: data.medicineLogs
       .filter(

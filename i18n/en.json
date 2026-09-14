@@ -335,7 +335,9 @@
     "medicineSkipped": "Skipped your {medicineName}",
     "wellness": "Went for your {label}",
     "milestone": "Reached {title}",
-    "appointment": "Added a question for your {title}"
+    "appointment": "Added a question for your {title}",
+    "detailNotesLabel": "What you wrote",
+    "detailNoNotes": "No notes added"
   },
   "consent": {
     "summary": "By continuing, you agree to how we collect and use your information. You can read the full details before deciding on the choices below.",
