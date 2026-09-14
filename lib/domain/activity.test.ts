@@ -12,7 +12,7 @@ describe("buildActivityFeed", () => {
 
   it("turns a checkin with a feeling into a mood entry of the matching kind", () => {
     const entries = buildActivityFeed({
-      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30" }],
+      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30", body: null }],
       medicineLogs: [],
       milestones: [],
       appointments: [],
@@ -20,15 +20,15 @@ describe("buildActivityFeed", () => {
       now,
     });
     expect(entries).toEqual([
-      { id: "c1", kind: "moodGood", occurredAt: "2026-09-11T10:00:00+05:30", params: {} },
+      { id: "c1", kind: "moodGood", occurredAt: "2026-09-11T10:00:00+05:30", params: { body: "" } },
     ]);
   });
 
   it("maps each feeling to its own kind", () => {
     const entries = buildActivityFeed({
       checkins: [
-        { id: "c1", feeling: "new", created_at: "2026-09-11T10:00:00+05:30" },
-        { id: "c2", feeling: "worried", created_at: "2026-09-11T11:00:00+05:30" },
+        { id: "c1", feeling: "new", created_at: "2026-09-11T10:00:00+05:30", body: null },
+        { id: "c2", feeling: "worried", created_at: "2026-09-11T11:00:00+05:30", body: null },
       ],
       medicineLogs: [],
       milestones: [],
@@ -42,7 +42,7 @@ describe("buildActivityFeed", () => {
 
   it("falls back to a neutral mood kind when she typed without tapping a chip", () => {
     const entries = buildActivityFeed({
-      checkins: [{ id: "c1", feeling: null, created_at: "2026-09-11T10:00:00+05:30" }],
+      checkins: [{ id: "c1", feeling: null, created_at: "2026-09-11T10:00:00+05:30", body: null }],
       medicineLogs: [],
       milestones: [],
       appointments: [],
@@ -50,6 +50,37 @@ describe("buildActivityFeed", () => {
       now,
     });
     expect(entries[0]!.kind).toBe("moodNew");
+  });
+
+  // Session 33 follow-up: the activity feed used to deliberately drop this
+  // field so the list row could only ever show fixed mood copy. The row
+  // still shows that fixed copy (next test file over) -- what changed is
+  // that the raw text is now carried through at all, for a detail view to
+  // show on tap, rather than being discarded before it reaches the UI layer.
+  it("carries the checkin's free-text body through as params.body", () => {
+    const entries = buildActivityFeed({
+      checkins: [
+        { id: "c1", feeling: "worried", created_at: "2026-09-11T10:00:00+05:30", body: "A private symptom" },
+      ],
+      medicineLogs: [],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries[0]!.params.body).toBe("A private symptom");
+  });
+
+  it("represents no free text as an empty string, not null or undefined", () => {
+    const entries = buildActivityFeed({
+      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30", body: null }],
+      medicineLogs: [],
+      milestones: [],
+      appointments: [],
+      wellnessEvents: [],
+      now,
+    });
+    expect(entries[0]!.params.body).toBe("");
   });
 
   it("turns a medicine log into a medicine entry carrying the medicine's name", () => {
@@ -80,7 +111,7 @@ describe("buildActivityFeed", () => {
 
   it("merges every kind into one reverse-chronological list", () => {
     const entries = buildActivityFeed({
-      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30" }],
+      checkins: [{ id: "c1", feeling: "good", created_at: "2026-09-11T10:00:00+05:30", body: null }],
       medicineLogs: [{ id: "l1", medicine_name: "Iron tablet", status: "taken", logged_at: "2026-09-11T09:00:00+05:30" }],
       milestones: [],
       appointments: [],

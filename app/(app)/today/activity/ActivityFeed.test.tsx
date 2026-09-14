@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it } from "vitest";
 import { ActivityFeed } from "@/app/(app)/today/activity/ActivityFeed";
@@ -17,7 +17,7 @@ const groups: ActivityGroup[] = [
   {
     labelKey: "activity.today",
     entries: [
-      { id: "m1", kind: "moodGood", occurredAt: "2026-09-11T14:00:00+05:30", params: {} },
+      { id: "m1", kind: "moodGood", occurredAt: "2026-09-11T14:00:00+05:30", params: { body: "I am scared about a private symptom" } },
       { id: "med1", kind: "medicineTaken", occurredAt: "2026-09-11T09:00:00+05:30", params: { medicineName: "iron tablet" } },
     ],
   },
@@ -25,7 +25,7 @@ const groups: ActivityGroup[] = [
     labelKey: "activity.yesterday",
     entries: [
       { id: "w1", kind: "wellness", occurredAt: "2026-09-10T19:00:00+05:30", params: { label: "evening walk" } },
-      { id: "m2", kind: "moodNew", occurredAt: "2026-09-10T10:30:00+05:30", params: {} },
+      { id: "m2", kind: "moodNew", occurredAt: "2026-09-10T10:30:00+05:30", params: { body: "" } },
     ],
   },
   {
@@ -38,7 +38,7 @@ const groups: ActivityGroup[] = [
   {
     labelKey: "activity.earlier",
     entries: [
-      { id: "m3", kind: "moodWorried", occurredAt: "2026-08-30T10:00:00+05:30", params: {} },
+      { id: "m3", kind: "moodWorried", occurredAt: "2026-08-30T10:00:00+05:30", params: { body: "" } },
       { id: "med2", kind: "medicineSkipped", occurredAt: "2026-08-30T09:00:00+05:30", params: { medicineName: "calcium tablet" } },
     ],
   },
@@ -73,10 +73,31 @@ describe("ActivityFeed", () => {
     });
   });
 
-  it("uses fixed mood copy and cannot expose checkin body text", () => {
+  it("uses fixed mood copy in the row itself, never the raw text, until tapped", () => {
     renderFeed(groups);
     expect(screen.getByText(en.activity.moodGood)).toBeInTheDocument();
     expect(document.body).not.toHaveTextContent("I am scared about a private symptom");
+  });
+
+  // Session 33 follow-up: the row stays generic (previous test) -- tapping
+  // it is what reveals what she actually typed, in a detail view rather than
+  // in the scannable list itself.
+  it("reveals the typed text in a detail view when a mood row with notes is tapped", () => {
+    renderFeed(groups);
+    fireEvent.click(screen.getByText(en.activity.moodGood).closest("button")!);
+    expect(screen.getByText("I am scared about a private symptom")).toBeInTheDocument();
+  });
+
+  it("shows a no-notes fallback when a mood row without notes is tapped", () => {
+    renderFeed(groups);
+    fireEvent.click(screen.getByText(en.activity.moodNew).closest("button")!);
+    expect(screen.getByText(en.activity.detailNoNotes)).toBeInTheDocument();
+  });
+
+  it("does not make non-mood rows clickable -- there is nothing extra to reveal", () => {
+    renderFeed(groups);
+    const medicineRow = document.querySelector('[data-activity-kind="medicineTaken"]');
+    expect(within(medicineRow as HTMLElement).queryByRole("button")).not.toBeInTheDocument();
   });
 
   it("shows connectors except after the last entry in each group", () => {

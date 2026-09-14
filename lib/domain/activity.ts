@@ -22,6 +22,11 @@ export interface ActivityCheckin {
   id: string;
   feeling: "good" | "new" | "worried" | null;
   created_at: string;
+  /** Session 33 follow-up: carried through to params.body for the feed's
+   * detail view. The list row itself still shows only the fixed mood copy
+   * (ActivityFeed.tsx) -- this exists so a tap can reveal what she actually
+   * typed, not so the row can. */
+  body: string | null;
 }
 
 export interface ActivityMedicineLog {
@@ -82,7 +87,7 @@ export function buildActivityFeed({
     id: c.id,
     kind: MOOD_KIND[c.feeling ?? "new"],
     occurredAt: c.created_at,
-    params: {},
+    params: { body: c.body ?? "" },
   }));
 
   const medicineEntries: ActivityEntry[] = medicineLogs.map((l) => ({

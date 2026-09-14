@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { EmptyState } from "@/components/patterns/EmptyState";
+import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Icon } from "@/components/ui/Icon";
 import { APP_TIMEZONE } from "@/lib/config";
 import type { ActivityEntry, ActivityGroup, ActivityKind } from "@/lib/domain/activity";
+
+const MOOD_KINDS = new Set<ActivityKind>(["moodGood", "moodNew", "moodWorried"]);
 
 function iconFor(kind: ActivityKind) {
   switch (kind) {
@@ -46,7 +50,15 @@ function entryText(entry: ActivityEntry, t: ReturnType<typeof useTranslations>) 
   }
 }
 
-function ActivityRow({ entry, showConnector }: { entry: ActivityEntry; showConnector: boolean }) {
+function ActivityRow({
+  entry,
+  showConnector,
+  onOpenDetail,
+}: {
+  entry: ActivityEntry;
+  showConnector: boolean;
+  onOpenDetail: (entry: ActivityEntry) => void;
+}) {
   const t = useTranslations();
   const locale = useLocale();
   const icon = iconFor(entry.kind);
@@ -56,8 +68,13 @@ function ActivityRow({ entry, showConnector }: { entry: ActivityEntry; showConne
     timeZone: APP_TIMEZONE,
   }).format(new Date(entry.occurredAt));
 
-  return (
-    <li className="flex gap-md" data-activity-kind={entry.kind}>
+  // Only mood entries carry anything a tap could reveal (the free-text body,
+  // params.body) -- every other kind's row text already says everything
+  // there is to say, so it stays a plain row rather than a dead click target.
+  const isMood = MOOD_KINDS.has(entry.kind);
+
+  const body = (
+    <>
       <div className="flex shrink-0 flex-col items-center">
         <span
           data-kind-icon={entry.kind}
@@ -80,12 +97,38 @@ function ActivityRow({ entry, showConnector }: { entry: ActivityEntry; showConne
           {time}
         </time>
       </div>
+    </>
+  );
+
+  return (
+    <li className="flex gap-md" data-activity-kind={entry.kind}>
+      {isMood ? (
+        <button
+          type="button"
+          onClick={() => onOpenDetail(entry)}
+          className="tap-target flex w-full gap-md rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+        >
+          {body}
+        </button>
+      ) : (
+        body
+      )}
     </li>
   );
 }
 
 export function ActivityFeed({ groups }: { groups: ActivityGroup[] }) {
   const t = useTranslations();
+  const locale = useLocale();
+  const [detail, setDetail] = useState<ActivityEntry | null>(null);
+  const detailTime = detail
+    ? new Intl.DateTimeFormat(locale, {
+        weekday: "long",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: APP_TIMEZONE,
+      }).format(new Date(detail.occurredAt))
+    : null;
 
   return (
     <section className="mx-auto flex w-full max-w-[680px] flex-col gap-lg py-screen" aria-labelledby="activity-title">
@@ -116,13 +159,32 @@ export function ActivityFeed({ groups }: { groups: ActivityGroup[] }) {
               </h2>
               <ol>
                 {group.entries.map((entry, index) => (
-                  <ActivityRow key={entry.id} entry={entry} showConnector={index < group.entries.length - 1} />
+                  <ActivityRow
+                    key={entry.id}
+                    entry={entry}
+                    showConnector={index < group.entries.length - 1}
+                    onOpenDetail={setDetail}
+                  />
                 ))}
               </ol>
             </section>
           ))}
         </div>
       )}
+
+      <BottomSheet open={detail !== null} onClose={() => setDetail(null)} title={detail ? t(`activity.${detail.kind}`) : ""}>
+        {detail && (
+          <div className="flex flex-col gap-sm">
+            <time dateTime={detail.occurredAt} className="text-caption text-text-secondary">
+              {detailTime}
+            </time>
+            <p className="text-caption font-medium uppercase tracking-[0.04em] text-text-secondary">
+              {t("activity.detailNotesLabel")}
+            </p>
+            <p className="text-body text-text-primary">{detail.params.body || t("activity.detailNoNotes")}</p>
+          </div>
+        )}
+      </BottomSheet>
     </section>
   );
 }

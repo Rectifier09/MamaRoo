@@ -335,7 +335,9 @@
     "medicineSkipped": "आपने आज {medicineName} की खुराक नहीं ली",
     "wellness": "आप {label} के लिए गईं",
     "milestone": "आप {title} तक पहुँचीं",
-    "appointment": "आपने {title} के लिए एक सवाल जोड़ा"
+    "appointment": "आपने {title} के लिए एक सवाल जोड़ा",
+    "detailNotesLabel": "आपने जो लिखा",
+    "detailNoNotes": "कोई नोट नहीं जोड़ा गया"
   },
   "consent": {
     "summary": "आगे बढ़ने का मतलब है कि आप हमारी जानकारी इस्तेमाल करने के तरीके से सहमत हैं। नीचे दिए गए विकल्प चुनने से पहले पूरी जानकारी पढ़ सकती हैं।",
